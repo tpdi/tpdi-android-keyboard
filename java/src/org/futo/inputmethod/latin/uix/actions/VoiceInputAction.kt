@@ -3,9 +3,14 @@ package org.futo.inputmethod.latin.uix.actions
 import android.content.Intent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -14,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
@@ -40,6 +46,8 @@ import org.futo.inputmethod.latin.uix.ResourceHelper
 import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import org.futo.inputmethod.latin.uix.getSetting
@@ -121,6 +129,7 @@ private class VoiceInputActionWindow(
     val context = manager.getContext()
 
     private var shouldPlaySounds: Boolean = false
+    private var useActionButtons: Boolean = false
     private fun loadSettings(): RecognizerViewSettings {
         val enableSound = context.getSetting(ENABLE_SOUND)
         val verboseFeedback = false//context.getSetting(VERBOSE_PROGRESS)
@@ -131,6 +140,8 @@ private class VoiceInputActionWindow(
         val useVAD = context.getSetting(USE_VAD_AUTOSTOP)
         val useSegmentedResults = context.getSetting(VOICE_INPUT_SEGMENTED_RESULTS)
         val segmentPauseMs = context.getSetting(VOICE_INPUT_SEGMENT_PAUSE_MS)
+        val useClickGestures = context.getSetting(VOICE_INPUT_CLICK_GESTURES)
+        useActionButtons = context.getSetting(VOICE_INPUT_ACTION_BUTTONS)
         val usePersonalDict = context.getSetting(USE_PERSONAL_DICT)
         val animateBubble = context.getSetting(ANIMATE_BUBBLE)
 
@@ -164,7 +175,8 @@ private class VoiceInputActionWindow(
                 canExpandSpace = canExpandSpace,
                 useVADAutoStop = useVAD,
                 useSegmentedResults = useSegmentedResults,
-                segmentPauseMs = segmentPauseMs
+                segmentPauseMs = segmentPauseMs,
+                useClickGestures = useClickGestures
             )
         )
     }
@@ -201,6 +213,46 @@ private class VoiceInputActionWindow(
 
     private var inputTransaction = manager.createInputTransaction()
 
+    // Text of what voice input itself has committed (segments, manual Enters), most recent
+    // last -- lets Undo remove just our own output, one unit at a time, repeatable. Stores the
+    // actual text, not just a length: before deleting, we confirm it's still sitting right
+    // before the cursor, since focus may have moved to a different field entirely while this
+    // action window stayed open, and blindly deleting N characters would corrupt whatever's
+    // there now. Deletion goes through deleteTextBeforeCursor (direct InputConnection call),
+    // not manager.backspace() -- that goes through the legacy InputLogic pipeline, which has
+    // its own cached text/cursor state that never learned about anything this action committed.
+    private val committedTexts = mutableListOf<String>()
+
+    private fun undoLast() {
+        val text = committedTexts.lastOrNull() ?: return
+        manager.getLifecycleScope().launch(Dispatchers.Main) {
+            val before = inputTransaction.textContext.beforeCursor ?: ""
+            if (before.endsWith(text)) {
+                committedTexts.removeAt(committedTexts.lastIndex)
+                inputTransaction.deleteTextBeforeCursor(text.length)
+                // The transaction's textContext snapshot is now stale; start fresh so the
+                // next Undo (or commit) checks against what's actually there.
+                inputTransaction = manager.createInputTransaction()
+            }
+            // else: what's before the cursor doesn't end with what we think we last inserted
+            // (focus moved, or the user edited it by hand) -- leave it alone.
+        }
+    }
+
+    private fun pressEnter() {
+        manager.getLifecycleScope().launch(Dispatchers.Main) {
+            inputTransaction.commit("\n")
+            inputTransaction = manager.createInputTransaction()
+            committedTexts.add("\n")
+        }
+    }
+
+    private fun pressSubmit() {
+        manager.getLifecycleScope().launch(Dispatchers.Main) {
+            inputTransaction.performEditorAction()
+        }
+    }
+
     @Composable
     private fun ModelDownloader(modelException: ModelDoesNotExistException) {
         NoModelInstalled(locales.firstOrNull() ?: Locale.ROOT)
@@ -229,6 +281,37 @@ private class VoiceInputActionWindow(
                 when {
                     modelException.value != null -> ModelDownloader(modelException.value!!)
                     recognizerView.value != null -> recognizerView.value!!.Content()
+                }
+            }
+
+            if (useActionButtons && recognizerView.value != null) {
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    IconButton(onClick = { undoLast() }) {
+                        Icon(
+                            painter = painterResource(R.drawable.undo),
+                            contentDescription = stringResource(R.string.action_voice_input_undo),
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    IconButton(onClick = { pressEnter() }) {
+                        Icon(
+                            painter = painterResource(R.drawable.arrow_down),
+                            contentDescription = stringResource(R.string.action_voice_input_enter),
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    IconButton(onClick = { pressSubmit() }) {
+                        Icon(
+                            painter = painterResource(R.drawable.check),
+                            contentDescription = stringResource(R.string.action_voice_input_submit),
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                 }
             }
         }
@@ -285,9 +368,18 @@ private class VoiceInputActionWindow(
             if (sanitized.isNotBlank()) {
                 // Committed for good, no later revision: start a fresh transaction so the
                 // next segment's partial/commit calls don't touch what's already locked in.
-                inputTransaction.commit(sanitized.trimEnd() + " ")
+                val committedText = sanitized.trimEnd() + " "
+                inputTransaction.commit(committedText)
                 inputTransaction = manager.createInputTransaction()
+                committedTexts.add(committedText)
             }
+        }
+    }
+
+    override fun clickGesture(clickCount: Int) {
+        when {
+            clickCount >= 3 -> pressSubmit()
+            clickCount == 2 -> pressEnter()
         }
     }
 

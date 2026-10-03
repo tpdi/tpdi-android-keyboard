@@ -13,6 +13,7 @@ import org.futo.inputmethod.latin.common.InputPointers
 import org.futo.inputmethod.latin.uix.ActionInputTransaction
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.utils.TextContext
+import org.futo.inputmethod.latin.utils.InputTypeUtils
 import org.futo.inputmethod.v2keyboard.KeyboardLayoutSetV2
 
 class ActionInputTransactionIME(val helper: IMEHelper) : IMEInterface, ActionInputTransaction {
@@ -100,6 +101,30 @@ class ActionInputTransactionIME(val helper: IMEHelper) : IMEInterface, ActionInp
         )
         helper.endInputTransaction(this)
         (ic as? InputConnectionInternalComposingWrapper)?.send()
+    }
+
+    override fun deleteTextBeforeCursor(length: Int) {
+        if (length <= 0) return
+        helper.requestCursorUpdate()
+        ic?.deleteSurroundingText(length, 0)
+        (ic as? InputConnectionInternalComposingWrapper)?.send()
+    }
+
+    override fun performEditorAction() {
+        if (isFinished) return
+        val editorInfo = helper.getCurrentEditorInfo() ?: return
+
+        // Mirrors InputLogic's handling of the real Enter key (CODE_ENTER) for an editor action.
+        val imeOptionsActionId = InputTypeUtils.getImeOptionsActionIdFromEditorInfo(editorInfo)
+        val isCustomAction = InputTypeUtils.IME_ACTION_CUSTOM_LABEL == imeOptionsActionId
+        val isEditorAction = EditorInfo.IME_ACTION_NONE != imeOptionsActionId
+
+        if (isCustomAction) {
+            ic?.performEditorAction(editorInfo.actionId)
+        } else if (isEditorAction) {
+            ic?.performEditorAction(imeOptionsActionId)
+        }
+        // else: IME_ACTION_NONE, field declared no action -- nothing to do.
     }
 
     override fun cancel() {

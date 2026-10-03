@@ -83,7 +83,8 @@ data class RecordingSettings(
     val canExpandSpace: Boolean,
     val useVADAutoStop: Boolean,
     val useSegmentedResults: Boolean = false,
-    val segmentPauseMs: Int = 600
+    val segmentPauseMs: Int = 600,
+    val useClickGestures: Boolean = false
 )
 
 data class AudioRecognizerSettings(
@@ -111,6 +112,7 @@ class AudioRecognizer(
     private val useSegmentedResults = settings.recordingConfiguration.useSegmentedResults
     // VAD runs in 480-sample (30ms @ 16kHz) frames; convert the configured ms to a frame count.
     private val segmentPauseFrames = (settings.recordingConfiguration.segmentPauseMs / 30).coerceAtLeast(1)
+    private val useClickGestures = settings.recordingConfiguration.useClickGestures
 
     private var floatSamples: FloatBuffer = FloatBuffer.allocate(16000 * 30)
     private var recorderJob: Job? = null
@@ -357,6 +359,19 @@ class AudioRecognizer(
         var numConsecutiveNonSpeech = 0
         var numConsecutiveSpeech = 0
 
+        // Click-gesture detection: a click is a brief, sharp, isolated transient -- very
+        // different from speech, which carries energy over much longer stretches. Tracked
+        // independently of the VAD/transcription pipeline entirely; the audio never reaches
+        // Whisper for this. clickTimestamps holds recent click times (ms); once CLICK_WINDOW_MS
+        // has elapsed since the first one, the count decides double (Enter) vs triple+ (submit).
+        val clickTimestamps = mutableListOf<Long>()
+        var lastClickAtMs = 0L
+        val CLICK_PEAK_FLOOR = 0.15f
+        val CLICK_RMS_CEILING = 0.05f
+        val CLICK_CREST_FACTOR_THRESHOLD = 12.0f
+        val CLICK_COOLDOWN_MS = 120L
+        val CLICK_WINDOW_MS = 600L
+
         val samples = ShortArray(1600)
 
         while (isRecording) {
@@ -432,6 +447,42 @@ class AudioRecognizer(
 
             if (startSoundPassed && ((rms > 0.01) || (numConsecutiveSpeech > 8))) {
                 hasTalked = true
+            }
+
+            if (useClickGestures && startSoundPassed) {
+                val peakAbs = (samples.maxOf { kotlin.math.abs(it.toInt()) }).toFloat() / Short.MAX_VALUE.toFloat()
+                val crestFactor = peakAbs / rms.coerceAtLeast(0.0001f)
+                val isClickCandidate = peakAbs > CLICK_PEAK_FLOOR &&
+                        rms < CLICK_RMS_CEILING &&
+                        crestFactor > CLICK_CREST_FACTOR_THRESHOLD
+
+                // TEMPORARY: calibration logging, remove once thresholds are tuned against
+                // real-device data. Logs any moderately loud chunk, not just ones that already
+                // pass the thresholds, so we can see what a real click actually looks like.
+                if (peakAbs > 0.05f) {
+                    android.util.Log.d(
+                        "ClickDetect",
+                        "peak=%.3f rms=%.4f crest=%.1f candidate=%b".format(peakAbs, rms, crestFactor, isClickCandidate)
+                    )
+                }
+
+                val now = System.currentTimeMillis()
+                if (isClickCandidate && (now - lastClickAtMs) > CLICK_COOLDOWN_MS) {
+                    clickTimestamps.add(now)
+                    lastClickAtMs = now
+                }
+
+                if (clickTimestamps.isNotEmpty() && (now - clickTimestamps.first()) > CLICK_WINDOW_MS) {
+                    val count = clickTimestamps.size
+                    clickTimestamps.clear()
+                    if (count >= 2) {
+                        val reportedCount = count.coerceAtMost(3)
+                        yield()
+                        withContext(Dispatchers.Main) {
+                            listener.clickGesture(reportedCount)
+                        }
+                    }
+                }
             }
 
             if (rms > 0.0001) {

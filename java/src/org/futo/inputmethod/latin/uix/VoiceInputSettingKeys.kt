@@ -92,3 +92,21 @@ val VOICE_INPUT_SEGMENT_PAUSE_MS = SettingsKey(
     key = intPreferencesKey("voice_input_segment_pause_ms"),
     default = 600
 )
+
+// Master switch for click-gesture controls: a double click (two sharp audio
+// transients close together) sends Enter, a triple click triggers the
+// field's submit/go/done action. Detected from the raw microphone signal,
+// never touches the transcription model. Off by default -- with it off the
+// click detector doesn't run at all.
+val VOICE_INPUT_CLICK_GESTURES = SettingsKey(
+    key = booleanPreferencesKey("voice_input_click_gestures"),
+    default = false
+)
+
+// Master switch for the on-screen Undo/Enter/Submit button strip on the
+// voice input bubble. Off by default -- with it off, nothing extra is drawn
+// and the bubble looks exactly like the stock one.
+val VOICE_INPUT_ACTION_BUTTONS = SettingsKey(
+    key = booleanPreferencesKey("voice_input_action_buttons"),
+    default = false
+)

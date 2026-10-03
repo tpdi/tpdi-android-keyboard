@@ -18,6 +18,8 @@ import org.futo.inputmethod.latin.uix.SYSTEM_VOICE_INPUT_PACKAGE
 import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_SYSTEM_VOICE_INPUT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import org.futo.inputmethod.latin.uix.settings.DropDownPickerSettingItem
@@ -192,6 +194,18 @@ val VoiceInputMenu = UserSettingsMenu(
                 steps = 12
             )
         }.copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_click_gestures,
+            subtitle = R.string.voice_input_settings_click_gestures_subtitle,
+            setting = VOICE_INPUT_CLICK_GESTURES
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_action_buttons,
+            subtitle = R.string.voice_input_settings_action_buttons_subtitle,
+            setting = VOICE_INPUT_ACTION_BUTTONS
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(
             title = R.string.voice_input_settings_animate_bubble,

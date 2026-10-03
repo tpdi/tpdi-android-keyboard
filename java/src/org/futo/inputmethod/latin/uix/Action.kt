@@ -40,6 +40,23 @@ interface ActionInputTransaction {
     fun updatePartial(text: String)
     fun commit(text: String)
     fun cancel()
+
+    /**
+     * Triggers the current field's declared IME action (Go/Send/Done/Next/Search), the same
+     * one the regular Enter key uses when the field has one. Does nothing if the field hasn't
+     * declared an action (IME_ACTION_NONE) -- there's no window-wide "find and click the submit
+     * button" short of Accessibility, which this deliberately doesn't attempt.
+     */
+    fun performEditorAction()
+
+    /**
+     * Deletes [length] characters immediately before the cursor, directly via the
+     * InputConnection -- the same path [commit] used to insert them. Deliberately does NOT go
+     * through the legacy backspace/InputLogic pipeline (KeyboardManagerForAction.backspace()),
+     * since that pipeline keeps its own cached notion of the surrounding text which never
+     * learned about anything committed through this transaction, and so can't be trusted here.
+     */
+    fun deleteTextBeforeCursor(length: Int)
 }
 
 data class DialogRequestItem(
