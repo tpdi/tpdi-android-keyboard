@@ -11,6 +11,9 @@ interface AudioRecognizerListener {
     fun finished(result: String)
     fun languageDetected(language: Language)
     fun partialResult(result: String)
+
+    /** A segment was finalized mid-recording (pause-triggered); recording continues. */
+    fun segmentResult(result: String)
     fun decodingStatus(status: InferenceState)
     fun modelLoadingFailed()
 
