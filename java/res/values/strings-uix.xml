@@ -502,6 +502,9 @@
 
     <string name="keyboard_settings_hide_when_hardware_keyboard_is_connected">Hide when USB keyboard is detected</string>
 
+    <string name="keyboard_settings_send_special_key_events">Send real key events for special keys</string>
+    <string name="keyboard_settings_send_special_key_events_subtitle">When a custom layout defines a key like Escape, send the actual hardware key event (what a physical or Samsung keyboard sends) instead of inserting it as a text character. Off by default -- disabled, custom layouts behave exactly as they do today.</string>
+
     <!-- misc titles -->
     <string name="settings_keyboard_typing_title">Keyboard &amp; Typing</string>
 

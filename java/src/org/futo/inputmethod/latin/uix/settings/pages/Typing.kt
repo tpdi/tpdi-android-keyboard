@@ -86,6 +86,7 @@ import org.futo.inputmethod.accessibility.AccessibilityUtils
 import org.futo.inputmethod.engine.IMESettingsMenu
 import org.futo.inputmethod.latin.HideKeyboardWhenHardKeyboardConnected
 import org.futo.inputmethod.latin.R
+import org.futo.inputmethod.latin.uix.SEND_SPECIAL_KEY_EVENTS
 import org.futo.inputmethod.latin.settings.LongPressKey
 import org.futo.inputmethod.latin.settings.LongPressKeyLayoutSetting
 import org.futo.inputmethod.latin.settings.Settings
@@ -848,6 +849,11 @@ val KeyboardSettingsMenu = UserSettingsMenu(
         userSettingToggleDataStore(
             title = R.string.keyboard_settings_hide_when_hardware_keyboard_is_connected,
             setting = HideKeyboardWhenHardKeyboardConnected
+        ),
+        userSettingToggleDataStore(
+            title = R.string.keyboard_settings_send_special_key_events,
+            subtitle = R.string.keyboard_settings_send_special_key_events_subtitle,
+            setting = SEND_SPECIAL_KEY_EVENTS
         )
     )
 )

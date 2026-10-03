@@ -53,6 +53,7 @@ import org.futo.inputmethod.latin.settings.SettingsValues;
 import org.futo.inputmethod.latin.settings.SettingsValuesForSuggestion;
 import org.futo.inputmethod.latin.settings.SpacingAndPunctuations;
 import org.futo.inputmethod.latin.suggestions.SuggestionStripViewAccessor;
+import org.futo.inputmethod.latin.uix.SettingsKt;
 import org.futo.inputmethod.latin.uix.actions.BugViewerKt;
 import org.futo.inputmethod.latin.utils.InputTypeUtils;
 import org.futo.inputmethod.latin.utils.RecapitalizeStatus;
@@ -927,6 +928,23 @@ public final class InputLogic {
                 // Backspace is a functional key, but it affects the contents of the editor.
                 inputTransaction.setDidAffectContents();
                 break;
+            case Constants.CODE_ESCAPE: {
+                final boolean sendSpecialKeyEvents = SettingsKt.getSettingBlocking(
+                        mImeHelper.getContextForSettings(), SettingsKt.getSEND_SPECIAL_KEY_EVENTS());
+                if (sendSpecialKeyEvents) {
+                    final long eventTime = SystemClock.uptimeMillis();
+                    mConnection.sendKeyEvent(new KeyEvent(eventTime, eventTime,
+                            KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ESCAPE, 0));
+                    mConnection.sendKeyEvent(new KeyEvent(SystemClock.uptimeMillis(), eventTime,
+                            KeyEvent.ACTION_UP, KeyEvent.KEYCODE_ESCAPE, 0));
+                } else {
+                    // Flag off: behave exactly like the Play Store build, which has no idea
+                    // what key_escape is -- fall back to inserting a literal ESC (0x1B)
+                    // character, same as a custom layout hand-rolling this would get anyway.
+                    mConnection.commitText(String.valueOf((char) 0x1B), 1);
+                }
+                break;
+            }
             case Constants.CODE_SHIFT:
                 performRecapitalization(inputTransaction.mSettingsValues);
                 inputTransaction.requireShiftUpdate(InputTransaction.SHIFT_UPDATE_NOW);

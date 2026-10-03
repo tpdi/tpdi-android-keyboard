@@ -393,3 +393,15 @@ val SHOW_EMOJI_SUGGESTIONS = SettingsKey(
     key = booleanPreferencesKey("suggestEmojis"),
     default = true
 )
+
+// Master switch for special non-character keys (currently just Escape) defined in a custom
+// layout via their dedicated !code/key_x reference: when on, they send a real hardware-style
+// KeyEvent (e.g. KEYCODE_ESCAPE) via the InputConnection, same as what a physical/Samsung
+// keyboard sends, so terminal apps that listen for the actual key (not inserted text) see it.
+// Off by default: with it off, the layout engine falls back to inserting the key's literal
+// character instead, which is exactly what the Play Store build already does today (it has no
+// idea what key_escape even is), so the app behaves identically with this disabled.
+val SEND_SPECIAL_KEY_EVENTS = SettingsKey(
+    key = booleanPreferencesKey("send_special_key_events"),
+    default = false
+)
