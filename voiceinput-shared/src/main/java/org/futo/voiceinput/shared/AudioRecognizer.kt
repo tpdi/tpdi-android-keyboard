@@ -370,7 +370,7 @@ class AudioRecognizer(
         val CLICK_RMS_CEILING = 0.03f
         val CLICK_CREST_FACTOR_THRESHOLD = 8.0f
         val CLICK_COOLDOWN_MS = 80L
-        val CLICK_WINDOW_MS = 600L
+        val CLICK_WINDOW_MS = 800L
 
         val samples = ShortArray(1600)
 
@@ -472,11 +472,14 @@ class AudioRecognizer(
                     lastClickAtMs = now
                 }
 
-                if (clickTimestamps.isNotEmpty() && (now - clickTimestamps.first()) > CLICK_WINDOW_MS) {
+                if (clickTimestamps.isNotEmpty() && (now - lastClickAtMs) > CLICK_WINDOW_MS) {
                     val count = clickTimestamps.size
                     clickTimestamps.clear()
                     if (count >= 2) {
                         val reportedCount = count.coerceAtMost(3)
+                        // Clicks alone make Whisper hallucinate ("Thank you"); drop them unless
+                        // speech is still waiting in the buffer.
+                        if (!hasTalked) floatSamples.clear()
                         yield()
                         withContext(Dispatchers.Main) {
                             listener.clickGesture(reportedCount)
