@@ -445,17 +445,21 @@ class AudioRecognizer(
 
             val rms = sqrt(samples.sumOf { (it.toFloat() / Short.MAX_VALUE.toFloat()).pow(2).toDouble() } / samples.size).toFloat()
 
-            if (startSoundPassed && ((rms > 0.01) || (numConsecutiveSpeech > 8))) {
+            // Evaluate click-ness first so a click's brief energy can't flip hasTalked, which
+            // would send click-only audio to the model ("Thank you", "Thanks for watching").
+            val peakAbs = (samples.maxOf { kotlin.math.abs(it.toInt()) }).toFloat() / Short.MAX_VALUE.toFloat()
+            val crestFactor = peakAbs / rms.coerceAtLeast(0.0001f)
+            val isClickCandidate = useClickGestures && startSoundPassed &&
+                    peakAbs > CLICK_PEAK_FLOOR &&
+                    rms < CLICK_RMS_CEILING &&
+                    crestFactor > CLICK_CREST_FACTOR_THRESHOLD
+            if (isClickCandidate) numConsecutiveSpeech = 0
+
+            if (!isClickCandidate && startSoundPassed && ((rms > 0.01) || (numConsecutiveSpeech > 8))) {
                 hasTalked = true
             }
 
             if (useClickGestures && startSoundPassed) {
-                val peakAbs = (samples.maxOf { kotlin.math.abs(it.toInt()) }).toFloat() / Short.MAX_VALUE.toFloat()
-                val crestFactor = peakAbs / rms.coerceAtLeast(0.0001f)
-                val isClickCandidate = peakAbs > CLICK_PEAK_FLOOR &&
-                        rms < CLICK_RMS_CEILING &&
-                        crestFactor > CLICK_CREST_FACTOR_THRESHOLD
-
                 // TEMPORARY: calibration logging, remove once thresholds are tuned against
                 // real-device data. Logs any moderately loud chunk, not just ones that already
                 // pass the thresholds, so we can see what a real click actually looks like.
@@ -470,8 +474,6 @@ class AudioRecognizer(
                 if (isClickCandidate && (now - lastClickAtMs) > CLICK_COOLDOWN_MS) {
                     clickTimestamps.add(now)
                     lastClickAtMs = now
-                    // The VAD can mistake a click for speech; don't let it count toward hasTalked.
-                    numConsecutiveSpeech = 0
                 }
 
                 if (clickTimestamps.isNotEmpty() && (now - lastClickAtMs) > CLICK_WINDOW_MS) {
