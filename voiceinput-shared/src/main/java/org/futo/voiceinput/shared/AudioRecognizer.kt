@@ -372,6 +372,10 @@ class AudioRecognizer(
         val CLICK_COOLDOWN_MS = 80L
         val CLICK_WINDOW_MS = 1500L
 
+        // Consecutive 100ms chunks louder than the talking threshold; a click's ring-down is
+        // one or two chunks, speech lasts longer.
+        var loudRun = 0
+
         val samples = ShortArray(1600)
 
         while (isRecording) {
@@ -455,7 +459,9 @@ class AudioRecognizer(
                     crestFactor > CLICK_CREST_FACTOR_THRESHOLD
             if (isClickCandidate) numConsecutiveSpeech = 0
 
-            if (!isClickCandidate && startSoundPassed && ((rms > 0.01) || (numConsecutiveSpeech > 8))) {
+            loudRun = if (startSoundPassed && !isClickCandidate && rms > 0.01) loudRun + 1 else 0
+            val sustainedLoudRequired = if (useClickGestures) 3 else 1
+            if (startSoundPassed && ((loudRun >= sustainedLoudRequired) || (numConsecutiveSpeech > 8))) {
                 hasTalked = true
             }
 
