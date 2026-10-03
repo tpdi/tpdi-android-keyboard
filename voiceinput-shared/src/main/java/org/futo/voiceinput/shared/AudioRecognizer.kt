@@ -371,10 +371,14 @@ class AudioRecognizer(
         val CLICK_CREST_FACTOR_THRESHOLD = 8.0f
         val CLICK_COOLDOWN_MS = 80L
         val CLICK_WINDOW_MS = 1500L
+        val MIN_SEGMENT_SPEECH_FRAMES = 10
 
         // Consecutive 100ms chunks louder than the talking threshold; a click's ring-down is
         // one or two chunks, speech lasts longer.
         var loudRun = 0
+        // VAD speech frames (30ms each) seen since the last segment boundary; used to throw away
+        // segments that are really just clicks plus silence.
+        var segmentSpeechFrames = 0
 
         val samples = ShortArray(1600)
 
@@ -401,9 +405,16 @@ class AudioRecognizer(
                 numConsecutiveNonSpeech = 0
                 numConsecutiveSpeech = 0
                 hasTalked = false
-                yield()
-                withContext(Dispatchers.Main) {
-                    finishSegment()
+                val tooLittleSpeech = useClickGestures && segmentSpeechFrames < MIN_SEGMENT_SPEECH_FRAMES
+                android.util.Log.d("ClickDetect", "segment end: speechFrames=$segmentSpeechFrames dropped=$tooLittleSpeech")
+                segmentSpeechFrames = 0
+                if (tooLittleSpeech) {
+                    floatSamples.clear()
+                } else {
+                    yield()
+                    withContext(Dispatchers.Main) {
+                        finishSegment()
+                    }
                 }
             }
 
@@ -423,6 +434,7 @@ class AudioRecognizer(
                         } else {
                             numConsecutiveNonSpeech = 0
                             numConsecutiveSpeech++
+                            segmentSpeechFrames++
                         }
                     }
 
