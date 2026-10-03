@@ -110,6 +110,9 @@ class ActionInputTransactionIME(val helper: IMEHelper) : IMEInterface, ActionInp
         (ic as? InputConnectionInternalComposingWrapper)?.send()
     }
 
+    override fun liveTextBeforeCursor(length: Int): String? =
+        ic?.getTextBeforeCursor(length, 0)?.toString()
+
     override fun performEditorAction() {
         val editorInfo = helper.getCurrentEditorInfo() ?: return
 

@@ -57,6 +57,9 @@ interface ActionInputTransaction {
      * learned about anything committed through this transaction, and so can't be trusted here.
      */
     fun deleteTextBeforeCursor(length: Int)
+
+    /** Reads the text currently before the cursor, live (unlike the [textContext] snapshot). */
+    fun liveTextBeforeCursor(length: Int): String?
 }
 
 data class DialogRequestItem(
