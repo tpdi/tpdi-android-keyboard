@@ -366,10 +366,10 @@ class AudioRecognizer(
         // has elapsed since the first one, the count decides double (Enter) vs triple+ (submit).
         val clickTimestamps = mutableListOf<Long>()
         var lastClickAtMs = 0L
-        val CLICK_PEAK_FLOOR = 0.15f
-        val CLICK_RMS_CEILING = 0.05f
-        val CLICK_CREST_FACTOR_THRESHOLD = 12.0f
-        val CLICK_COOLDOWN_MS = 120L
+        val CLICK_PEAK_FLOOR = 0.04f
+        val CLICK_RMS_CEILING = 0.03f
+        val CLICK_CREST_FACTOR_THRESHOLD = 8.0f
+        val CLICK_COOLDOWN_MS = 80L
         val CLICK_WINDOW_MS = 600L
 
         val samples = ShortArray(1600)

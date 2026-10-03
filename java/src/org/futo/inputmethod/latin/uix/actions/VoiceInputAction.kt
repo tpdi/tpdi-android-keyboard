@@ -226,16 +226,17 @@ private class VoiceInputActionWindow(
     private fun undoLast() {
         val text = committedTexts.lastOrNull() ?: return
         manager.getLifecycleScope().launch(Dispatchers.Main) {
-            val before = inputTransaction.textContext.beforeCursor ?: ""
+            // inputTransaction.textContext is a snapshot from when it was created, which can
+            // predate the commit we're undoing; take a fresh one to read what's really there.
+            val tx = manager.createInputTransaction()
+            val before = tx.textContext.beforeCursor ?: ""
             if (before.endsWith(text)) {
                 committedTexts.removeAt(committedTexts.lastIndex)
-                inputTransaction.deleteTextBeforeCursor(text.length)
-                // The transaction's textContext snapshot is now stale; start fresh so the
-                // next Undo (or commit) checks against what's actually there.
+                tx.deleteTextBeforeCursor(text.length)
                 inputTransaction = manager.createInputTransaction()
+            } else {
+                inputTransaction = tx
             }
-            // else: what's before the cursor doesn't end with what we think we last inserted
-            // (focus moved, or the user edited it by hand) -- leave it alone.
         }
     }
 

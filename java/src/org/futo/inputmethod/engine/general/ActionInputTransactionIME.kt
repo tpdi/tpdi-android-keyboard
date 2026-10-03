@@ -111,7 +111,6 @@ class ActionInputTransactionIME(val helper: IMEHelper) : IMEInterface, ActionInp
     }
 
     override fun performEditorAction() {
-        if (isFinished) return
         val editorInfo = helper.getCurrentEditorInfo() ?: return
 
         // Mirrors InputLogic's handling of the real Enter key (CODE_ENTER) for an editor action.
@@ -124,7 +123,14 @@ class ActionInputTransactionIME(val helper: IMEHelper) : IMEInterface, ActionInp
         } else if (isEditorAction) {
             ic?.performEditorAction(imeOptionsActionId)
         }
-        // else: IME_ACTION_NONE, field declared no action -- nothing to do.
+        else {
+            // Multi-line fields declare no action; fall back to Ctrl+Enter, the usual submit shortcut.
+            val now = android.os.SystemClock.uptimeMillis()
+            val ctrl = android.view.KeyEvent.META_CTRL_ON or android.view.KeyEvent.META_CTRL_LEFT_ON
+            for (action in intArrayOf(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.ACTION_UP)) {
+                ic?.sendKeyEvent(android.view.KeyEvent(now, now, action, android.view.KeyEvent.KEYCODE_ENTER, 0, ctrl))
+            }
+        }
     }
 
     override fun cancel() {
