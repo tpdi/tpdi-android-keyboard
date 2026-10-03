@@ -370,7 +370,7 @@ class AudioRecognizer(
         val CLICK_RMS_CEILING = 0.03f
         val CLICK_CREST_FACTOR_THRESHOLD = 8.0f
         val CLICK_COOLDOWN_MS = 80L
-        val CLICK_WINDOW_MS = 800L
+        val CLICK_WINDOW_MS = 1500L
 
         val samples = ShortArray(1600)
 
@@ -470,6 +470,8 @@ class AudioRecognizer(
                 if (isClickCandidate && (now - lastClickAtMs) > CLICK_COOLDOWN_MS) {
                     clickTimestamps.add(now)
                     lastClickAtMs = now
+                    // The VAD can mistake a click for speech; don't let it count toward hasTalked.
+                    numConsecutiveSpeech = 0
                 }
 
                 if (clickTimestamps.isNotEmpty() && (now - lastClickAtMs) > CLICK_WINDOW_MS) {
