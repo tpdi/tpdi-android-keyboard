@@ -40,6 +40,8 @@ import org.futo.inputmethod.latin.uix.ResourceHelper
 import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
 import org.futo.inputmethod.latin.uix.settings.SettingsActivity
@@ -127,6 +129,8 @@ private class VoiceInputActionWindow(
         val requestAudioFocus = context.getSetting(AUDIO_FOCUS)
         val canExpandSpace = context.getSetting(CAN_EXPAND_SPACE)
         val useVAD = context.getSetting(USE_VAD_AUTOSTOP)
+        val useSegmentedResults = context.getSetting(VOICE_INPUT_SEGMENTED_RESULTS)
+        val segmentPauseMs = context.getSetting(VOICE_INPUT_SEGMENT_PAUSE_MS)
         val usePersonalDict = context.getSetting(USE_PERSONAL_DICT)
         val animateBubble = context.getSetting(ANIMATE_BUBBLE)
 
@@ -158,7 +162,9 @@ private class VoiceInputActionWindow(
                 preferBluetoothMic = useBluetoothAudio,
                 requestAudioFocus = requestAudioFocus,
                 canExpandSpace = canExpandSpace,
-                useVADAutoStop = useVAD
+                useVADAutoStop = useVAD,
+                useSegmentedResults = useSegmentedResults,
+                segmentPauseMs = segmentPauseMs
             )
         )
     }
@@ -270,6 +276,18 @@ private class VoiceInputActionWindow(
             inputTransaction.commit(sanitized)
             manager.announce(result)
             manager.closeActionWindow()
+        }
+    }
+
+    override fun segmentResult(result: String) {
+        manager.getLifecycleScope().launch(Dispatchers.Main) {
+            val sanitized = ModelOutputSanitizer.sanitize(result, inputTransaction.textContext)
+            if (sanitized.isNotBlank()) {
+                // Committed for good, no later revision: start a fresh transaction so the
+                // next segment's partial/commit calls don't touch what's already locked in.
+                inputTransaction.commit(sanitized.trimEnd() + " ")
+                inputTransaction = manager.createInputTransaction()
+            }
         }
     }
 
