@@ -1,9 +1,12 @@
 package org.futo.inputmethod.latin.uix.settings.pages
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -170,6 +173,24 @@ fun LayoutEditor(layout: CustomLayout, onSave: (CustomLayout) -> Unit, onDelete:
 
     val cursorBrush = SolidColor(LocalKeyboardScheme.current.onSurfaceVariant)
 
+    val context = LocalContext.current
+    val loadFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri: Uri? ->
+            uri ?: return@rememberLauncherForActivityResult
+            try {
+                val text = context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+                    ?: throw Exception("Could not open file")
+                // Validate before accepting, so a bad file doesn't silently wipe a good layout
+                parseKeyboardYamlString(text)
+                layoutYaml = TextFieldValue(text)
+                Toast.makeText(context, "Loaded layout from file", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(context, "Failed to load file: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
+    )
+
     Column(modifier = Modifier.padding(16.dp)) {
         Text("Edit Layout", style = MaterialTheme.typography.titleLarge)
 
@@ -235,7 +256,6 @@ fun LayoutEditor(layout: CustomLayout, onSave: (CustomLayout) -> Unit, onDelete:
 
             Spacer(Modifier.width(16.dp))
 
-            val context = LocalContext.current
             val doubleTapDeleteTime = remember { mutableLongStateOf(0L) }
             Button(onClick = {
                 if(System.currentTimeMillis() < (doubleTapDeleteTime.longValue + 5000L)) {
@@ -254,6 +274,12 @@ fun LayoutEditor(layout: CustomLayout, onSave: (CustomLayout) -> Unit, onDelete:
             )) {
                 Text("Delete")
             }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        OutlinedButton(onClick = { loadFileLauncher.launch("*/*") }, modifier = Modifier.fillMaxWidth()) {
+            Text("Load from file")
         }
     }
 }
