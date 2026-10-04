@@ -265,9 +265,7 @@ private class VoiceInputActionWindow(
     @Composable
     override fun KeyboardOverlay() {
         VoiceVolumeCircleOverlay { recognizerView.value?.Content() }
-        if (tapCircleToStop) {
-            VoiceCircleTapToStop { recognizerView.value?.finish() ?: manager.closeActionWindow() }
-        }
+        // EXPERIMENT: the blue microphone is the one place to stop; no tap target on the circle.
     }
 
     // What this session has committed (and, with the UI PRs, typed), so Undo can take it back
