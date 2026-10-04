@@ -218,7 +218,6 @@ private class VoiceInputActionWindow(
         recognizerView.start()
     }
 
-<<<<<<< HEAD
     // Which way this session is being shown right now; starts as the setting says and can be
     // switched with the mode buttons.
     private var overKeyboardMode by mutableStateOf(context.getSetting(VOICE_INPUT_OVER_KEYBOARD))
@@ -227,7 +226,6 @@ private class VoiceInputActionWindow(
     private val hideKeyboardButton = context.getSetting(VOICE_INPUT_HIDE_KEYBOARD_BUTTON)
     private var keyboardCollapsed by mutableStateOf(false)
     private val circleOverKeys = context.getSetting(VOICE_INPUT_CIRCLE_OVER_KEYS)
->>>>>>> feature/voice-circle-over-keys
 
     private fun newTransaction() =
         if (inlineMode) manager.createUnroutedInputTransaction() else manager.createInputTransaction()
@@ -312,7 +310,7 @@ private class VoiceInputActionWindow(
     private fun pressEnter() {
         manager.getLifecycleScope().launch(Dispatchers.Main) {
             inputTransaction.commit("\n")
-            inputTransaction = manager.createInputTransaction()
+            inputTransaction = newTransaction()
             undoHistory.pushVoiceEntry("\n")
         }
     }
@@ -451,11 +449,7 @@ private class VoiceInputActionWindow(
 
     override fun clickGesture(clickCount: Int) {
         // Any burst of two or more clicks is one Enter.
-        if (clickCount < 2) return
-        manager.getLifecycleScope().launch(Dispatchers.Main) {
-            inputTransaction.commit("\n")
-            inputTransaction = manager.createInputTransaction()
-        }
+        if (clickCount >= 2) pressEnter()
     }
 
     override fun partialResult(result: String) {
