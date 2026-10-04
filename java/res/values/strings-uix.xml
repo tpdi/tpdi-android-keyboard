@@ -717,4 +717,7 @@ Default is %1$s</string>
     <!-- %1$s will be replaced with the custom dictionary name -->
     <string name="personal_dictionary_delete_additional_file_text">%1$s will be deleted</string>
     <string name="action_voice_input_undo">Undo last</string>
+    <string name="action_voice_input_enter">Enter</string>
+    <string name="voice_input_settings_action_buttons">On-screen Undo/Enter buttons</string>
+    <string name="voice_input_settings_action_buttons_subtitle">Show a button strip next to the voice input bubble to undo the last thing it typed, or press Enter. Off by default.</string>
 </resources>
