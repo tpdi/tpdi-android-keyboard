@@ -612,7 +612,10 @@ class AudioRecognizer(
             else -> outputText
         }
 
-        if (filterStockPhrases && StockPhraseFilter.isStockPhrase(text)) text = ""
+        if (StockPhraseFilter.isStockPhrase(text)) {
+            android.util.Log.d("StockPhrase", "segment result is a stock phrase [$text]; dropping=$filterStockPhrases")
+            if (filterStockPhrases) text = ""
+        }
 
         if (text.isNotEmpty()) {
             yield()
@@ -658,7 +661,10 @@ class AudioRecognizer(
             else -> outputText
         }
 
-        if (filterStockPhrases && StockPhraseFilter.isStockPhrase(text)) text = ""
+        if (StockPhraseFilter.isStockPhrase(text)) {
+            android.util.Log.d("StockPhrase", "final result is a stock phrase [$text]; dropping=$filterStockPhrases")
+            if (filterStockPhrases) text = ""
+        }
 
         yield()
         lifecycleScope.launch {
