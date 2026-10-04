@@ -502,9 +502,8 @@ private class VoiceInputActionWindow(
     }
 
     override fun clickGesture(clickCount: Int) {
-        when {
-            clickCount == 2 -> pressEnter()
-        }
+        // Any burst of two or more clicks is one Enter.
+        if (clickCount >= 2) pressEnter()
     }
 
     override fun partialResult(result: String) {
