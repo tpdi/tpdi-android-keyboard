@@ -47,6 +47,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import androidx.compose.ui.unit.Dp
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
 import org.futo.inputmethod.latin.uix.TypedTextTap
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
@@ -207,7 +208,11 @@ private class VoiceInputActionWindow(
         recognizerView.start()
     }
 
-    private val inlineMode = context.getSetting(VOICE_INPUT_OVER_KEYBOARD)
+    // Which way this session is being shown right now; starts as the setting says and can be
+    // switched with the mode buttons.
+    private var overKeyboardMode by mutableStateOf(context.getSetting(VOICE_INPUT_OVER_KEYBOARD))
+    private val inlineMode: Boolean get() = overKeyboardMode
+    private val switchModeButtons = context.getSetting(VOICE_INPUT_SWITCH_MODE_BUTTONS)
     private val hideKeyboardButton = context.getSetting(VOICE_INPUT_HIDE_KEYBOARD_BUTTON)
     private var keyboardCollapsed by mutableStateOf(false)
 
@@ -239,6 +244,21 @@ private class VoiceInputActionWindow(
         undoHistory.onTypedEvent(codePoint, isDelete)
     }
 
+    private fun switchMode(toOverKeyboard: Boolean) {
+        if (overKeyboardMode == toOverKeyboard) return
+        manager.getLifecycleScope().launch(Dispatchers.Main) {
+            // Commit any provisional text and end this transaction before swapping kinds.
+            inputTransaction.cancel()
+            overKeyboardMode = toOverKeyboard
+            keyboardCollapsed = false
+            typedWhilePending = null
+            TypedTextTap.listener =
+                if (toOverKeyboard) ({ cp: Int, del: Boolean -> onTypedEvent(cp, del) }) else null
+            inputTransaction = newTransaction()
+            manager.onWindowLayoutModeChanged()
+        }
+    }
+
     init {
         if (inlineMode) TypedTextTap.listener = { cp, del -> onTypedEvent(cp, del) }
     }
@@ -254,6 +274,7 @@ private class VoiceInputActionWindow(
             circle = { recognizerView.value?.Content(circleOnly = true) },
             onUndo = { undoLast() },
             onStop = { recognizerView.value?.finish() ?: manager.closeActionWindow() },
+            onSwitchToWindow = if (switchModeButtons) ({ switchMode(false) }) else null,
             keyboardCollapsed = if (hideKeyboardButton) keyboardCollapsed else null,
             onToggleKeyboard = {
                 keyboardCollapsed = !keyboardCollapsed
@@ -308,6 +329,13 @@ private class VoiceInputActionWindow(
                     modelException.value != null -> ModelDownloader(modelException.value!!)
                     recognizerView.value != null -> recognizerView.value!!.Content()
                 }
+            }
+
+            if (switchModeButtons && recognizerView.value != null) {
+                VoiceSwitchToKeyboardButton(
+                    onClick = { switchMode(true) },
+                    modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)
+                )
             }
         }
     }

@@ -11,6 +11,7 @@ import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.ANIMATE_BUBBLE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
 import org.futo.inputmethod.latin.uix.AUDIO_FOCUS
 import org.futo.inputmethod.latin.uix.CAN_EXPAND_SPACE
 import org.futo.inputmethod.latin.uix.DISALLOW_SYMBOLS
@@ -183,6 +184,12 @@ val VoiceInputMenu = UserSettingsMenu(
             title = R.string.voice_input_settings_over_keyboard,
             subtitle = R.string.voice_input_settings_over_keyboard_subtitle,
             setting = VOICE_INPUT_OVER_KEYBOARD
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_switch_mode_buttons,
+            subtitle = R.string.voice_input_settings_switch_mode_buttons_subtitle,
+            setting = VOICE_INPUT_SWITCH_MODE_BUTTONS
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         UserSetting(
