@@ -718,4 +718,6 @@ Default is %1$s</string>
     <string name="personal_dictionary_delete_additional_file_text">%1$s will be deleted</string>
     <string name="keyboard_settings_send_key_codes_rather_than_text">Send key codes rather than text</string>
     <string name="keyboard_settings_send_key_codes_rather_than_text_subtitle">Send Tab, Enter, Escape, Home, End, Page Up/Down, Forward Delete, Insert and F1-F12 as real key events, like a hardware keyboard, instead of as text. Off by default.</string>
+    <string name="keyboard_settings_show_load_layout_from_file">Load layout from file</string>
+    <string name="keyboard_settings_show_load_layout_from_file_subtitle">Show a Load from file button in the custom layout editor. Off by default.</string>
 </resources>

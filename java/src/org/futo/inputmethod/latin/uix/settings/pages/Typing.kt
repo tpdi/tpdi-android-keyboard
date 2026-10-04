@@ -87,6 +87,7 @@ import org.futo.inputmethod.engine.IMESettingsMenu
 import org.futo.inputmethod.latin.HideKeyboardWhenHardKeyboardConnected
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.SEND_KEY_CODES_RATHER_THAN_TEXT
+import org.futo.inputmethod.latin.uix.SHOW_LOAD_LAYOUT_FROM_FILE
 import org.futo.inputmethod.latin.settings.LongPressKey
 import org.futo.inputmethod.latin.settings.LongPressKeyLayoutSetting
 import org.futo.inputmethod.latin.settings.Settings
@@ -801,6 +802,11 @@ val KeyboardSettingsMenu = UserSettingsMenu(
             style = NavigationItemStyle.Misc,
             navigateTo = "resize",
             icon = R.drawable.maximize
+        ),
+        userSettingToggleDataStore(
+            title = R.string.keyboard_settings_show_load_layout_from_file,
+            subtitle = R.string.keyboard_settings_show_load_layout_from_file_subtitle,
+            setting = SHOW_LOAD_LAYOUT_FROM_FILE
         ),
         userSettingToggleSharedPrefs(
             title = R.string.keyboard_settings_show_number_row,
