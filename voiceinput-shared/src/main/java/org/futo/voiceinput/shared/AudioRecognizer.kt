@@ -398,6 +398,10 @@ class AudioRecognizer(
         var onsetWindowStartMs = 0L
         var postOnsetLoudChunks = 0
         val CLICK_QUIET_AFTER_MS = 500L
+        // A deliberate click gesture has at least one clearly loud click; a pair of faint
+        // transients (lip smacks, breath) after speech does not.
+        val CLICK_GROUP_PEAK_MIN = 0.15f
+        var groupMaxPeak = 0f
         val CLICK_FOLLOWING_SPEECH_RMS = 0.025f
         // VAD speech frames (30ms each) seen since the last segment boundary; used to throw away
         // segments that are really just clicks plus silence.
@@ -585,6 +589,7 @@ class AudioRecognizer(
                     // A key tap on the keyboard sounds like a click; ignore onsets near key presses.
                     if (kotlin.math.abs(t - ClickSuppression.lastKeyPressMs) < 400L) continue
                     clickTimestamps.add(t)
+                    groupMaxPeak = kotlin.math.max(groupMaxPeak, subPeak[idx])
                     lastClickAtMs = t
                     if (onsetWindowStartMs == 0L) {
                         onsetWindowStartMs = t
@@ -595,8 +600,13 @@ class AudioRecognizer(
 
                 if (clickTimestamps.isNotEmpty() && (now - lastClickAtMs) > CLICK_WINDOW_MS) {
                     val count = clickTimestamps.size
+                    val tooSoft = groupMaxPeak < CLICK_GROUP_PEAK_MIN
+                    if (count >= 2 && tooSoft) {
+                        android.util.Log.d("ClickDetect", "dropped soft group: clicks=$count maxPeak=$groupMaxPeak")
+                    }
                     clickTimestamps.clear()
-                    if (count >= 2) {
+                    groupMaxPeak = 0f
+                    if (count >= 2 && !tooSoft) {
                         pendingGestureCount = count.coerceAtMost(3)
                         android.util.Log.d("ClickDetect", "gesture group closed: clicks=$count hasTalked=$hasTalked segmentProcessing=$isSegmentProcessing")
                         // Clicks alone make Whisper hallucinate ("Thank you"); drop them unless
