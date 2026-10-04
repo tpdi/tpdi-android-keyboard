@@ -7,6 +7,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import org.futo.inputmethod.latin.uix.ActionBarMicPosition
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -323,34 +335,63 @@ private class VoiceInputActionWindow(
 
     @Composable
     override fun SuggestionBarOverride() {
-        Row(
+        val density = LocalDensity.current
+        var barLeft by remember { mutableStateOf(0f) }
+        var barWidth by remember { mutableStateOf(0) }
+        val micWidthPx = with(density) { 56.dp.toPx() }
+        val undoWidthPx = with(density) { 48.dp.toPx() }
+        val gapPx = with(density) { 20.dp.toPx() }
+
+        // Put the blue microphone exactly where the action bar's own microphone icon is.
+        val micCenter = ActionBarMicPosition.centerX?.let { it - barLeft }
+            ?: (barWidth - micWidthPx / 2f)
+        val micLeft = (micCenter - micWidthPx / 2f)
+            .coerceIn(0f, (barWidth - micWidthPx).coerceAtLeast(0f))
+        val undoLeft = (micLeft - gapPx - undoWidthPx).coerceAtLeast(0f)
+
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(ActionBarHeight)
-                .padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .onGloballyPositioned {
+                    barLeft = it.positionInRoot().x
+                    barWidth = it.size.width
+                }
         ) {
             Text(
                 text = "Listening…",
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 16.dp)
             )
-            Spacer(modifier = Modifier.weight(1.0f))
-            IconButton(onClick = { undoLast() }) {
+            IconButton(
+                onClick = { undoLast() },
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset { IntOffset(undoLeft.toInt(), 0) }
+            ) {
                 Icon(
                     painter = painterResource(R.drawable.undo),
                     contentDescription = stringResource(R.string.action_voice_input_undo),
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
-            Spacer(modifier = Modifier.width(40.dp))
-            IconButton(onClick = {
-                recognizerView.value?.finish() ?: manager.closeActionWindow()
-            }) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset { IntOffset(micLeft.toInt(), 0) }
+                    .width(56.dp)
+                    .fillMaxHeight()
+                    .clip(CircleShape)
+                    .clickable { recognizerView.value?.finish() ?: manager.closeActionWindow() },
+                contentAlignment = Alignment.Center
+            ) {
                 Icon(
                     painter = painterResource(R.drawable.mic_fill),
                     contentDescription = stringResource(R.string.action_voice_input_title),
-                    tint = Color(0xFF3B82F6)
+                    tint = Color(0xFF3B82F6),
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
@@ -467,7 +508,19 @@ private class VoiceInputActionWindow(
         }
     }
 
+    // The speech model sometimes invents text from near-silence ("Good. Good. Good. ...").
+    // Drop results that are clearly that: four or more words that are all the same word.
+    private fun looksLikeHallucination(text: String): Boolean {
+        val words = text.lowercase().split(Regex("[^\\p{L}\\p{N}']+")).filter { it.isNotEmpty() }
+        return words.size >= 4 && words.toSet().size == 1
+    }
+
     override fun segmentResult(result: String) {
+        if (looksLikeHallucination(result)) {
+            // Still release any typed-text hold started for this segment.
+            manager.getLifecycleScope().launch(Dispatchers.Main) { typedWhilePending = null }
+            return
+        }
         manager.getLifecycleScope().launch(Dispatchers.Main) {
             val typed = typedWhilePending?.toString() ?: ""
             typedWhilePending = null
