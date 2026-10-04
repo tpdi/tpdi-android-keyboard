@@ -73,6 +73,9 @@ interface KeyboardManagerForAction {
 
     fun createInputTransaction(): ActionInputTransaction
 
+    /** Collapses the keyboard to nothing, leaving the bar above it, or brings it back. Reset when the window closes. */
+    fun setKeyboardCollapsed(collapsed: Boolean) {}
+
     /** Like [createInputTransaction] but typing keeps working normally while it is open. */
     fun createUnroutedInputTransaction(): ActionInputTransaction
 

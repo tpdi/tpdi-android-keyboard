@@ -46,7 +46,14 @@ import org.futo.inputmethod.latin.uix.LocalKeyboardScheme
  * microphone ends the session.
  */
 @Composable
-fun VoiceListeningBar(circle: @Composable () -> Unit, onUndo: () -> Unit, onStop: () -> Unit) {
+fun VoiceListeningBar(
+    circle: @Composable () -> Unit,
+    onUndo: () -> Unit,
+    onStop: () -> Unit,
+    // null: no button. Otherwise whether the keyboard is currently collapsed.
+    keyboardCollapsed: Boolean? = null,
+    onToggleKeyboard: () -> Unit = {}
+) {
     val density = LocalDensity.current
     var barLeft by remember { mutableStateOf(0f) }
     var barWidth by remember { mutableStateOf(0) }
@@ -99,6 +106,25 @@ fun VoiceListeningBar(circle: @Composable () -> Unit, onUndo: () -> Unit, onStop
                 contentDescription = stringResource(R.string.action_voice_input_undo),
                 tint = MaterialTheme.colorScheme.onSurface
             )
+        }
+        if (keyboardCollapsed != null) {
+            IconButton(
+                onClick = onToggleKeyboard,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset { IntOffset((micLeft + micWidthPx + gapPx).toInt(), 0) }
+            ) {
+                Icon(
+                    painter = painterResource(
+                        if (keyboardCollapsed) R.drawable.chevron_up else R.drawable.chevron_down
+                    ),
+                    contentDescription = stringResource(
+                        if (keyboardCollapsed) R.string.voice_input_show_keyboard
+                        else R.string.voice_input_hide_keyboard
+                    ),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
         }
         val pillColor = LocalKeyboardScheme.current.keyboardContainer
         val pillRadiusPx = with(density) { 16.dp.toPx() }

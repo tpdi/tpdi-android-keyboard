@@ -274,6 +274,10 @@ class UixActionKeyboardManager(val uixManager: UixManager, val latinIME: LatinIM
         return latinIME.lifecycleScope
     }
 
+    override fun setKeyboardCollapsed(collapsed: Boolean) {
+        uixManager.setWindowKeyboardCollapsed(collapsed)
+    }
+
     override fun createUnroutedInputTransaction(): ActionInputTransaction {
         return latinIME.imeManager.createUnroutedInputTransaction()
     }
@@ -607,6 +611,12 @@ class UixManager(private val latinIME: LatinIME) {
     private val keyboardManagerForAction = UixActionKeyboardManager(this, latinIME)
 
     private var mainKeyboardHidden = mutableStateOf(false)
+    private val windowKeyboardCollapsed = mutableStateOf(false)
+
+    fun setWindowKeyboardCollapsed(collapsed: Boolean) {
+        windowKeyboardCollapsed.value = collapsed
+        if(!collapsed) latinIME.onKeyboardShown()
+    }
 
     fun getCurrentLayoutName(): String =
         getPrimaryLayoutOverride(latinIME.currentInputEditorInfo)
@@ -762,6 +772,7 @@ class UixManager(private val latinIME: LatinIME) {
         currWindowActionWindow.value = (action.windowImpl!!)(keyboardManagerForAction, persistentStates[action])
 
         mainKeyboardHidden.value = currWindowActionWindow.value?.onlyShowAboveKeyboard == false
+        windowKeyboardCollapsed.value = false
 
         if(action.keepScreenAwake) {
             latinIME.window.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -789,6 +800,7 @@ class UixManager(private val latinIME: LatinIME) {
         currWindowActionWindow.value = null
 
         mainKeyboardHidden.value = false
+        windowKeyboardCollapsed.value = false
 
         latinIME.onKeyboardShown()
 
@@ -1348,7 +1360,7 @@ class UixManager(private val latinIME: LatinIME) {
                                 }
                             }
                             .absoluteOffset { IntOffset(0, keyboardViewOffset.intValue) },
-                            hidden = mainKeyboardHidden.value)
+                            hidden = mainKeyboardHidden.value || windowKeyboardCollapsed.value)
 
                         currWindowActionWindow.value?.let { window ->
                             if (window.overridesSuggestionBar) {

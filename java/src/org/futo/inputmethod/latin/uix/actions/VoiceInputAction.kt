@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +45,7 @@ import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import androidx.compose.ui.unit.Dp
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.TypedTextTap
 import org.futo.inputmethod.latin.uix.getSetting
@@ -205,6 +208,8 @@ private class VoiceInputActionWindow(
     }
 
     private val inlineMode = context.getSetting(VOICE_INPUT_OVER_KEYBOARD)
+    private val hideKeyboardButton = context.getSetting(VOICE_INPUT_HIDE_KEYBOARD_BUTTON)
+    private var keyboardCollapsed by mutableStateOf(false)
 
     private fun newTransaction() =
         if (inlineMode) manager.createUnroutedInputTransaction() else manager.createInputTransaction()
@@ -248,7 +253,12 @@ private class VoiceInputActionWindow(
         VoiceListeningBar(
             circle = { recognizerView.value?.Content(circleOnly = true) },
             onUndo = { undoLast() },
-            onStop = { recognizerView.value?.finish() ?: manager.closeActionWindow() }
+            onStop = { recognizerView.value?.finish() ?: manager.closeActionWindow() },
+            keyboardCollapsed = if (hideKeyboardButton) keyboardCollapsed else null,
+            onToggleKeyboard = {
+                keyboardCollapsed = !keyboardCollapsed
+                manager.setKeyboardCollapsed(keyboardCollapsed)
+            }
         )
     }
 
