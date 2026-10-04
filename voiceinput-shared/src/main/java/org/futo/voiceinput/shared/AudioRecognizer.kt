@@ -84,7 +84,8 @@ data class RecordingSettings(
     val useVADAutoStop: Boolean,
     val useSegmentedResults: Boolean = false,
     val segmentPauseMs: Int = 600,
-    val filterMadeUpText: Boolean = false
+    val filterMadeUpText: Boolean = false,
+    val filterStockPhrases: Boolean = false
 )
 
 data class AudioRecognizerSettings(
@@ -115,6 +116,7 @@ class AudioRecognizer(
 
     // Only present when the "drop made-up text" setting is on.
     private val madeUpGuard = if (settings.recordingConfiguration.filterMadeUpText) MadeUpTextGuard() else null
+    private val filterStockPhrases = settings.recordingConfiguration.filterStockPhrases
 
     private var floatSamples: FloatBuffer = FloatBuffer.allocate(16000 * 30)
     private var recorderJob: Job? = null
@@ -618,6 +620,8 @@ class AudioRecognizer(
         }
         text = madeUpGuard?.filterSegment(text) ?: text
 
+        text = StockPhraseFilter.filter(filterStockPhrases, text, "segment")
+
         if (text.isNotEmpty()) {
             yield()
             lifecycleScope.launch {
@@ -673,6 +677,8 @@ class AudioRecognizer(
             else -> outputText
         }
         text = madeUpGuard?.filterFinal(text) ?: text
+
+        text = StockPhraseFilter.filter(filterStockPhrases, text, "final")
 
         yield()
         lifecycleScope.launch {
