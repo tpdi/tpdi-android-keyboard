@@ -44,6 +44,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_INLINE_PARTIAL_RESULT
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_MADE_UP_TEXT
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_STOCK_PHRASES
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
@@ -169,7 +170,8 @@ private class VoiceInputActionWindow(
                 useSegmentedResults = useSegmentedResults,
                 segmentPauseMs = segmentPauseMs,
                 filterMadeUpText = context.getSetting(VOICE_INPUT_FILTER_MADE_UP_TEXT),
-                filterStockPhrases = context.getSetting(VOICE_INPUT_FILTER_STOCK_PHRASES)
+                filterStockPhrases = context.getSetting(VOICE_INPUT_FILTER_STOCK_PHRASES),
+                useClickGestures = context.getSetting(VOICE_INPUT_CLICK_GESTURES)
             )
         )
     }
@@ -293,6 +295,15 @@ private class VoiceInputActionWindow(
                 inputTransaction.commit(sanitized.trimEnd() + " ")
                 inputTransaction = manager.createInputTransaction()
             }
+        }
+    }
+
+    override fun clickGesture(clickCount: Int) {
+        // Any burst of two or more clicks is one Enter.
+        if (clickCount < 2) return
+        manager.getLifecycleScope().launch(Dispatchers.Main) {
+            inputTransaction.commit("\n")
+            inputTransaction = manager.createInputTransaction()
         }
     }
 

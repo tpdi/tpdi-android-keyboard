@@ -726,4 +726,6 @@ Default is %1$s</string>
     <string name="voice_input_settings_filter_made_up_text_subtitle">Discard text the speech model invents from silence or unclear audio: repeated words or sentences, more words than the speech could hold, and a final decode of trailing silence. Off by default.</string>
     <string name="voice_input_settings_filter_stock_phrases">Drop stock phrases</string>
     <string name="voice_input_settings_filter_stock_phrases_subtitle">Discard a result that is exactly a phrase the speech model invents from silence, like \"Thanks for watching\" or \"Please subscribe\". Could in principle drop real speech that says only that. Off by default.</string>
+    <string name="voice_input_settings_click_gestures">Click gestures</string>
+    <string name="voice_input_settings_click_gestures_subtitle">Double-click (two sharp clicks) sends Enter. Detected from the raw microphone audio, not speech -- the model never sees it. Off by default.</string>
 </resources>
