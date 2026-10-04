@@ -41,6 +41,7 @@ import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_INLINE_PARTIAL_RESULT
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
@@ -146,7 +147,7 @@ private class VoiceInputActionWindow(
         shouldPlaySounds = enableSound
 
         return RecognizerViewSettings(
-            shouldShowInlinePartialResult = true,
+            shouldShowInlinePartialResult = context.getSetting(VOICE_INPUT_INLINE_PARTIAL_RESULT),
             shouldShowVerboseFeedback = verboseFeedback,
             shouldAnimateBubble = animateBubble,
             modelRunConfiguration = MultiModelRunConfiguration(
