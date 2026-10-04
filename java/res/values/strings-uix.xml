@@ -720,4 +720,6 @@ Default is %1$s</string>
     <string name="keyboard_settings_send_key_codes_rather_than_text_subtitle">Send Tab, Enter, Escape, Home, End, Page Up/Down, Forward Delete, Insert and F1-F12 as real key events, like a hardware keyboard, instead of as text. Off by default.</string>
     <string name="keyboard_settings_show_load_layout_from_file">Load layout from file</string>
     <string name="keyboard_settings_show_load_layout_from_file_subtitle">Show a Load from file button in the custom layout editor. Off by default.</string>
+    <string name="voice_input_settings_inline_partial_result">Show words while listening</string>
+    <string name="voice_input_settings_inline_partial_result_subtitle">Show the words recognized so far inside the voice input bubble. Off by default.</string>
 </resources>
