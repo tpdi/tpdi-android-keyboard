@@ -44,7 +44,6 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import androidx.compose.ui.unit.Dp
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
-import org.futo.inputmethod.latin.uix.TypedTextTap
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
 import org.futo.inputmethod.latin.uix.settings.SettingsActivity
@@ -204,39 +203,11 @@ private class VoiceInputActionWindow(
         recognizerView.start()
     }
 
-    private val inlineMode = context.getSetting(VOICE_INPUT_OVER_KEYBOARD)
+    private val session = VoiceOverKeyboardSession(manager, context.getSetting(VOICE_INPUT_OVER_KEYBOARD))
+    private val inlineMode: Boolean get() = session.inlineMode
+    private var inputTransaction by session::transaction
 
-    private fun newTransaction() =
-        if (inlineMode) manager.createUnroutedInputTransaction() else manager.createInputTransaction()
-
-    private var inputTransaction = newTransaction()
-
-    // Typing while a segment is being transcribed: the spoken text arrives after the keys, so
-    // it would land after them. Remember what was typed since the segment was handed off, and
-    // when the result arrives put the spoken text first and retype that text after it.
-    private var typedWhilePending: StringBuilder? = null
-    private var undoIndexAtSegmentStart = 0
-
-    override fun segmentStarted() {
-        if (!inlineMode) return
-        typedWhilePending = StringBuilder()
-        undoIndexAtSegmentStart = undoHistory.size
-    }
-
-    private fun onTypedEvent(codePoint: Int, isDelete: Boolean) {
-        typedWhilePending?.let { pending ->
-            if (isDelete) {
-                if (pending.isNotEmpty()) pending.setLength(pending.length - 1)
-            } else {
-                pending.appendCodePoint(codePoint)
-            }
-        }
-        undoHistory.onTypedEvent(codePoint, isDelete)
-    }
-
-    init {
-        if (inlineMode) TypedTextTap.listener = { cp, del -> onTypedEvent(cp, del) }
-    }
+    override fun segmentStarted() = session.segmentStarted()
 
     override val onlyShowAboveKeyboard: Boolean get() = inlineMode
     override val fixedWindowHeight: Dp? get() = if (inlineMode) 0.dp else null
@@ -247,7 +218,7 @@ private class VoiceInputActionWindow(
     override fun SuggestionBarOverride() {
         VoiceListeningBar(
             circle = { recognizerView.value?.Content(circleOnly = true) },
-            onUndo = { undoLast() },
+            onUndo = { session.undoLast() },
             onStop = { recognizerView.value?.finish() ?: manager.closeActionWindow() }
         )
     }
@@ -255,17 +226,6 @@ private class VoiceInputActionWindow(
     @Composable
     override fun KeyboardOverlay() {
         VoiceVolumeCircleOverlay { recognizerView.value?.Content(circleOnly = true) }
-    }
-
-    // What this session has committed (and, with the UI PRs, typed), so Undo can take it back
-    // one unit at a time.
-    private val undoHistory = VoiceUndoHistory()
-
-    /** Removes the most recent entry of the undo history from the text before the cursor. */
-    internal fun undoLast() {
-        manager.getLifecycleScope().launch(Dispatchers.Main) {
-            undoHistory.undoLast(inputTransaction)
-        }
     }
 
     @Composable
@@ -303,7 +263,7 @@ private class VoiceInputActionWindow(
     }
 
     override fun close(): CloseResult {
-        TypedTextTap.listener = null
+        session.close()
         inputTransaction.cancel()
         runBlocking { initJob.cancelAndJoin() }
         recognizerView.value?.cancel()
@@ -350,29 +310,8 @@ private class VoiceInputActionWindow(
 
     override fun segmentResult(result: String) {
         manager.getLifecycleScope().launch(Dispatchers.Main) {
-            val typed = typedWhilePending?.toString() ?: ""
-            typedWhilePending = null
             val sanitized = ModelOutputSanitizer.sanitize(result, inputTransaction.textContext)
-            if (sanitized.isNotBlank()) {
-                val committedText = sanitized.trimEnd() + " "
-                if (typed.isNotEmpty()) {
-                    // Take back what was typed while this was being transcribed; it goes after.
-                    inputTransaction.finishComposingText()
-                    inputTransaction.deleteTextBeforeCursor(typed.length)
-                }
-                // Committed for good, no later revision: start a fresh transaction so the
-                // next segment's partial/commit calls don't touch what's already locked in.
-                inputTransaction.commit(committedText)
-                inputTransaction = newTransaction()
-                if (typed.isNotEmpty()) {
-                    inputTransaction.commit(typed)
-                    inputTransaction = newTransaction()
-                    // Undo history follows the on-screen order: spoken text, then typed.
-                    undoHistory.insertVoiceEntryAt(undoIndexAtSegmentStart, committedText)
-                } else {
-                    undoHistory.pushVoiceEntry(committedText)
-                }
-            }
+            if (sanitized.isNotBlank()) session.commitSegment(sanitized.trimEnd() + " ") else session.segmentEmpty()
         }
     }
 
