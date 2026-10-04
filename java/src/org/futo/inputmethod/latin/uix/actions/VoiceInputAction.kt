@@ -41,6 +41,7 @@ import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_MADE_UP_TEXT
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
@@ -164,7 +165,8 @@ private class VoiceInputActionWindow(
                 canExpandSpace = canExpandSpace,
                 useVADAutoStop = useVAD,
                 useSegmentedResults = useSegmentedResults,
-                segmentPauseMs = segmentPauseMs
+                segmentPauseMs = segmentPauseMs,
+                filterMadeUpText = context.getSetting(VOICE_INPUT_FILTER_MADE_UP_TEXT)
             )
         )
     }
