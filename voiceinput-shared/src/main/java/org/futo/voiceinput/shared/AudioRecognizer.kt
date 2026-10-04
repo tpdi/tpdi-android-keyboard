@@ -84,7 +84,8 @@ data class RecordingSettings(
     val useVADAutoStop: Boolean,
     val useSegmentedResults: Boolean = false,
     val segmentPauseMs: Int = 600,
-    val filterMadeUpText: Boolean = false
+    val filterMadeUpText: Boolean = false,
+    val filterStockPhrases: Boolean = false
 )
 
 data class AudioRecognizerSettings(
@@ -120,6 +121,7 @@ class AudioRecognizer(
     @Volatile
     private var bufferHasSpeech = false
     private var segmentSpeechFrames = 0
+    private val filterStockPhrases = settings.recordingConfiguration.filterStockPhrases
 
     private var floatSamples: FloatBuffer = FloatBuffer.allocate(16000 * 30)
     private var recorderJob: Job? = null
@@ -624,6 +626,7 @@ class AudioRecognizer(
         }
 
         if (filterMadeUpText && MadeUpTextFilter.isMadeUpSegment(text, speechFrames)) text = ""
+        if (filterStockPhrases && StockPhraseFilter.isStockPhrase(text)) text = ""
 
         if (text.isNotEmpty()) {
             yield()
@@ -683,6 +686,7 @@ class AudioRecognizer(
         }
 
         if (filterMadeUpText && MadeUpTextFilter.isRepetitionLoop(text)) text = ""
+        if (filterStockPhrases && StockPhraseFilter.isStockPhrase(text)) text = ""
 
         yield()
         lifecycleScope.launch {
