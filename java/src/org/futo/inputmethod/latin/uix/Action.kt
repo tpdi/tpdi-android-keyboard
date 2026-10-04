@@ -70,6 +70,9 @@ interface KeyboardManagerForAction {
 
     fun createInputTransaction(): ActionInputTransaction
 
+    /** Like [createInputTransaction] but typing keeps working normally while it is open. */
+    fun createUnroutedInputTransaction(): ActionInputTransaction
+
     fun typeText(v: String)
     fun typeTextSurroundedByWhitespace(v: String)
     fun typeUri(uri: Uri, mimeTypes: List<String>, ignoreConnectionOverride: Boolean = false): Boolean
@@ -143,6 +146,16 @@ abstract class ActionWindow {
 
     open val fixedWindowHeight: Dp?
         get() = null
+
+    /** If true, [SuggestionBarOverride] replaces the suggestion bar and [KeyboardOverlay] is drawn over the keys. */
+    open val overridesSuggestionBar: Boolean
+        get() = false
+
+    @Composable
+    open fun SuggestionBarOverride() {}
+
+    @Composable
+    open fun KeyboardOverlay() {}
 
     @Composable
     abstract fun windowName(): String

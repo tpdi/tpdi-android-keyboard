@@ -109,3 +109,11 @@ val VOICE_INPUT_ACTION_BUTTONS = SettingsKey(
     key = booleanPreferencesKey("voice_input_action_buttons"),
     default = false
 )
+
+// Dictate over the regular keyboard: "Listening..." + Undo in the suggestion bar, the volume
+// circle drawn on the keys, and typing allowed during the session. When off, the voice input
+// window replaces the keyboard as in the stock app.
+val VOICE_INPUT_OVER_KEYBOARD = SettingsKey(
+    key = booleanPreferencesKey("voice_input_over_keyboard"),
+    default = true
+)

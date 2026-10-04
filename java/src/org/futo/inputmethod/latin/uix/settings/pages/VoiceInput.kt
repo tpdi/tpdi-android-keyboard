@@ -20,6 +20,7 @@ import org.futo.inputmethod.latin.uix.USE_SYSTEM_VOICE_INPUT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import org.futo.inputmethod.latin.uix.settings.DropDownPickerSettingItem
@@ -199,6 +200,12 @@ val VoiceInputMenu = UserSettingsMenu(
             title = R.string.voice_input_settings_click_gestures,
             subtitle = R.string.voice_input_settings_click_gestures_subtitle,
             setting = VOICE_INPUT_CLICK_GESTURES
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_over_keyboard,
+            subtitle = R.string.voice_input_settings_over_keyboard_subtitle,
+            setting = VOICE_INPUT_OVER_KEYBOARD
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(

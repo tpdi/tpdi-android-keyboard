@@ -6,8 +6,19 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
+import org.futo.inputmethod.latin.uix.ActionBarHeight
+import org.futo.inputmethod.latin.uix.TypedTextTap
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -211,7 +222,12 @@ private class VoiceInputActionWindow(
         recognizerView.start()
     }
 
-    private var inputTransaction = manager.createInputTransaction()
+    private val inlineMode = context.getSetting(VOICE_INPUT_OVER_KEYBOARD)
+
+    private fun newTransaction() =
+        if (inlineMode) manager.createUnroutedInputTransaction() else manager.createInputTransaction()
+
+    private var inputTransaction = newTransaction()
 
     // Text of what voice input itself has committed (segments, manual Enters), most recent
     // last -- lets Undo remove just our own output, one unit at a time, repeatable. Stores the
@@ -223,29 +239,112 @@ private class VoiceInputActionWindow(
     // its own cached text/cursor state that never learned about anything this action committed.
     private val committedTexts = mutableListOf<String>()
 
+    // Undo history: dictated segments and typed words, most recent last. Typed characters are
+    // grouped into a word (closed by whitespace); a backspace shortens the latest entry, so the
+    // regular keyboard backspace and Undo stay consistent. No attempt is made to guard against
+    // typing and dictation interleaving.
+    private var openTypedEntry = false
+
+    private fun pushVoiceEntry(text: String) {
+        committedTexts.add(text)
+        openTypedEntry = false
+    }
+
+    private fun onTypedEvent(codePoint: Int, isDelete: Boolean) {
+        if (isDelete) {
+            val last = committedTexts.lastOrNull() ?: return
+            if (last.length <= 1) {
+                committedTexts.removeAt(committedTexts.lastIndex)
+                openTypedEntry = false
+            } else {
+                committedTexts[committedTexts.lastIndex] = last.dropLast(1)
+            }
+            return
+        }
+        val ch = String(Character.toChars(codePoint))
+        if (openTypedEntry && committedTexts.isNotEmpty()) {
+            committedTexts[committedTexts.lastIndex] = committedTexts.last() + ch
+        } else {
+            committedTexts.add(ch)
+        }
+        openTypedEntry = !Character.isWhitespace(codePoint)
+    }
+
+    init {
+        if (inlineMode) TypedTextTap.listener = { cp, del -> onTypedEvent(cp, del) }
+    }
+
     private fun undoLast() {
         val text = committedTexts.lastOrNull() ?: return
         manager.getLifecycleScope().launch(Dispatchers.Main) {
-            // Only one transaction can be active, so read the live text through the current one.
-            val before = inputTransaction.liveTextBeforeCursor(text.length + 8) ?: ""
-            if (before.endsWith(text)) {
-                committedTexts.removeAt(committedTexts.lastIndex)
-                inputTransaction.deleteTextBeforeCursor(text.length)
-            }
+            committedTexts.removeAt(committedTexts.lastIndex)
+            openTypedEntry = false
+            inputTransaction.deleteTextBeforeCursor(text.length)
         }
     }
 
     private fun pressEnter() {
         manager.getLifecycleScope().launch(Dispatchers.Main) {
             inputTransaction.commit("\n")
-            inputTransaction = manager.createInputTransaction()
-            committedTexts.add("\n")
+            inputTransaction = newTransaction()
+            pushVoiceEntry("\n")
         }
     }
 
     @Composable
     private fun ModelDownloader(modelException: ModelDoesNotExistException) {
         NoModelInstalled(locales.firstOrNull() ?: Locale.ROOT)
+    }
+
+    override val onlyShowAboveKeyboard: Boolean get() = inlineMode
+    override val fixedWindowHeight: Dp? get() = if (inlineMode) 0.dp else null
+    override val showCloseButton: Boolean get() = !inlineMode
+    override val overridesSuggestionBar: Boolean get() = inlineMode
+
+    @Composable
+    override fun SuggestionBarOverride() {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(ActionBarHeight)
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = {
+                recognizerView.value?.finish() ?: manager.closeActionWindow()
+            }) {
+                Icon(
+                    painter = painterResource(R.drawable.mic_fill),
+                    contentDescription = stringResource(R.string.action_voice_input_title),
+                    tint = Color(0xFF3B82F6)
+                )
+            }
+            Text(
+                text = "Listening…",
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+            Spacer(modifier = Modifier.weight(1.0f))
+            IconButton(onClick = { undoLast() }) {
+                Icon(
+                    painter = painterResource(R.drawable.undo),
+                    contentDescription = stringResource(R.string.action_voice_input_undo),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+    }
+
+    @Composable
+    override fun KeyboardOverlay() {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.55f),
+            contentAlignment = Alignment.Center
+        ) {
+            recognizerView.value?.Content()
+        }
     }
 
     @Composable
@@ -255,6 +354,7 @@ private class VoiceInputActionWindow(
 
     @Composable
     override fun WindowContents(keyboardShown: Boolean) {
+        if (inlineMode) return
         Box(modifier = Modifier
             .fillMaxSize()
             .clickable(
@@ -301,6 +401,7 @@ private class VoiceInputActionWindow(
     }
 
     override fun close(): CloseResult {
+        TypedTextTap.listener = null
         inputTransaction.cancel()
         runBlocking { initJob.cancelAndJoin() }
         recognizerView.value?.cancel()
@@ -353,8 +454,8 @@ private class VoiceInputActionWindow(
                 // next segment's partial/commit calls don't touch what's already locked in.
                 val committedText = sanitized.trimEnd() + " "
                 inputTransaction.commit(committedText)
-                inputTransaction = manager.createInputTransaction()
-                committedTexts.add(committedText)
+                inputTransaction = newTransaction()
+                pushVoiceEntry(committedText)
             }
         }
     }
