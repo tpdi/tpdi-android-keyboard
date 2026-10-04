@@ -127,12 +127,17 @@ class ActionInputTransactionIME(val helper: IMEHelper) : IMEInterface, ActionInp
             ic?.performEditorAction(imeOptionsActionId)
         }
         else {
-            // Multi-line fields declare no action; fall back to Ctrl+Enter, the usual submit shortcut.
+            // Multi-line fields declare no action; fall back to Ctrl+Enter, which the Claude app
+            // treats as Send. Sent as a real key sequence (Ctrl down, Enter down/up, Ctrl up),
+            // the same as a hardware keyboard, since apps may watch for the Ctrl key itself.
             val now = android.os.SystemClock.uptimeMillis()
             val ctrl = android.view.KeyEvent.META_CTRL_ON or android.view.KeyEvent.META_CTRL_LEFT_ON
-            for (action in intArrayOf(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.ACTION_UP)) {
-                ic?.sendKeyEvent(android.view.KeyEvent(now, now, action, android.view.KeyEvent.KEYCODE_ENTER, 0, ctrl))
-            }
+            fun key(action: Int, code: Int, meta: Int) =
+                ic?.sendKeyEvent(android.view.KeyEvent(now, now, action, code, 0, meta))
+            key(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_CTRL_LEFT, ctrl)
+            key(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_ENTER, ctrl)
+            key(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_ENTER, ctrl)
+            key(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_CTRL_LEFT, 0)
         }
     }
 
