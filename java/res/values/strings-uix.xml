@@ -716,4 +716,6 @@ Default is %1$s</string>
     <string name="personal_dictionary_delete_additional_file">Delete extra dictionary file?</string>
     <!-- %1$s will be replaced with the custom dictionary name -->
     <string name="personal_dictionary_delete_additional_file_text">%1$s will be deleted</string>
+    <string name="voice_input_settings_inline_partial_result">Show words while listening</string>
+    <string name="voice_input_settings_inline_partial_result_subtitle">Show the words recognized so far inside the voice input bubble. Off by default.</string>
 </resources>
