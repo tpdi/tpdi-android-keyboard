@@ -53,6 +53,7 @@ import org.futo.inputmethod.latin.settings.SettingsValues;
 import org.futo.inputmethod.latin.settings.SettingsValuesForSuggestion;
 import org.futo.inputmethod.latin.settings.SpacingAndPunctuations;
 import org.futo.inputmethod.latin.suggestions.SuggestionStripViewAccessor;
+import org.futo.inputmethod.latin.uix.KeyCodesSettingKeysKt;
 import org.futo.inputmethod.latin.uix.SettingsKt;
 import org.futo.inputmethod.latin.uix.actions.BugViewerKt;
 import org.futo.inputmethod.latin.utils.InputTypeUtils;
@@ -1002,7 +1003,7 @@ public final class InputLogic {
 
     private boolean sendKeyCodesRatherThanText() {
         return SettingsKt.getSettingBlocking(mImeHelper.getContextForSettings(),
-                SettingsKt.getSEND_KEY_CODES_RATHER_THAN_TEXT());
+                KeyCodesSettingKeysKt.getSEND_KEY_CODES_RATHER_THAN_TEXT());
     }
 
     /**
