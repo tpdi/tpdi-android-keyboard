@@ -15,6 +15,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_TAP_CIRCLE_TO_STOP
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_STOCK_PHRASES
 import org.futo.inputmethod.latin.uix.AUDIO_FOCUS
 import org.futo.inputmethod.latin.uix.CAN_EXPAND_SPACE
 import org.futo.inputmethod.latin.uix.DISALLOW_SYMBOLS
@@ -187,6 +188,9 @@ val VoiceInputMenu = UserSettingsMenu(
             title = R.string.voice_input_settings_action_buttons,
             subtitle = R.string.voice_input_settings_action_buttons_subtitle,
             setting = VOICE_INPUT_ACTION_BUTTONS
+            title = R.string.voice_input_settings_filter_stock_phrases,
+            subtitle = R.string.voice_input_settings_filter_stock_phrases_subtitle,
+            setting = VOICE_INPUT_FILTER_STOCK_PHRASES
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(

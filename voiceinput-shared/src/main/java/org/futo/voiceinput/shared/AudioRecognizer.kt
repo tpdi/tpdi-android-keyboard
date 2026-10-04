@@ -85,7 +85,8 @@ data class RecordingSettings(
     val useSegmentedResults: Boolean = false,
     val segmentPauseMs: Int = 600,
     val filterMadeUpText: Boolean = false,
-    val useClickGestures: Boolean = false
+    val useClickGestures: Boolean = false,
+    val filterStockPhrases: Boolean = false
 )
 
 data class AudioRecognizerSettings(
@@ -126,6 +127,7 @@ class AudioRecognizer(
     // A click gesture waits here until speech spoken before it has been transcribed and
     // committed, so Enter can't land ahead of the text it follows.
     private var pendingGestureCount = 0
+    private val filterStockPhrases = settings.recordingConfiguration.filterStockPhrases
 
     private var floatSamples: FloatBuffer = FloatBuffer.allocate(16000 * 30)
     private var recorderJob: Job? = null
@@ -819,6 +821,7 @@ class AudioRecognizer(
         }
 
         if (filterMadeUpText && MadeUpTextFilter.isMadeUpSegment(text, speechFrames)) text = ""
+        if (filterStockPhrases && StockPhraseFilter.isStockPhrase(text)) text = ""
 
         if (text.isNotEmpty() || useClickGestures) {
             yield()
@@ -879,6 +882,7 @@ class AudioRecognizer(
         }
 
         if (filterMadeUpText && MadeUpTextFilter.isRepetitionLoop(text)) text = ""
+        if (filterStockPhrases && StockPhraseFilter.isStockPhrase(text)) text = ""
 
         yield()
         lifecycleScope.launch {

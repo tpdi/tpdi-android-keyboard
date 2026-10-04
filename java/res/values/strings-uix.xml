@@ -735,4 +735,6 @@ Default is %1$s</string>
     <string name="voice_input_settings_tap_circle_to_stop">Tap the circle to stop</string>
     <string name="voice_input_settings_tap_circle_to_stop_subtitle">When dictating over the keyboard, a precise tap on the middle of the volume circle ends the session. Turn this off to stop only with the blue microphone button.</string>
     <string name="voice_input_settings_tap_circle_to_stop_disabled_note">Turn on \"Dictate over the keyboard\" to use this.</string>
+    <string name="voice_input_settings_filter_stock_phrases">Drop stock phrases</string>
+    <string name="voice_input_settings_filter_stock_phrases_subtitle">Discard a result that is exactly a phrase the speech model invents from silence, like \"Thanks for watching\" or \"Please subscribe\". Could in principle drop real speech that says only that. Off by default.</string>
 </resources>
