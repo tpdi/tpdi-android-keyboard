@@ -85,7 +85,8 @@ data class RecordingSettings(
     val useSegmentedResults: Boolean = false,
     val segmentPauseMs: Int = 600,
     val filterMadeUpText: Boolean = false,
-    val filterStockPhrases: Boolean = false
+    val filterStockPhrases: Boolean = false,
+    val useClickGestures: Boolean = false
 )
 
 data class AudioRecognizerSettings(
@@ -122,6 +123,11 @@ class AudioRecognizer(
     private var bufferHasSpeech = false
     private var segmentSpeechFrames = 0
     private val filterStockPhrases = settings.recordingConfiguration.filterStockPhrases
+    private val useClickGestures = settings.recordingConfiguration.useClickGestures
+
+    // A click gesture waits here until speech spoken before it has been transcribed and
+    // committed, so Enter can't land ahead of the text it follows.
+    private var pendingGestureCount = 0
 
     private var floatSamples: FloatBuffer = FloatBuffer.allocate(16000 * 30)
     private var recorderJob: Job? = null
@@ -243,6 +249,7 @@ class AudioRecognizer(
         modelJob?.cancel()
         segmentJob?.cancel()
         isSegmentProcessing = false
+        pendingGestureCount = 0
         isRecording = false
 
         modelRunner.cancelAll()
@@ -369,6 +376,47 @@ class AudioRecognizer(
         var numConsecutiveNonSpeech = 0
         var numConsecutiveSpeech = 0
 
+        // Click-gesture detection: a click is a brief, sharp, isolated transient -- very
+        // different from speech, which carries energy over much longer stretches. Tracked
+        // independently of the VAD/transcription pipeline entirely; the audio never reaches
+        // Whisper for this. clickTimestamps holds recent click times (ms); once CLICK_WINDOW_MS
+        // has elapsed since the first one, the count decides whether it was a double (Enter); three or more does nothing.
+        val clickTimestamps = mutableListOf<Long>()
+        var lastClickAtMs = 0L
+        val CLICK_PEAK_FLOOR = 0.04f
+        val CLICK_RMS_CEILING = 0.05f
+        val CLICK_CREST_FACTOR_THRESHOLD = 8.0f
+        val CLICK_COOLDOWN_MS = 80L
+        val CLICK_WINDOW_MS = 1500L
+        val MIN_SEGMENT_SPEECH_FRAMES = 10
+
+        // Consecutive 100ms chunks louder than the talking threshold; a click's ring-down is
+        // one or two chunks, speech lasts longer.
+        var loudRun = 0
+        // A real click is followed by quiet; the opening consonants of a phrase look like clicks
+        // but are followed by sustained speech. Onsets are cancelled if speech-level sound
+        // follows them within CLICK_QUIET_AFTER_MS.
+        var onsetWindowStartMs = 0L
+        var postOnsetLoudChunks = 0
+        val CLICK_QUIET_AFTER_MS = 500L
+        // A deliberate click gesture has at least one clearly loud click; a pair of faint
+        // transients (lip smacks, breath) after speech does not.
+        val CLICK_GROUP_PEAK_MIN = 0.15f
+        var groupMaxPeak = 0f
+        val CLICK_FOLLOWING_SPEECH_RMS = 0.025f
+        // VAD speech frames (30ms each) seen since the last segment boundary; used to throw away
+        // segments that are really just clicks plus silence.
+        var gestureSegmentSpeechFrames = 0
+
+        // Click onsets are found at 6ms resolution inside each 100ms chunk (a chunk-level measure
+        // merges fast double clicks and blurs a click's ring-down into the next chunk).
+        val SUB = 100
+        val subRms = FloatArray(16)
+        val subPeak = FloatArray(16)
+        var prevSubRms = 0f
+        var subsSinceOnset = 100
+        var totalSamplesRead = 0L
+
         val samples = ShortArray(1600)
 
         while (isRecording) {
@@ -396,9 +444,17 @@ class AudioRecognizer(
                 hasTalked = false
                 val framesThisSegment = segmentSpeechFrames
                 segmentSpeechFrames = 0
-                yield()
-                withContext(Dispatchers.Main) {
-                    finishSegment(framesThisSegment)
+                val tooLittleSpeech = useClickGestures && gestureSegmentSpeechFrames < MIN_SEGMENT_SPEECH_FRAMES
+                android.util.Log.d("ClickDetect", "segment end: speechFrames=$gestureSegmentSpeechFrames dropped=$tooLittleSpeech")
+                gestureSegmentSpeechFrames = 0
+                if (tooLittleSpeech) {
+                    floatSamples.clear()
+                    bufferHasSpeech = false
+                } else {
+                    yield()
+                    withContext(Dispatchers.Main) {
+                        finishSegment(framesThisSegment)
+                    }
                 }
             }
 
@@ -419,6 +475,7 @@ class AudioRecognizer(
                             numConsecutiveNonSpeech = 0
                             numConsecutiveSpeech++
                             segmentSpeechFrames++
+                            gestureSegmentSpeechFrames++
                         }
                     }
 
@@ -437,7 +494,12 @@ class AudioRecognizer(
 
             // Don't set hasTalked if the start sound may still be playing, otherwise on some
             // devices the rms just explodes and `hasTalked` is always true
-            val startSoundPassed = (floatSamples.position() > 16000 * 0.6)
+            totalSamplesRead += nRead
+            // With click gestures on, measured from the start of recording, not the buffer
+            // position: the buffer is cleared after every segment and click gesture, which would
+            // blind detection for 0.6s each time.
+            val startSoundPassed = if (useClickGestures) (totalSamplesRead > 16000 * 0.6)
+                                   else (floatSamples.position() > 16000 * 0.6)
             if (!startSoundPassed) {
                 numConsecutiveSpeech = 0
                 numConsecutiveNonSpeech = 0
@@ -445,10 +507,140 @@ class AudioRecognizer(
 
             val rms = sqrt(samples.sumOf { (it.toFloat() / Short.MAX_VALUE.toFloat()).pow(2).toDouble() } / samples.size).toFloat()
 
-            if (startSoundPassed && ((rms > 0.01) || (numConsecutiveSpeech > 8))) {
+            // Evaluate click-ness first so a click's brief energy can't flip hasTalked, which
+            // would send click-only audio to the model ("Thank you", "Thanks for watching").
+            val peakAbs = (samples.maxOf { kotlin.math.abs(it.toInt()) }).toFloat() / Short.MAX_VALUE.toFloat()
+            val crestFactor = peakAbs / rms.coerceAtLeast(0.0001f)
+            // Per-subframe energy, then onsets: a sharp rise to a peak well above the chunk's
+            // noise floor, with no rise in the previous ~50ms (so a ring-down isn't recounted).
+            val nSubs = (nRead / SUB).coerceAtMost(16)
+            for (i in 0 until nSubs) {
+                var sumSq = 0.0
+                var pk = 0
+                for (j in i * SUB until (i + 1) * SUB) {
+                    val v = samples[j].toInt()
+                    sumSq += v.toDouble() * v
+                    if (kotlin.math.abs(v) > pk) pk = kotlin.math.abs(v)
+                }
+                subRms[i] = (sqrt(sumSq / SUB) / Short.MAX_VALUE).toFloat()
+                subPeak[i] = pk.toFloat() / Short.MAX_VALUE.toFloat()
+            }
+            val sortedSub = subRms.copyOf(nSubs).also { it.sort() }
+            val floorRms = if (nSubs > 0) sortedSub[nSubs / 2].coerceAtLeast(0.002f) else 0.002f
+            val onsetSubIndices = mutableListOf<Int>()
+            if (useClickGestures && startSoundPassed && rms < CLICK_RMS_CEILING) {
+                for (i in 0 until nSubs) {
+                    subsSinceOnset++
+                    val before = if (i == 0) prevSubRms else subRms[i - 1]
+                    if (subPeak[i] > CLICK_PEAK_FLOOR && subRms[i] > 5f * floorRms &&
+                        before < 0.5f * subRms[i] && subsSinceOnset >= 8) {
+                        onsetSubIndices.add(i)
+                        subsSinceOnset = 0
+                    }
+                }
+            } else {
+                subsSinceOnset += nSubs
+            }
+            if (nSubs > 0) prevSubRms = subRms[nSubs - 1]
+            val isClickCandidate = onsetSubIndices.isNotEmpty() || (useClickGestures && startSoundPassed &&
+                    peakAbs > CLICK_PEAK_FLOOR &&
+                    rms < CLICK_RMS_CEILING &&
+                    crestFactor > CLICK_CREST_FACTOR_THRESHOLD)
+            if (isClickCandidate) numConsecutiveSpeech = 0
+
+            loudRun = if (startSoundPassed && !isClickCandidate && rms > 0.01) loudRun + 1 else 0
+            val sustainedLoudRequired = if (useClickGestures) 3 else 1
+            if (startSoundPassed && ((loudRun >= sustainedLoudRequired) || (numConsecutiveSpeech > 8))) {
                 hasTalked = true
             }
             if (hasTalked) bufferHasSpeech = true
+
+            if (useClickGestures && startSoundPassed) {
+                // TEMPORARY: calibration logging, remove once thresholds are tuned against
+                // real-device data. Logs any moderately loud chunk, not just ones that already
+                // pass the thresholds, so we can see what a real click actually looks like.
+                if (peakAbs > 0.05f) {
+                    android.util.Log.d(
+                        "ClickDetect",
+                        "peak=%.3f rms=%.4f crest=%.1f candidate=%b".format(peakAbs, rms, crestFactor, isClickCandidate)
+                    )
+                }
+
+                val now = System.currentTimeMillis()
+                // Cancel recent onsets that turned out to be the start of speech.
+                if (onsetWindowStartMs > 0L) {
+                    if (now - onsetWindowStartMs > CLICK_QUIET_AFTER_MS) {
+                        onsetWindowStartMs = 0L
+                        postOnsetLoudChunks = 0
+                    } else if (onsetSubIndices.isEmpty() && rms > CLICK_FOLLOWING_SPEECH_RMS) {
+                        postOnsetLoudChunks++
+                        if (postOnsetLoudChunks >= 2) {
+                            val cutoff = onsetWindowStartMs - 50L
+                            val before = clickTimestamps.size
+                            clickTimestamps.removeAll { it >= cutoff }
+                            lastClickAtMs = clickTimestamps.lastOrNull() ?: 0L
+                            android.util.Log.d("ClickDetect", "dropped ${before - clickTimestamps.size} onset(s) followed by speech")
+                            onsetWindowStartMs = 0L
+                            postOnsetLoudChunks = 0
+                        }
+                    }
+                }
+                for (idx in onsetSubIndices) {
+                    val t = now - ((nSubs - idx) * SUB * 1000L / 16000L)
+                    // A key tap on the keyboard sounds like a click; ignore onsets near key presses.
+                    if (kotlin.math.abs(t - ClickSuppression.lastKeyPressMs) < 400L) continue
+                    clickTimestamps.add(t)
+                    groupMaxPeak = kotlin.math.max(groupMaxPeak, subPeak[idx])
+                    lastClickAtMs = t
+                    if (onsetWindowStartMs == 0L) {
+                        onsetWindowStartMs = t
+                        postOnsetLoudChunks = 0
+                    }
+                    android.util.Log.d("ClickDetect", "ONSET click #${clickTimestamps.size} sub=$idx")
+                }
+
+                if (clickTimestamps.isNotEmpty() && (now - lastClickAtMs) > CLICK_WINDOW_MS) {
+                    val count = clickTimestamps.size
+                    val tooSoft = groupMaxPeak < CLICK_GROUP_PEAK_MIN
+                    if (count >= 2 && tooSoft) {
+                        android.util.Log.d("ClickDetect", "dropped soft group: clicks=$count maxPeak=$groupMaxPeak")
+                    }
+                    clickTimestamps.clear()
+                    groupMaxPeak = 0f
+                    if (count >= 2 && !tooSoft) {
+                        pendingGestureCount = count.coerceAtMost(3)
+                        android.util.Log.d("ClickDetect", "gesture group closed: clicks=$count hasTalked=$hasTalked segmentProcessing=$isSegmentProcessing")
+                        // Clicks alone make Whisper hallucinate ("Thank you"); drop them unless
+                        // speech is still waiting in the buffer.
+                        if (!hasTalked) {
+                            floatSamples.clear()
+                        }
+                    }
+                }
+
+                if (pendingGestureCount > 0) {
+                    if (hasTalked && !isSegmentProcessing) {
+                        // Speech before the click hasn't been sent for transcription yet; do it now.
+                        hasTalked = false
+                        numConsecutiveSpeech = 0
+                        numConsecutiveNonSpeech = 0
+                        gestureSegmentSpeechFrames = 0
+                        yield()
+                        withContext(Dispatchers.Main) {
+                            finishSegment()
+                        }
+                    } else if (!hasTalked && !isSegmentProcessing) {
+                        val reportedCount = pendingGestureCount
+                        pendingGestureCount = 0
+                        android.util.Log.d("ClickDetect", "gesture fired: $reportedCount")
+                        yield()
+                        withContext(Dispatchers.Main) {
+                            listener.clickGesture(reportedCount)
+                        }
+                    }
+                }
+            }
+
 
             if (rms > 0.0001) {
                 anyNoiseAtAll = true
@@ -618,7 +810,9 @@ class AudioRecognizer(
             return
         }
 
-        isSegmentProcessing = false
+        // With click gestures on, stays true until the result has been handed to the listener,
+        // so a pending click gesture can't be posted ahead of the text it follows.
+        if (!useClickGestures) isSegmentProcessing = false
 
         var text = when {
             isBlankResult(outputText) -> ""
@@ -628,12 +822,13 @@ class AudioRecognizer(
         if (filterMadeUpText && MadeUpTextFilter.isMadeUpSegment(text, speechFrames)) text = ""
         if (filterStockPhrases && StockPhraseFilter.isStockPhrase(text)) text = ""
 
-        if (text.isNotEmpty()) {
+        if (text.isNotEmpty() || useClickGestures) {
             yield()
             lifecycleScope.launch {
                 withContext(Dispatchers.Main) {
                     yield()
-                    listener.segmentResult(text)
+                    if (text.isNotEmpty()) listener.segmentResult(text)
+                    if (useClickGestures) isSegmentProcessing = false
                 }
             }
         }
