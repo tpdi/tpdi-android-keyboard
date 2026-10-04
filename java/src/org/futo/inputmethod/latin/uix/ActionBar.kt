@@ -552,6 +552,7 @@ private fun Modifier.trackVoiceIconPosition(action: Action): Modifier =
     if (action === org.futo.inputmethod.latin.uix.actions.VoiceInputAction) {
         this.onGloballyPositioned { c ->
             ActionBarMicPosition.centerX = c.positionInRoot().x + c.size.width / 2f
+            android.util.Log.d("MicPos", "action bar mic icon: left=${c.positionInRoot().x} width=${c.size.width} centerX=${ActionBarMicPosition.centerX}")
         }
     } else this
 

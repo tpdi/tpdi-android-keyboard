@@ -340,7 +340,7 @@ private class VoiceInputActionWindow(
         val density = LocalDensity.current
         var barLeft by remember { mutableStateOf(0f) }
         var barWidth by remember { mutableStateOf(0) }
-        val micWidthPx = with(density) { 56.dp.toPx() }
+        val micWidthPx = with(density) { 42.dp.toPx() }
         val undoWidthPx = with(density) { 48.dp.toPx() }
         val gapPx = with(density) { 20.dp.toPx() }
 
@@ -350,6 +350,7 @@ private class VoiceInputActionWindow(
         val micLeft = (micCenter - micWidthPx / 2f)
             .coerceIn(0f, (barWidth - micWidthPx).coerceAtLeast(0f))
         val undoLeft = (micLeft - gapPx - undoWidthPx).coerceAtLeast(0f)
+        android.util.Log.d("MicPos", "listening bar: barLeft=$barLeft barWidth=$barWidth recorded=${ActionBarMicPosition.centerX} micCenter=$micCenter micLeft=$micLeft")
 
         Box(
             modifier = Modifier
@@ -385,7 +386,7 @@ private class VoiceInputActionWindow(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .offset { IntOffset(micLeft.toInt(), 0) }
-                    .width(56.dp)
+                    .width(42.dp)
                     .fillMaxHeight()
                     .drawBehind {
                         drawCircle(color = pillColor, radius = pillRadiusPx)
