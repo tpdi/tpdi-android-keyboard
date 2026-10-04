@@ -820,6 +820,7 @@ class AudioRecognizer(
             else -> outputText
         }
 
+        android.util.Log.d("SegText", "segment frames=${if (speechFrames == Int.MAX_VALUE) -1 else speechFrames} raw=[$outputText]")
         if (filterMadeUpText && MadeUpTextFilter.isMadeUpSegment(text, speechFrames)) text = ""
         if (filterStockPhrases && StockPhraseFilter.isStockPhrase(text)) text = ""
 
@@ -881,6 +882,7 @@ class AudioRecognizer(
             else -> outputText
         }
 
+        android.util.Log.d("SegText", "final raw=[$outputText]")
         if (filterMadeUpText && MadeUpTextFilter.isRepetitionLoop(text)) text = ""
         if (filterStockPhrases && StockPhraseFilter.isStockPhrase(text)) text = ""
 
