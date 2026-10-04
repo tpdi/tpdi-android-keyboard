@@ -83,7 +83,8 @@ data class RecordingSettings(
     val canExpandSpace: Boolean,
     val useVADAutoStop: Boolean,
     val useSegmentedResults: Boolean = false,
-    val segmentPauseMs: Int = 600
+    val segmentPauseMs: Int = 600,
+    val filterStockPhrases: Boolean = false
 )
 
 data class AudioRecognizerSettings(
@@ -111,6 +112,8 @@ class AudioRecognizer(
     private val useSegmentedResults = settings.recordingConfiguration.useSegmentedResults
     // VAD runs in 480-sample (30ms @ 16kHz) frames; convert the configured ms to a frame count.
     private val segmentPauseFrames = (settings.recordingConfiguration.segmentPauseMs / 30).coerceAtLeast(1)
+
+    private val filterStockPhrases = settings.recordingConfiguration.filterStockPhrases
 
     private var floatSamples: FloatBuffer = FloatBuffer.allocate(16000 * 30)
     private var recorderJob: Job? = null
@@ -604,10 +607,12 @@ class AudioRecognizer(
 
         isSegmentProcessing = false
 
-        val text = when {
+        var text = when {
             isBlankResult(outputText) -> ""
             else -> outputText
         }
+
+        if (filterStockPhrases && StockPhraseFilter.isStockPhrase(text)) text = ""
 
         if (text.isNotEmpty()) {
             yield()
@@ -648,10 +653,12 @@ class AudioRecognizer(
             return
         }
 
-        val text = when {
+        var text = when {
             isBlankResult(outputText) -> ""
             else -> outputText
         }
+
+        if (filterStockPhrases && StockPhraseFilter.isStockPhrase(text)) text = ""
 
         yield()
         lifecycleScope.launch {
