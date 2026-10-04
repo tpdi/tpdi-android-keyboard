@@ -1,6 +1,8 @@
 package org.futo.inputmethod.latin.uix.settings.pages
 
 import android.content.Context
+import org.futo.inputmethod.latin.uix.SHOW_LOAD_LAYOUT_FROM_FILE
+import org.futo.inputmethod.latin.uix.settings.useDataStoreValue
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -278,8 +280,10 @@ fun LayoutEditor(layout: CustomLayout, onSave: (CustomLayout) -> Unit, onDelete:
 
         Spacer(Modifier.height(8.dp))
 
-        OutlinedButton(onClick = { loadFileLauncher.launch("*/*") }, modifier = Modifier.fillMaxWidth()) {
-            Text("Load from file")
+        if (useDataStoreValue(SHOW_LOAD_LAYOUT_FROM_FILE)) {
+            OutlinedButton(onClick = { loadFileLauncher.launch("*/*") }, modifier = Modifier.fillMaxWidth()) {
+                Text("Load from file")
+            }
         }
     }
 }
