@@ -751,4 +751,5 @@ Default is %1$s</string>
     <string name="keyboard_settings_key_hint_size">Key hint size</string>
     <string name="keyboard_settings_key_hint_size_subtitle">Scale the small hint characters on keys. 100% is unchanged, which is the default.</string>
     <string name="action_dismiss_keyboard_title">Dismiss keyboard</string>
+    <string name="toms_features_title">Tom\'s Features</string>
 </resources>
