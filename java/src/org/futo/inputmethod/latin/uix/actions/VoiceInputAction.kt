@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import org.futo.inputmethod.latin.uix.LocalKeyboardScheme
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.foundation.layout.fillMaxHeight
 import org.futo.inputmethod.latin.uix.ActionBarMicPosition
 import androidx.compose.runtime.setValue
@@ -377,12 +379,17 @@ private class VoiceInputActionWindow(
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
+            val pillColor = LocalKeyboardScheme.current.keyboardContainer
+            val pillRadiusPx = with(density) { 16.dp.toPx() }
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .offset { IntOffset(micLeft.toInt(), 0) }
                     .width(56.dp)
                     .fillMaxHeight()
+                    .drawBehind {
+                        drawCircle(color = pillColor, radius = pillRadiusPx)
+                    }
                     .clip(CircleShape)
                     .clickable { recognizerView.value?.finish() ?: manager.closeActionWindow() },
                 contentAlignment = Alignment.Center
@@ -391,7 +398,7 @@ private class VoiceInputActionWindow(
                     painter = painterResource(R.drawable.mic_fill),
                     contentDescription = stringResource(R.string.action_voice_input_title),
                     tint = Color(0xFF3B82F6),
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(16.dp)
                 )
             }
         }
