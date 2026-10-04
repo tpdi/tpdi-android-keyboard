@@ -986,6 +986,7 @@ public final class InputLogic {
             case Constants.CODE_TO_ALPHA_1_LAYOUT:
             case Constants.CODE_TO_ALPHA_2_LAYOUT:
             case Constants.CODE_TO_ALPHA_3_LAYOUT:
+            case Constants.CODE_TO_ALT_3_LAYOUT:
                 // Handled in KeyboardState
                 break;
             default:

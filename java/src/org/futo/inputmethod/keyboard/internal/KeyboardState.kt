@@ -570,6 +570,10 @@ class KeyboardState(private val switchActions: SwitchActions) {
                 switchToAltLayout(Constants.CODE_TO_ALT_0_LAYOUT - code, autoCapsFlags)
             }
 
+            Constants.CODE_TO_ALT_3_LAYOUT -> {
+                switchToAltLayout(3, autoCapsFlags)
+            }
+
             Constants.CODE_TO_ALPHA_0_LAYOUT,
             Constants.CODE_TO_ALPHA_1_LAYOUT,
             Constants.CODE_TO_ALPHA_2_LAYOUT,
