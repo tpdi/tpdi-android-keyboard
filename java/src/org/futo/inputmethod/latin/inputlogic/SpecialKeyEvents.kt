@@ -1,6 +1,8 @@
 package org.futo.inputmethod.latin.inputlogic
 
 import android.view.KeyEvent
+import org.futo.inputmethod.event.Event
+import org.futo.inputmethod.event.InputTransaction
 import org.futo.inputmethod.latin.common.Constants
 
 /**
@@ -38,11 +40,50 @@ enum class SpecialKey(val layoutCode: Int, val keyEvent: Int, val textFallback: 
     val isSpecial: Boolean get() = this != NONE && this != TAB
 }
 
+/** What the special keys do. One implementation per state of the "send key codes" setting. */
+interface SpecialKeyBehavior {
+    /** Escape, Home, End, Page Up/Down, Forward Delete, Insert, F1-F12. */
+    fun handleSpecial(layoutCode: Int, logic: InputLogic, transaction: InputTransaction)
+
+    /** Tab. Returns false when the caller should type it like any other character. */
+    fun handleTab(logic: InputLogic, transaction: InputTransaction): Boolean
+
+    /** Whether Enter is sent as a real key event. */
+    val enterAsKeyEvent: Boolean
+}
+
+/** Setting on: the keys are sent as real key events, like a hardware keyboard. */
+private object KeyEventBehavior : SpecialKeyBehavior {
+    override fun handleSpecial(layoutCode: Int, logic: InputLogic, transaction: InputTransaction) {
+        logic.commitTyped(transaction.mSettingsValues, "")
+        logic.sendDownUpKeyEvent(SpecialKeyEvents.androidKeyCodeFor(layoutCode), 0)
+    }
+
+    override fun handleTab(logic: InputLogic, transaction: InputTransaction): Boolean {
+        logic.commitTyped(transaction.mSettingsValues, "")
+        logic.sendDownUpKeyEvent(SpecialKey.TAB.keyEvent, 0)
+        return true
+    }
+
+    override val enterAsKeyEvent = true
+}
+
+/** Setting off (the default): Escape types an ESC character, the other special keys do nothing. */
+private object TextBehavior : SpecialKeyBehavior {
+    override fun handleSpecial(layoutCode: Int, logic: InputLogic, transaction: InputTransaction) {
+        logic.commitTyped(transaction.mSettingsValues, "")
+        SpecialKeyEvents.textFallbackFor(layoutCode)?.let { logic.mConnection.commitText(it, 1) }
+    }
+
+    override fun handleTab(logic: InputLogic, transaction: InputTransaction) = false
+    override val enterAsKeyEvent = false
+}
+
 object SpecialKeyEvents {
     private val byLayoutCode: Map<Int, SpecialKey> =
         SpecialKey.values().filter { it != SpecialKey.NONE }.associateBy { it.layoutCode }
 
-    /** The behavior for the current state of the setting; see [SpecialKeyBehavior]. */
+    /** The behavior for the current state of the setting. Swapped, not checked per key press. */
     @Volatile
     @JvmStatic
     var behavior: SpecialKeyBehavior = TextBehavior
@@ -54,15 +95,25 @@ object SpecialKeyEvents {
         behavior = if (sendKeyCodes) KeyEventBehavior else TextBehavior
     }
 
+    /** Handles [event] if it is one of the special keys; returns whether it did. */
+    @JvmStatic
+    fun handle(logic: InputLogic, event: Event, transaction: InputTransaction): Boolean {
+        if (!lookup(event.mKeyCode).isSpecial) return false
+        transaction.setRequiresUpdateSuggestions()
+        behavior.handleSpecial(event.mKeyCode, logic, transaction)
+        return true
+    }
+
+    /** Handles Tab; returns false if it should be typed as a normal character. */
+    @JvmStatic
+    fun handleTab(logic: InputLogic, transaction: InputTransaction): Boolean =
+        behavior.handleTab(logic, transaction)
+
     private fun lookup(layoutCode: Int): SpecialKey = byLayoutCode[layoutCode] ?: SpecialKey.NONE
 
     /** The Android key code for a layout key code, or -1 if the key is not in this class. */
     @JvmStatic
     fun androidKeyCodeFor(layoutCode: Int): Int = lookup(layoutCode).keyEvent
-
-    /** True for keys InputLogic handles as special keys (everything here except Tab). */
-    @JvmStatic
-    fun isSpecial(layoutCode: Int): Boolean = lookup(layoutCode).isSpecial
 
     /** What to insert when the setting is off, or null for nothing. */
     @JvmStatic

@@ -53,7 +53,6 @@ import org.futo.inputmethod.latin.settings.SettingsValues;
 import org.futo.inputmethod.latin.settings.SettingsValuesForSuggestion;
 import org.futo.inputmethod.latin.settings.SpacingAndPunctuations;
 import org.futo.inputmethod.latin.suggestions.SuggestionStripViewAccessor;
-import org.futo.inputmethod.latin.uix.SettingsKt;
 import org.futo.inputmethod.latin.uix.actions.BugViewerKt;
 import org.futo.inputmethod.latin.utils.InputTypeUtils;
 import org.futo.inputmethod.latin.utils.RecapitalizeStatus;
@@ -922,8 +921,7 @@ public final class InputLogic {
             return;
         }
 
-        if (SpecialKeyEvents.isSpecial(event.mKeyCode)) {
-            handleSpecialKeyEvent(event, inputTransaction);
+        if (SpecialKeyEvents.handle(this, event, inputTransaction)) {
             return;
         }
 
@@ -1000,31 +998,6 @@ public final class InputLogic {
         }
     }
 
-    private SpecialKeyOutput specialKeyOutput(final InputTransaction inputTransaction) {
-        return new SpecialKeyOutput() {
-            @Override public void commitTyped() {
-                InputLogic.this.commitTyped(inputTransaction.mSettingsValues, "");
-            }
-            @Override public void sendKeyEvent(final int androidKeyCode) {
-                sendDownUpKeyEvent(androidKeyCode, 0);
-            }
-            @Override public void commitText(final String text) {
-                mConnection.commitText(text, 1);
-            }
-        };
-    }
-
-    /**
-     * Handle Escape, Home, End, Page Up/Down, Forward Delete, Insert and F1-F12: keys that a
-     * hardware keyboard sends as key events. With the "send key codes rather than text"
-     * setting off they do nothing, except Escape which inserts a literal ESC character.
-     */
-    private void handleSpecialKeyEvent(final Event event, final InputTransaction inputTransaction) {
-        inputTransaction.setRequiresUpdateSuggestions();
-        SpecialKeyEvents.getBehavior().handleSpecial(event.mKeyCode,
-                specialKeyOutput(inputTransaction));
-    }
-
     /**
      * Handle an event that is not a functional event.
      *
@@ -1039,7 +1012,7 @@ public final class InputLogic {
         inputTransaction.setDidAffectContents();
         switch (event.mCodePoint) {
             case Constants.CODE_TAB:
-                if (!SpecialKeyEvents.getBehavior().handleTab(specialKeyOutput(inputTransaction))) {
+                if (!SpecialKeyEvents.handleTab(this, inputTransaction)) {
                     handleNonSpecialCharacterEvent(event, inputTransaction);
                 }
                 break;
@@ -1107,14 +1080,12 @@ public final class InputLogic {
             return;
         }
 
-        if(codePoint == Constants.CODE_ENTER) {
-            if(inputTransaction.mSettingsValues.mInputAttributes.mSendKeyEventsMode) {
-                sendDownUpKeyEvent(KeyEvent.KEYCODE_ENTER, 0);
-                return;
-            }
-            if(SpecialKeyEvents.getBehavior().handleEnter(specialKeyOutput(inputTransaction))) {
-                return;
-            }
+        if(codePoint == Constants.CODE_ENTER
+                && (inputTransaction.mSettingsValues.mInputAttributes.mSendKeyEventsMode
+                        || SpecialKeyEvents.getBehavior().getEnterAsKeyEvent())
+        ) {
+            sendDownUpKeyEvent(KeyEvent.KEYCODE_ENTER, 0);
+            return;
         }
 
         if (inputTransaction.mSettingsValues.isWordSeparator(codePoint)
