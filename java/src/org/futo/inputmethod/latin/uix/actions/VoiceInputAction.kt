@@ -317,6 +317,7 @@ private class VoiceInputActionWindow(
 
     /** Removes the most recent entry of the undo history from the text before the cursor. */
     internal fun undoLast() {
+        android.util.Log.d("VoiceUndo", "undo pressed: entries=${undoHistory.size} inlineMode=$inlineMode")
         manager.getLifecycleScope().launch(Dispatchers.Main) {
             undoHistory.undoLast(inputTransaction)
         }

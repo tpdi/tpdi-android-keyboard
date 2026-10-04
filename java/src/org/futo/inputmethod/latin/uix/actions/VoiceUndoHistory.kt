@@ -59,7 +59,8 @@ class VoiceUndoHistory {
 
     /** Removes the latest entry from the text before the cursor, if there is one. */
     fun undoLast(transaction: ActionInputTransaction) {
-        val text = entries.lastOrNull() ?: return
+        val text = entries.lastOrNull() ?: run { android.util.Log.d("VoiceUndo", "nothing to undo"); return }
+        android.util.Log.d("VoiceUndo", "undoing [${text.replace("\n", "\\n")}] len=${text.length} remaining=${entries.size - 1}")
         entries.removeAt(entries.lastIndex)
         openTypedEntry = false
         transaction.deleteTextBeforeCursor(text.length)
