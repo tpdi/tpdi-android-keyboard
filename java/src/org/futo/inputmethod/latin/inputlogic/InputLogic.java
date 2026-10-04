@@ -923,7 +923,7 @@ public final class InputLogic {
             return;
         }
 
-        if (SpecialKeyEvents.isKeyEventOnly(event.mKeyCode)) {
+        if (SpecialKeyEvents.isSpecial(event.mKeyCode)) {
             handleSpecialKeyEvent(event, inputTransaction);
             return;
         }

@@ -34,8 +34,8 @@ enum class SpecialKey(val layoutCode: Int, val keyEvent: Int, val textFallback: 
     F11(Constants.CODE_F11, KeyEvent.KEYCODE_F11, null),
     F12(Constants.CODE_F12, KeyEvent.KEYCODE_F12, null);
 
-    /** True for keys that exist only as key events (Escape and Tab have a text form). */
-    val isKeyEventOnly: Boolean get() = this != NONE && textFallback == null
+    /** True for keys InputLogic handles as special keys (Tab is handled with the text keys). */
+    val isSpecial: Boolean get() = this != NONE && this != TAB
 }
 
 object SpecialKeyEvents {
@@ -48,9 +48,9 @@ object SpecialKeyEvents {
     @JvmStatic
     fun androidKeyCodeFor(layoutCode: Int): Int = lookup(layoutCode).keyEvent
 
-    /** True for keys that exist only as key events (no text form at all). */
+    /** True for keys InputLogic handles as special keys (everything here except Tab). */
     @JvmStatic
-    fun isKeyEventOnly(layoutCode: Int): Boolean = lookup(layoutCode).isKeyEventOnly
+    fun isSpecial(layoutCode: Int): Boolean = lookup(layoutCode).isSpecial
 
     /** What to insert when the setting is off, or null for nothing. */
     @JvmStatic
