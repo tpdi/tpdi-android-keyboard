@@ -83,7 +83,8 @@ data class RecordingSettings(
     val canExpandSpace: Boolean,
     val useVADAutoStop: Boolean,
     val useSegmentedResults: Boolean = false,
-    val segmentPauseMs: Int = 600
+    val segmentPauseMs: Int = 600,
+    val filterMadeUpText: Boolean = false
 )
 
 data class AudioRecognizerSettings(
@@ -111,6 +112,14 @@ class AudioRecognizer(
     private val useSegmentedResults = settings.recordingConfiguration.useSegmentedResults
     // VAD runs in 480-sample (30ms @ 16kHz) frames; convert the configured ms to a frame count.
     private val segmentPauseFrames = (settings.recordingConfiguration.segmentPauseMs / 30).coerceAtLeast(1)
+
+    private val filterMadeUpText = settings.recordingConfiguration.filterMadeUpText
+
+    // Whether any speech has been heard since the last segment boundary, and how many 30ms VAD
+    // speech frames the current segment holds. Used only when filterMadeUpText is on.
+    @Volatile
+    private var bufferHasSpeech = false
+    private var segmentSpeechFrames = 0
 
     private var floatSamples: FloatBuffer = FloatBuffer.allocate(16000 * 30)
     private var recorderJob: Job? = null
@@ -253,18 +262,19 @@ class AudioRecognizer(
      * continues immediately; this only snapshots-and-clears the sample
      * buffer so the next segment starts clean.
      */
-    private fun finishSegment() {
+    private fun finishSegment(speechFrames: Int = Int.MAX_VALUE) {
         if (!isRecording || isSegmentProcessing) return
 
         val segmentSamples = floatSamples.array().sliceArray(0 until floatSamples.position())
         floatSamples.clear()
+        bufferHasSpeech = false
 
         if (segmentSamples.isEmpty()) return
 
         isSegmentProcessing = true
         segmentJob = lifecycleScope.launch {
             withContext(Dispatchers.Default) {
-                runSegmentModel(segmentSamples)
+                runSegmentModel(segmentSamples, speechFrames)
             }
         }
     }
@@ -382,9 +392,11 @@ class AudioRecognizer(
                 numConsecutiveNonSpeech = 0
                 numConsecutiveSpeech = 0
                 hasTalked = false
+                val framesThisSegment = segmentSpeechFrames
+                segmentSpeechFrames = 0
                 yield()
                 withContext(Dispatchers.Main) {
-                    finishSegment()
+                    finishSegment(framesThisSegment)
                 }
             }
 
@@ -404,6 +416,7 @@ class AudioRecognizer(
                         } else {
                             numConsecutiveNonSpeech = 0
                             numConsecutiveSpeech++
+                            segmentSpeechFrames++
                         }
                     }
 
@@ -433,6 +446,7 @@ class AudioRecognizer(
             if (startSoundPassed && ((rms > 0.01) || (numConsecutiveSpeech > 8))) {
                 hasTalked = true
             }
+            if (hasTalked) bufferHasSpeech = true
 
             if (rms > 0.0001) {
                 anyNoiseAtAll = true
@@ -584,7 +598,7 @@ class AudioRecognizer(
         }
     }
 
-    private suspend fun runSegmentModel(segmentSamples: FloatArray) {
+    private suspend fun runSegmentModel(segmentSamples: FloatArray, speechFrames: Int) {
         loadModelJob?.let {
             if (it.isActive) it.join()
         }
@@ -604,10 +618,12 @@ class AudioRecognizer(
 
         isSegmentProcessing = false
 
-        val text = when {
+        var text = when {
             isBlankResult(outputText) -> ""
             else -> outputText
         }
+
+        if (filterMadeUpText && MadeUpTextFilter.isMadeUpSegment(text, speechFrames)) text = ""
 
         if (text.isNotEmpty()) {
             yield()
@@ -633,6 +649,19 @@ class AudioRecognizer(
             if (it.isActive) it.join()
         }
 
+        // With segmented results the buffer holds only what came after the last segment; if no
+        // speech was heard in it, skip the decode rather than let the model make something up.
+        if (filterMadeUpText && useSegmentedResults && !bufferHasSpeech) {
+            yield()
+            lifecycleScope.launch {
+                withContext(Dispatchers.Main) {
+                    yield()
+                    listener.finished("")
+                }
+            }
+            return
+        }
+
         val floatArray = floatSamples.array().sliceArray(0 until floatSamples.position())
 
         yield()
@@ -648,10 +677,12 @@ class AudioRecognizer(
             return
         }
 
-        val text = when {
+        var text = when {
             isBlankResult(outputText) -> ""
             else -> outputText
         }
+
+        if (filterMadeUpText && MadeUpTextFilter.isRepetitionLoop(text)) text = ""
 
         yield()
         lifecycleScope.launch {
