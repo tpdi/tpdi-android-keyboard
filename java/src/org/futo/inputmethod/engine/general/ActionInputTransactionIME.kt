@@ -102,6 +102,16 @@ class ActionInputTransactionIME(val helper: IMEHelper) : IMEInterface, ActionInp
         (ic as? InputConnectionInternalComposingWrapper)?.send()
     }
 
+    override fun deleteTextBeforeCursor(length: Int) {
+        if (length <= 0) return
+        helper.requestCursorUpdate()
+        ic?.deleteSurroundingText(length, 0)
+        (ic as? InputConnectionInternalComposingWrapper)?.send()
+    }
+
+    override fun liveTextBeforeCursor(length: Int): String? =
+        ic?.getTextBeforeCursor(length, 0)?.toString()
+
     override fun cancel() {
         helper.requestCursorUpdate()
         commit(partialText)
