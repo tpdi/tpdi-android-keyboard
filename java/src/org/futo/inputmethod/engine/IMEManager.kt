@@ -207,7 +207,7 @@ class IMEManager(
     }
 
     /** A transaction that writes to the input connection without taking over key handling. */
-    fun createUnroutedInputTransaction(): ActionInputTransaction = ActionInputTransactionIME(helper)
+    fun createUnroutedInputTransaction(): ActionInputTransaction = ActionInputTransactionIME(helper, plain = true)
 
     private fun startIme(ime: IMEInterface) {
         ime.onStartInput()
