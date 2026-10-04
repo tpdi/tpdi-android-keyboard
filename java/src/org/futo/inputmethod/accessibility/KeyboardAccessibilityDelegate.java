@@ -188,6 +188,7 @@ public class KeyboardAccessibilityDelegate<KV extends KeyboardView>
                 k.getCode() == Constants.CODE_TO_ALT_0_LAYOUT ||
                 k.getCode() == Constants.CODE_TO_ALT_1_LAYOUT ||
                 k.getCode() == Constants.CODE_TO_ALT_2_LAYOUT ||
+                k.getCode() == Constants.CODE_TO_ALT_3_LAYOUT ||
                 k.getCode() == Constants.CODE_TO_NUMBER_LAYOUT ||
                 (k.getCode() >= Constants.CODE_ACTION_0 && k.getCode() <= Constants.CODE_ACTION_MAX)
         ) {

@@ -278,6 +278,9 @@ public final class Constants {
     public static final int CODE_F10 = -3069;
     public static final int CODE_F11 = -3070;
     public static final int CODE_F12 = -3071;
+    // Jumps to a layout's fourth alternate page. Outside the contiguous alt_0..alt_2 codes, which
+    // are decoded by arithmetic.
+    public static final int CODE_TO_ALT_3_LAYOUT = -3080;
 
     public static final int CODE_ACTION_0 = -1050;
     public static final int CODE_ACTION_MAX = CODE_ACTION_0 + 100;

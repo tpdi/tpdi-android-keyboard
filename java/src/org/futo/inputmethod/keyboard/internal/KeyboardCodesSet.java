@@ -90,6 +90,7 @@ public final class KeyboardCodesSet {
         "key_f10",
         "key_f11",
         "key_f12",
+        "key_to_alt_3_layout",
     };
 
     private static final int[] DEFAULT = {
@@ -137,6 +138,7 @@ public final class KeyboardCodesSet {
         Constants.CODE_F10,
         Constants.CODE_F11,
         Constants.CODE_F12,
+        Constants.CODE_TO_ALT_3_LAYOUT,
     };
 
     static {
