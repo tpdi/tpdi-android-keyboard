@@ -12,4 +12,6 @@ val DismissKeyboardAction = Action(
         manager.getLatinIMEForDebug().requestHideSelf(0)
     },
     windowImpl = null,
+    // Long press opens the keyboard settings (an action key can't show a more-keys popup).
+    altPressImpl = SettingsAction.simplePressImpl,
 )
