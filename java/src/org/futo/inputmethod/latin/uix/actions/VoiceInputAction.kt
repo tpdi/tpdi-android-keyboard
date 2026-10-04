@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.ui.draw.alpha
@@ -329,19 +330,10 @@ private class VoiceInputActionWindow(
                 .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = {
-                recognizerView.value?.finish() ?: manager.closeActionWindow()
-            }) {
-                Icon(
-                    painter = painterResource(R.drawable.mic_fill),
-                    contentDescription = stringResource(R.string.action_voice_input_title),
-                    tint = Color(0xFF3B82F6)
-                )
-            }
             Text(
                 text = "Listening…",
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = 4.dp)
+                modifier = Modifier.padding(start = 8.dp)
             )
             Spacer(modifier = Modifier.weight(1.0f))
             IconButton(onClick = { undoLast() }) {
@@ -349,6 +341,16 @@ private class VoiceInputActionWindow(
                     painter = painterResource(R.drawable.undo),
                     contentDescription = stringResource(R.string.action_voice_input_undo),
                     tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            Spacer(modifier = Modifier.width(40.dp))
+            IconButton(onClick = {
+                recognizerView.value?.finish() ?: manager.closeActionWindow()
+            }) {
+                Icon(
+                    painter = painterResource(R.drawable.mic_fill),
+                    contentDescription = stringResource(R.string.action_voice_input_title),
+                    tint = Color(0xFF3B82F6)
                 )
             }
         }
