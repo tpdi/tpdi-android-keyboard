@@ -121,6 +121,10 @@ class AudioRecognizer(
     private var segmentJob: Job? = null
     private var isSegmentProcessing = false
 
+    // A click gesture waits here until speech spoken before it has been transcribed and
+    // committed, so Enter/Submit can't land ahead of the text it follows.
+    private var pendingGestureCount = 0
+
     private var focusRequest: AudioFocusRequest? = null
 
     private var communicationDevice = "unknown"
@@ -234,6 +238,7 @@ class AudioRecognizer(
         modelJob?.cancel()
         segmentJob?.cancel()
         isSegmentProcessing = false
+        pendingGestureCount = 0
         isRecording = false
 
         modelRunner.cancelAll()
@@ -367,7 +372,7 @@ class AudioRecognizer(
         val clickTimestamps = mutableListOf<Long>()
         var lastClickAtMs = 0L
         val CLICK_PEAK_FLOOR = 0.04f
-        val CLICK_RMS_CEILING = 0.03f
+        val CLICK_RMS_CEILING = 0.05f
         val CLICK_CREST_FACTOR_THRESHOLD = 8.0f
         val CLICK_COOLDOWN_MS = 80L
         val CLICK_WINDOW_MS = 1500L
@@ -379,6 +384,15 @@ class AudioRecognizer(
         // VAD speech frames (30ms each) seen since the last segment boundary; used to throw away
         // segments that are really just clicks plus silence.
         var segmentSpeechFrames = 0
+
+        // Click onsets are found at 6ms resolution inside each 100ms chunk (a chunk-level measure
+        // merges fast double clicks and blurs a click's ring-down into the next chunk).
+        val SUB = 100
+        val subRms = FloatArray(16)
+        val subPeak = FloatArray(16)
+        var prevSubRms = 0f
+        var subsSinceOnset = 100
+        var totalSamplesRead = 0L
 
         val samples = ShortArray(1600)
 
@@ -453,7 +467,10 @@ class AudioRecognizer(
 
             // Don't set hasTalked if the start sound may still be playing, otherwise on some
             // devices the rms just explodes and `hasTalked` is always true
-            val startSoundPassed = (floatSamples.position() > 16000 * 0.6)
+            totalSamplesRead += nRead
+            // Measured from the start of recording, not the buffer position: the buffer is
+            // cleared after every segment and click gesture, which blinded detection for 0.6s.
+            val startSoundPassed = (totalSamplesRead > 16000 * 0.6)
             if (!startSoundPassed) {
                 numConsecutiveSpeech = 0
                 numConsecutiveNonSpeech = 0
@@ -465,10 +482,41 @@ class AudioRecognizer(
             // would send click-only audio to the model ("Thank you", "Thanks for watching").
             val peakAbs = (samples.maxOf { kotlin.math.abs(it.toInt()) }).toFloat() / Short.MAX_VALUE.toFloat()
             val crestFactor = peakAbs / rms.coerceAtLeast(0.0001f)
-            val isClickCandidate = useClickGestures && startSoundPassed &&
+            // Per-subframe energy, then onsets: a sharp rise to a peak well above the chunk's
+            // noise floor, with no rise in the previous ~50ms (so a ring-down isn't recounted).
+            val nSubs = (nRead / SUB).coerceAtMost(16)
+            for (i in 0 until nSubs) {
+                var sumSq = 0.0
+                var pk = 0
+                for (j in i * SUB until (i + 1) * SUB) {
+                    val v = samples[j].toInt()
+                    sumSq += v.toDouble() * v
+                    if (kotlin.math.abs(v) > pk) pk = kotlin.math.abs(v)
+                }
+                subRms[i] = (sqrt(sumSq / SUB) / Short.MAX_VALUE).toFloat()
+                subPeak[i] = pk.toFloat() / Short.MAX_VALUE.toFloat()
+            }
+            val sortedSub = subRms.copyOf(nSubs).also { it.sort() }
+            val floorRms = if (nSubs > 0) sortedSub[nSubs / 2].coerceAtLeast(0.002f) else 0.002f
+            val onsetSubIndices = mutableListOf<Int>()
+            if (useClickGestures && startSoundPassed && rms < CLICK_RMS_CEILING) {
+                for (i in 0 until nSubs) {
+                    subsSinceOnset++
+                    val before = if (i == 0) prevSubRms else subRms[i - 1]
+                    if (subPeak[i] > CLICK_PEAK_FLOOR && subRms[i] > 5f * floorRms &&
+                        before < 0.5f * subRms[i] && subsSinceOnset >= 8) {
+                        onsetSubIndices.add(i)
+                        subsSinceOnset = 0
+                    }
+                }
+            } else {
+                subsSinceOnset += nSubs
+            }
+            if (nSubs > 0) prevSubRms = subRms[nSubs - 1]
+            val isClickCandidate = onsetSubIndices.isNotEmpty() || (useClickGestures && startSoundPassed &&
                     peakAbs > CLICK_PEAK_FLOOR &&
                     rms < CLICK_RMS_CEILING &&
-                    crestFactor > CLICK_CREST_FACTOR_THRESHOLD
+                    crestFactor > CLICK_CREST_FACTOR_THRESHOLD)
             if (isClickCandidate) numConsecutiveSpeech = 0
 
             loudRun = if (startSoundPassed && !isClickCandidate && rms > 0.01) loudRun + 1 else 0
@@ -489,19 +537,38 @@ class AudioRecognizer(
                 }
 
                 val now = System.currentTimeMillis()
-                if (isClickCandidate && (now - lastClickAtMs) > CLICK_COOLDOWN_MS) {
-                    clickTimestamps.add(now)
-                    lastClickAtMs = now
+                for (idx in onsetSubIndices) {
+                    val t = now - ((nSubs - idx) * SUB * 1000L / 16000L)
+                    clickTimestamps.add(t)
+                    lastClickAtMs = t
+                    android.util.Log.d("ClickDetect", "ONSET click #${clickTimestamps.size} sub=$idx")
                 }
 
                 if (clickTimestamps.isNotEmpty() && (now - lastClickAtMs) > CLICK_WINDOW_MS) {
                     val count = clickTimestamps.size
                     clickTimestamps.clear()
                     if (count >= 2) {
-                        val reportedCount = count.coerceAtMost(3)
+                        pendingGestureCount = count.coerceAtMost(3)
                         // Clicks alone make Whisper hallucinate ("Thank you"); drop them unless
                         // speech is still waiting in the buffer.
                         if (!hasTalked) floatSamples.clear()
+                    }
+                }
+
+                if (pendingGestureCount > 0) {
+                    if (hasTalked && !isSegmentProcessing) {
+                        // Speech before the click hasn't been sent for transcription yet; do it now.
+                        hasTalked = false
+                        numConsecutiveSpeech = 0
+                        numConsecutiveNonSpeech = 0
+                        segmentSpeechFrames = 0
+                        yield()
+                        withContext(Dispatchers.Main) {
+                            finishSegment()
+                        }
+                    } else if (!hasTalked && !isSegmentProcessing) {
+                        val reportedCount = pendingGestureCount
+                        pendingGestureCount = 0
                         yield()
                         withContext(Dispatchers.Main) {
                             listener.clickGesture(reportedCount)
