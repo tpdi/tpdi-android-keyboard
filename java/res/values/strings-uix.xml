@@ -747,4 +747,6 @@ Default is %1$s</string>
     <string name="voice_input_settings_circle_over_keys_subtitle">While dictating over the keyboard, draw the volume circle over the keys too. Off: only the bar shows it and nothing covers the keyboard.</string>
     <string name="voice_input_settings_needs_over_keyboard_note">Turn on \"Dictate over the keyboard\" to use this.</string>
     <string name="toms_features_title">Tom\'s Features</string>
+    <string name="keyboard_settings_sticky_modifier_keys">Sticky Ctrl and Alt keys</string>
+    <string name="keyboard_settings_sticky_modifier_keys_subtitle">Make the Ctrl and Alt keys of a custom layout work: tap one, then the next key is sent as a real key event with it held (Ctrl+C, Alt+Tab, ...). Off by default; with it off those keys do nothing.</string>
 </resources>

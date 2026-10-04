@@ -269,6 +269,12 @@ public final class Constants {
     // F1 is CODE_F1, F2 is CODE_F1 - 1, ... F12 is CODE_F1 - 11
     public static final int CODE_F1 = -3060;
     public static final int CODE_F12 = CODE_F1 - 11;
+    // Jumps to a layout's fourth alternate page. Outside the contiguous alt_0..alt_2 codes, which
+    // are decoded by arithmetic.
+    public static final int CODE_TO_ALT_3_LAYOUT = -3080;
+    // Sticky modifier keys (see StickyModifiers).
+    public static final int CODE_CTRL = -3081;
+    public static final int CODE_ALT = -3082;
 
     public static final int CODE_ACTION_0 = -1050;
     public static final int CODE_ACTION_MAX = CODE_ACTION_0 + 100;
