@@ -368,7 +368,7 @@ class AudioRecognizer(
         // different from speech, which carries energy over much longer stretches. Tracked
         // independently of the VAD/transcription pipeline entirely; the audio never reaches
         // Whisper for this. clickTimestamps holds recent click times (ms); once CLICK_WINDOW_MS
-        // has elapsed since the first one, the count decides double (Enter) vs triple+ (submit).
+        // has elapsed since the first one, the count decides whether it was a double (Enter); three or more does nothing.
         val clickTimestamps = mutableListOf<Long>()
         var lastClickAtMs = 0L
         val CLICK_PEAK_FLOOR = 0.04f

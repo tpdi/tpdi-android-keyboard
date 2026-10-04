@@ -94,8 +94,7 @@ val VOICE_INPUT_SEGMENT_PAUSE_MS = SettingsKey(
 )
 
 // Master switch for click-gesture controls: a double click (two sharp audio
-// transients close together) sends Enter, a triple click triggers the
-// field's submit/go/done action. Detected from the raw microphone signal,
+// transients close together) sends Enter. Detected from the raw microphone signal,
 // never touches the transcription model. Off by default -- with it off the
 // click detector doesn't run at all.
 val VOICE_INPUT_CLICK_GESTURES = SettingsKey(

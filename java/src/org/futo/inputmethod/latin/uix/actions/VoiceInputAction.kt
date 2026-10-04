@@ -243,12 +243,6 @@ private class VoiceInputActionWindow(
         }
     }
 
-    private fun pressSubmit() {
-        manager.getLifecycleScope().launch(Dispatchers.Main) {
-            inputTransaction.performEditorAction()
-        }
-    }
-
     @Composable
     private fun ModelDownloader(modelException: ModelDoesNotExistException) {
         NoModelInstalled(locales.firstOrNull() ?: Locale.ROOT)
@@ -298,13 +292,6 @@ private class VoiceInputActionWindow(
                         Icon(
                             painter = painterResource(R.drawable.arrow_down),
                             contentDescription = stringResource(R.string.action_voice_input_enter),
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    IconButton(onClick = { pressSubmit() }) {
-                        Icon(
-                            painter = painterResource(R.drawable.check),
-                            contentDescription = stringResource(R.string.action_voice_input_submit),
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -374,7 +361,6 @@ private class VoiceInputActionWindow(
 
     override fun clickGesture(clickCount: Int) {
         when {
-            clickCount >= 3 -> pressSubmit()
             clickCount == 2 -> pressEnter()
         }
     }

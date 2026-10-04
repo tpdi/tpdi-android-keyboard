@@ -113,44 +113,6 @@ class ActionInputTransactionIME(val helper: IMEHelper) : IMEInterface, ActionInp
     override fun liveTextBeforeCursor(length: Int): String? =
         ic?.getTextBeforeCursor(length, 0)?.toString()
 
-    override fun performEditorAction() {
-        val editorInfo = helper.getCurrentEditorInfo() ?: return
-
-        // Mirrors InputLogic's handling of the real Enter key (CODE_ENTER) for an editor action.
-        val imeOptionsActionId = InputTypeUtils.getImeOptionsActionIdFromEditorInfo(editorInfo)
-        val isCustomAction = InputTypeUtils.IME_ACTION_CUSTOM_LABEL == imeOptionsActionId
-        val isEditorAction = EditorInfo.IME_ACTION_NONE != imeOptionsActionId
-
-        if (isCustomAction) {
-            ic?.performEditorAction(editorInfo.actionId)
-        } else if (isEditorAction) {
-            ic?.performEditorAction(imeOptionsActionId)
-        }
-        else {
-            // Multi-line fields declare no action. First try the Send editor action anyway: some
-            // apps handle it without declaring it. If the text is still there shortly after,
-            // fall back to a real Ctrl+Enter sequence (Ctrl down, Enter down/up, Ctrl up).
-            val before = ic?.getTextBeforeCursor(2000, 0)?.toString()
-            android.util.Log.d("SubmitDebug", "no declared action (imeOptions=${editorInfo.imeOptions}, inputType=${editorInfo.inputType}); trying IME_ACTION_SEND, before.len=${before?.length}")
-            ic?.performEditorAction(EditorInfo.IME_ACTION_SEND)
-            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                val after = ic?.getTextBeforeCursor(2000, 0)?.toString()
-                android.util.Log.d("SubmitDebug", "after SEND: unchanged=${after == before} after.len=${after?.length}")
-                if (after == before) {
-                    android.util.Log.d("SubmitDebug", "sending Ctrl+Enter sequence")
-                    val now = android.os.SystemClock.uptimeMillis()
-                    val ctrl = android.view.KeyEvent.META_CTRL_ON or android.view.KeyEvent.META_CTRL_LEFT_ON
-                    fun key(action: Int, code: Int, meta: Int) =
-                        ic?.sendKeyEvent(android.view.KeyEvent(now, now, action, code, 0, meta))
-                    key(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_CTRL_LEFT, ctrl)
-                    key(android.view.KeyEvent.ACTION_DOWN, android.view.KeyEvent.KEYCODE_ENTER, ctrl)
-                    key(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_ENTER, ctrl)
-                    key(android.view.KeyEvent.ACTION_UP, android.view.KeyEvent.KEYCODE_CTRL_LEFT, 0)
-                }
-            }, 250)
-        }
-    }
-
     override fun cancel() {
         helper.requestCursorUpdate()
         commit(partialText)
