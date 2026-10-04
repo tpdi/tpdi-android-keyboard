@@ -15,6 +15,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_STOCK_PHRASES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_CIRCLE_OVER_KEYS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
 import org.futo.inputmethod.latin.uix.AUDIO_FOCUS
@@ -198,6 +199,24 @@ val VoiceInputMenu = UserSettingsMenu(
             title = R.string.voice_input_settings_segmented_results,
             subtitle = R.string.voice_input_settings_segmented_results_subtitle,
             setting = VOICE_INPUT_SEGMENTED_RESULTS
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        UserSetting(
+            name = R.string.voice_input_settings_circle_over_keys,
+            subtitle = R.string.voice_input_settings_circle_over_keys_subtitle,
+            component = {
+                // Keeps its stored value but can't be changed while dictating over the keyboard
+                // is off; the original subtitle stays and a note is added underneath.
+                val overKeyboard = useDataStoreValue(VOICE_INPUT_OVER_KEYBOARD)
+                val base = stringResource(R.string.voice_input_settings_circle_over_keys_subtitle)
+                SettingToggleDataStore(
+                    title = stringResource(R.string.voice_input_settings_circle_over_keys),
+                    setting = VOICE_INPUT_CIRCLE_OVER_KEYS,
+                    subtitle = if (overKeyboard) base else base + "\n" +
+                            stringResource(R.string.voice_input_settings_needs_over_keyboard_note),
+                    disabled = !overKeyboard
+                )
+            }
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(

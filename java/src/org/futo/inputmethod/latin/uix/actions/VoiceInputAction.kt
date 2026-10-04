@@ -51,6 +51,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import androidx.compose.ui.unit.Dp
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_CIRCLE_OVER_KEYS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
 import org.futo.inputmethod.latin.uix.TypedTextTap
@@ -224,6 +225,7 @@ private class VoiceInputActionWindow(
     private val switchModeButtons = context.getSetting(VOICE_INPUT_SWITCH_MODE_BUTTONS)
     private val hideKeyboardButton = context.getSetting(VOICE_INPUT_HIDE_KEYBOARD_BUTTON)
     private var keyboardCollapsed by mutableStateOf(false)
+    private val circleOverKeys = context.getSetting(VOICE_INPUT_CIRCLE_OVER_KEYS)
 
     private fun newTransaction() =
         if (inlineMode) manager.createUnroutedInputTransaction() else manager.createInputTransaction()
@@ -294,7 +296,9 @@ private class VoiceInputActionWindow(
 
     @Composable
     override fun KeyboardOverlay() {
-        VoiceVolumeCircleOverlay { recognizerView.value?.Content(circleOnly = true) }
+        if (circleOverKeys) {
+            VoiceVolumeCircleOverlay { recognizerView.value?.Content(circleOnly = true) }
+        }
     }
 
     // What this session has committed (and, with the UI PRs, typed), so Undo can take it back
