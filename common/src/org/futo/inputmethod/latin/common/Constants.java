@@ -266,9 +266,18 @@ public final class Constants {
     public static final int CODE_PAGE_DOWN = -3054;
     public static final int CODE_FORWARD_DELETE = -3055;
     public static final int CODE_INSERT = -3056;
-    // F1 is CODE_F1, F2 is CODE_F1 - 1, ... F12 is CODE_F1 - 11
     public static final int CODE_F1 = -3060;
-    public static final int CODE_F12 = CODE_F1 - 11;
+    public static final int CODE_F2 = -3061;
+    public static final int CODE_F3 = -3062;
+    public static final int CODE_F4 = -3063;
+    public static final int CODE_F5 = -3064;
+    public static final int CODE_F6 = -3065;
+    public static final int CODE_F7 = -3066;
+    public static final int CODE_F8 = -3067;
+    public static final int CODE_F9 = -3068;
+    public static final int CODE_F10 = -3069;
+    public static final int CODE_F11 = -3070;
+    public static final int CODE_F12 = -3071;
 
     public static final int CODE_ACTION_0 = -1050;
     public static final int CODE_ACTION_MAX = CODE_ACTION_0 + 100;

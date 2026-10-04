@@ -1016,10 +1016,10 @@ public final class InputLogic {
         inputTransaction.setRequiresUpdateSuggestions();
         if (sendKeyCodesRatherThanText()) {
             sendDownUpKeyEvent(SpecialKeyEvents.androidKeyCodeFor(event.mKeyCode), 0);
-            return;
+        } else {
+            final String text = SpecialKeyEvents.textFallbackFor(event.mKeyCode);
+            if (text != null) mConnection.commitText(text, 1);
         }
-        final String text = SpecialKeyEvents.textFallbackFor(event.mKeyCode);
-        if (text != null) mConnection.commitText(text, 1);
     }
 
     /**
