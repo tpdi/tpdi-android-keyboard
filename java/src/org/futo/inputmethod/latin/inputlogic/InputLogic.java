@@ -1029,7 +1029,7 @@ public final class InputLogic {
         commitTyped(inputTransaction.mSettingsValues, "");
         inputTransaction.setRequiresUpdateSuggestions();
         if (sendKeyCodesRatherThanText()) {
-            sendDownUpKeyEvent(SpecialKeyEvents.androidKeyCodeFor(event.mKeyCode), 0);
+            sendDownUpKeyEvent(SpecialKeyEvents.androidKeyCodeFor(event.mKeyCode), StickyModifiers.take());
             return;
         }
         final String text = SpecialKeyEvents.textFallbackFor(event.mKeyCode);
