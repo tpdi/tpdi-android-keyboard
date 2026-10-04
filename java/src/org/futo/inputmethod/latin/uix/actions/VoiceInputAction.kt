@@ -44,6 +44,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import androidx.compose.ui.unit.Dp
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_TAP_CIRCLE_TO_STOP
 import org.futo.inputmethod.latin.uix.TypedTextTap
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
@@ -203,6 +204,7 @@ private class VoiceInputActionWindow(
     }
 
     private val inlineMode = context.getSetting(VOICE_INPUT_OVER_KEYBOARD)
+    private val tapCircleToStop = context.getSetting(VOICE_INPUT_TAP_CIRCLE_TO_STOP)
 
     private fun newTransaction() =
         if (inlineMode) manager.createUnroutedInputTransaction() else manager.createInputTransaction()
@@ -252,6 +254,9 @@ private class VoiceInputActionWindow(
     @Composable
     override fun KeyboardOverlay() {
         VoiceVolumeCircleOverlay { recognizerView.value?.Content() }
+        if (tapCircleToStop) {
+            VoiceCircleTapToStop { recognizerView.value?.finish() ?: manager.closeActionWindow() }
+        }
     }
 
     // What this session has committed (and, with the UI PRs, typed), so Undo can take it back

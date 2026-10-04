@@ -1,6 +1,7 @@
 package org.futo.inputmethod.latin.uix.actions
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -119,5 +120,24 @@ fun VoiceVolumeCircleOverlay(circle: @Composable () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         circle()
+    }
+}
+
+/**
+ * A precise tap on the middle of the volume circle ends the session; a touch anywhere else falls
+ * through to the keys underneath.
+ */
+@Composable
+fun VoiceCircleTapToStop(onStop: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier
+                .size(56.dp)
+                .clip(CircleShape)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { onStop() }
+        )
     }
 }
