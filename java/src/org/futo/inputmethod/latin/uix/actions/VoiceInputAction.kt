@@ -274,7 +274,7 @@ private class VoiceInputActionWindow(
     private fun pressEnter() {
         manager.getLifecycleScope().launch(Dispatchers.Main) {
             inputTransaction.commit("\n")
-            inputTransaction = manager.createInputTransaction()
+            inputTransaction = newTransaction()
             undoHistory.pushVoiceEntry("\n")
         }
     }
@@ -404,11 +404,7 @@ private class VoiceInputActionWindow(
 
     override fun clickGesture(clickCount: Int) {
         // Any burst of two or more clicks is one Enter.
-        if (clickCount < 2) return
-        manager.getLifecycleScope().launch(Dispatchers.Main) {
-            inputTransaction.commit("\n")
-            inputTransaction = manager.createInputTransaction()
-        }
+        if (clickCount >= 2) pressEnter()
     }
 
     override fun partialResult(result: String) {
