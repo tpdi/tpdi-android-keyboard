@@ -746,4 +746,5 @@ Default is %1$s</string>
     <string name="voice_input_settings_circle_over_keys">Volume circle over the keys</string>
     <string name="voice_input_settings_circle_over_keys_subtitle">While dictating over the keyboard, draw the volume circle over the keys too. Off: only the bar shows it and nothing covers the keyboard.</string>
     <string name="voice_input_settings_needs_over_keyboard_note">Turn on \"Dictate over the keyboard\" to use this.</string>
+    <string name="toms_features_title">Tom\'s Features</string>
 </resources>
