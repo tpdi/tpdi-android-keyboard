@@ -682,7 +682,7 @@ class AudioRecognizer(
             else -> outputText
         }
 
-        if (filterMadeUpText && MadeUpTextFilter.isRepetitionLoop(text)) text = ""
+        if (filterMadeUpText && (MadeUpTextFilter.isRepetitionLoop(text) || MadeUpTextFilter.isStockPhrase(text))) text = ""
 
         yield()
         lifecycleScope.launch {
