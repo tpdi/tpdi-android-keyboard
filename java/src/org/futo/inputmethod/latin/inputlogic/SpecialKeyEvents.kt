@@ -42,6 +42,18 @@ object SpecialKeyEvents {
     private val byLayoutCode: Map<Int, SpecialKey> =
         SpecialKey.values().filter { it != SpecialKey.NONE }.associateBy { it.layoutCode }
 
+    /** The behavior for the current state of the setting; see [SpecialKeyBehavior]. */
+    @Volatile
+    @JvmStatic
+    var behavior: SpecialKeyBehavior = TextBehavior
+        private set
+
+    /** Called at startup and whenever the "send key codes rather than text" setting changes. */
+    @JvmStatic
+    fun onSettingChanged(sendKeyCodes: Boolean) {
+        behavior = if (sendKeyCodes) KeyEventBehavior else TextBehavior
+    }
+
     private fun lookup(layoutCode: Int): SpecialKey = byLayoutCode[layoutCode] ?: SpecialKey.NONE
 
     /** The Android key code for a layout key code, or -1 if the key is not in this class. */

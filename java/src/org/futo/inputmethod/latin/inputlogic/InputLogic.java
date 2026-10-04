@@ -53,7 +53,6 @@ import org.futo.inputmethod.latin.settings.SettingsValues;
 import org.futo.inputmethod.latin.settings.SettingsValuesForSuggestion;
 import org.futo.inputmethod.latin.settings.SpacingAndPunctuations;
 import org.futo.inputmethod.latin.suggestions.SuggestionStripViewAccessor;
-import org.futo.inputmethod.latin.uix.KeyCodesSettingKeysKt;
 import org.futo.inputmethod.latin.uix.SettingsKt;
 import org.futo.inputmethod.latin.uix.actions.BugViewerKt;
 import org.futo.inputmethod.latin.utils.InputTypeUtils;
@@ -1001,9 +1000,18 @@ public final class InputLogic {
         }
     }
 
-    private boolean sendKeyCodesRatherThanText() {
-        return SettingsKt.getSettingBlocking(mImeHelper.getContextForSettings(),
-                KeyCodesSettingKeysKt.getSEND_KEY_CODES_RATHER_THAN_TEXT());
+    private SpecialKeyOutput specialKeyOutput(final InputTransaction inputTransaction) {
+        return new SpecialKeyOutput() {
+            @Override public void commitTyped() {
+                InputLogic.this.commitTyped(inputTransaction.mSettingsValues, "");
+            }
+            @Override public void sendKeyEvent(final int androidKeyCode) {
+                sendDownUpKeyEvent(androidKeyCode, 0);
+            }
+            @Override public void commitText(final String text) {
+                mConnection.commitText(text, 1);
+            }
+        };
     }
 
     /**
@@ -1012,14 +1020,9 @@ public final class InputLogic {
      * setting off they do nothing, except Escape which inserts a literal ESC character.
      */
     private void handleSpecialKeyEvent(final Event event, final InputTransaction inputTransaction) {
-        commitTyped(inputTransaction.mSettingsValues, "");
         inputTransaction.setRequiresUpdateSuggestions();
-        if (sendKeyCodesRatherThanText()) {
-            sendDownUpKeyEvent(SpecialKeyEvents.androidKeyCodeFor(event.mKeyCode), 0);
-        } else {
-            final String text = SpecialKeyEvents.textFallbackFor(event.mKeyCode);
-            if (text != null) mConnection.commitText(text, 1);
-        }
+        SpecialKeyEvents.getBehavior().handleSpecial(event.mKeyCode,
+                specialKeyOutput(inputTransaction));
     }
 
     /**
@@ -1036,10 +1039,7 @@ public final class InputLogic {
         inputTransaction.setDidAffectContents();
         switch (event.mCodePoint) {
             case Constants.CODE_TAB:
-                if (sendKeyCodesRatherThanText()) {
-                    commitTyped(inputTransaction.mSettingsValues, "");
-                    sendDownUpKeyEvent(SpecialKeyEvents.androidKeyCodeFor(event.mCodePoint), 0);
-                } else {
+                if (!SpecialKeyEvents.getBehavior().handleTab(specialKeyOutput(inputTransaction))) {
                     handleNonSpecialCharacterEvent(event, inputTransaction);
                 }
                 break;
@@ -1107,12 +1107,14 @@ public final class InputLogic {
             return;
         }
 
-        if(codePoint == Constants.CODE_ENTER
-                && (inputTransaction.mSettingsValues.mInputAttributes.mSendKeyEventsMode
-                        || sendKeyCodesRatherThanText())
-        ) {
-            sendDownUpKeyEvent(KeyEvent.KEYCODE_ENTER, 0);
-            return;
+        if(codePoint == Constants.CODE_ENTER) {
+            if(inputTransaction.mSettingsValues.mInputAttributes.mSendKeyEventsMode) {
+                sendDownUpKeyEvent(KeyEvent.KEYCODE_ENTER, 0);
+                return;
+            }
+            if(SpecialKeyEvents.getBehavior().handleEnter(specialKeyOutput(inputTransaction))) {
+                return;
+            }
         }
 
         if (inputTransaction.mSettingsValues.isWordSeparator(codePoint)
