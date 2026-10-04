@@ -45,6 +45,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_INLINE_PARTIAL_RESULT
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_MADE_UP_TEXT
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_STOCK_PHRASES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import androidx.compose.ui.unit.Dp
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
@@ -154,7 +155,10 @@ private class VoiceInputActionWindow(
         shouldPlaySounds = enableSound
 
         return RecognizerViewSettings(
-            shouldShowInlinePartialResult = context.getSetting(VOICE_INPUT_INLINE_PARTIAL_RESULT),
+            // Dictating over the keyboard puts the words straight into the text field, so the bubble
+            // doesn't repeat them.
+            shouldShowInlinePartialResult = context.getSetting(VOICE_INPUT_INLINE_PARTIAL_RESULT) &&
+                    !context.getSetting(VOICE_INPUT_OVER_KEYBOARD),
             shouldShowVerboseFeedback = verboseFeedback,
             shouldAnimateBubble = animateBubble,
             modelRunConfiguration = MultiModelRunConfiguration(
@@ -174,7 +178,8 @@ private class VoiceInputActionWindow(
                 useSegmentedResults = useSegmentedResults,
                 segmentPauseMs = segmentPauseMs,
                 filterMadeUpText = context.getSetting(VOICE_INPUT_FILTER_MADE_UP_TEXT),
-                useClickGestures = context.getSetting(VOICE_INPUT_CLICK_GESTURES)
+                useClickGestures = context.getSetting(VOICE_INPUT_CLICK_GESTURES),
+                filterStockPhrases = context.getSetting(VOICE_INPUT_FILTER_STOCK_PHRASES)
             )
         )
     }
