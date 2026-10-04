@@ -25,7 +25,7 @@ fun VoiceActionButtons(onUndo: () -> Unit, onEnter: () -> Unit, modifier: Modifi
         }
         IconButton(onClick = onEnter) {
             Icon(
-                painter = painterResource(R.drawable.arrow_down),
+                painter = painterResource(R.drawable.sym_keyboard_return_lxx_dark),
                 contentDescription = stringResource(R.string.action_voice_input_enter),
                 tint = MaterialTheme.colorScheme.onSurface
             )
