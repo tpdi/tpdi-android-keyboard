@@ -12,6 +12,9 @@ interface AudioRecognizerListener {
     fun languageDetected(language: Language)
     fun partialResult(result: String)
 
+    /** A segment was just handed off for transcription (speech ended); its result comes later. */
+    fun segmentStarted() {}
+
     /** A segment was finalized mid-recording (pause-triggered); recording continues. */
     fun segmentResult(result: String)
     /** A burst of two or more clicks (2, or 3 for three or more) was detected in the raw audio. */

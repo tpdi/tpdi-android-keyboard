@@ -173,10 +173,14 @@ private fun BoxScope.BluetoothToggleIcon(device: MutableState<MicrophoneDeviceSt
 fun InnerRecognize(
     magnitude: MutableFloatState = mutableFloatStateOf(0.5f),
     state: MutableState<MagnitudeState> = mutableStateOf(MagnitudeState.MIC_MAY_BE_BLOCKED),
-    device: MutableState<MicrophoneDeviceState>? = null
+    device: MutableState<MicrophoneDeviceState>? = null,
+    // Just the circle: no microphone icon and no caption (used when dictating over the keyboard).
+    circleOnly: Boolean = false
 ) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         AnimatedRecognizeCircle(magnitude = magnitude)
+
+        if (circleOnly) return@Box
 
         Icon(
             painter = painterResource(R.drawable.mic_2_),
