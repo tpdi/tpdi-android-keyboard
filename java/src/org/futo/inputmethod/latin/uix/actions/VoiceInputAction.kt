@@ -154,7 +154,10 @@ private class VoiceInputActionWindow(
         shouldPlaySounds = enableSound
 
         return RecognizerViewSettings(
-            shouldShowInlinePartialResult = context.getSetting(VOICE_INPUT_INLINE_PARTIAL_RESULT),
+            // Dictating over the keyboard puts the words straight into the text field, so the bubble
+            // doesn't repeat them.
+            shouldShowInlinePartialResult = context.getSetting(VOICE_INPUT_INLINE_PARTIAL_RESULT) &&
+                    !context.getSetting(VOICE_INPUT_OVER_KEYBOARD),
             shouldShowVerboseFeedback = verboseFeedback,
             shouldAnimateBubble = animateBubble,
             modelRunConfiguration = MultiModelRunConfiguration(
