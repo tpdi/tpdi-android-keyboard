@@ -730,4 +730,9 @@ Default is %1$s</string>
     <string name="action_voice_input_enter">Enter</string>
     <string name="voice_input_settings_action_buttons">On-screen Undo/Enter buttons</string>
     <string name="voice_input_settings_action_buttons_subtitle">Show a button strip next to the voice input bubble to undo the last thing it typed, or press Enter. Off by default.</string>
+    <string name="voice_input_settings_over_keyboard">Dictate over the keyboard</string>
+    <string name="voice_input_settings_over_keyboard_subtitle">Keep the keyboard visible while dictating: shows Listening… and Undo in the suggestion bar and the volume circle over the keys. Tap the blue microphone to stop. Typed text goes into the same Undo history as dictated text. Off by default.</string>
+    <string name="voice_input_settings_tap_circle_to_stop">Tap the circle to stop</string>
+    <string name="voice_input_settings_tap_circle_to_stop_subtitle">When dictating over the keyboard, a precise tap on the middle of the volume circle ends the session. Turn this off to stop only with the blue microphone button.</string>
+    <string name="voice_input_settings_tap_circle_to_stop_disabled_note">Turn on \"Dictate over the keyboard\" to use this.</string>
 </resources>

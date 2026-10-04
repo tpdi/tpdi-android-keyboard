@@ -274,6 +274,10 @@ class UixActionKeyboardManager(val uixManager: UixManager, val latinIME: LatinIM
         return latinIME.lifecycleScope
     }
 
+    override fun createUnroutedInputTransaction(): ActionInputTransaction {
+        return latinIME.imeManager.createUnroutedInputTransaction()
+    }
+
     override fun createInputTransaction(): ActionInputTransaction {
         return latinIME.imeManager.createInputTransaction()
     }
@@ -853,7 +857,9 @@ class UixManager(private val latinIME: LatinIME) {
                     null
                 }
 
-                if(!needToUseExpandableSuggestionUi) {
+                if(windowImpl.overridesSuggestionBar) {
+                    windowImpl.SuggestionBarOverride()
+                } else if(!needToUseExpandableSuggestionUi) {
                     CollapsibleSuggestionsBar(
                         onCollapse = { toggleExpandAction() },
                         onClose = { closeActionWindow() },
@@ -1285,6 +1291,7 @@ class UixManager(private val latinIME: LatinIME) {
                     val needToUseExpandableSuggestionUi =
                         expandableSuggestionCfg.value.useExpandableUi && suggestedWords.value?.size()?.equals(0) != true
                                 && mainKeyboardHidden.value == false
+                                && currWindowActionWindow.value?.overridesSuggestionBar != true
                                 && (quickClipState.value == null || inlineStuffHiddenByTyping.value)
                                 && currentNotice.value == null
                                 && (inlineSuggestions.value.isEmpty() || inlineStuffHiddenByTyping.value)
@@ -1342,6 +1349,12 @@ class UixManager(private val latinIME: LatinIME) {
                             }
                             .absoluteOffset { IntOffset(0, keyboardViewOffset.intValue) },
                             hidden = mainKeyboardHidden.value)
+
+                        currWindowActionWindow.value?.let { window ->
+                            if (window.overridesSuggestionBar) {
+                                Box(Modifier.matchParentSize()) { window.KeyboardOverlay() }
+                            }
+                        }
                     }
 
                     if(latinIME.size.value !is FloatingKeyboardSize) {

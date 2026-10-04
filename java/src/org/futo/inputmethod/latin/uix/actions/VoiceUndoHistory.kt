@@ -43,6 +43,20 @@ class VoiceUndoHistory {
         openTypedEntry = !Character.isWhitespace(codePoint)
     }
 
+    /**
+     * Puts [voiceEntry] at position [index], moving everything recorded from that position on
+     * behind it: the on-screen order when text typed while a segment was being transcribed ends
+     * up after the spoken words.
+     */
+    fun insertVoiceEntryAt(index: Int, voiceEntry: String) {
+        val from = index.coerceIn(0, entries.size)
+        val after = entries.subList(from, entries.size).toList()
+        while (entries.size > from) entries.removeAt(entries.lastIndex)
+        entries.add(voiceEntry)
+        entries.addAll(after)
+        openTypedEntry = false
+    }
+
     /** Removes the latest entry from the text before the cursor, if there is one. */
     fun undoLast(transaction: ActionInputTransaction) {
         val text = entries.lastOrNull() ?: return
