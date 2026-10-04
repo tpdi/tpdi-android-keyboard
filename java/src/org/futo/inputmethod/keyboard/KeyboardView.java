@@ -38,6 +38,7 @@ import org.futo.inputmethod.keyboard.internal.KeyVisualAttributes;
 import org.futo.inputmethod.latin.uix.DynamicThemeProvider;
 import org.futo.inputmethod.latin.R;
 import org.futo.inputmethod.latin.common.Constants;
+import org.futo.inputmethod.latin.inputlogic.StickyModifiers;
 import org.futo.inputmethod.latin.uix.theme.KeyDrawingConfiguration;
 import org.futo.inputmethod.latin.uix.theme.KeyOutline;
 import org.futo.inputmethod.latin.utils.TypefaceUtils;
@@ -451,7 +452,11 @@ public class KeyboardView extends View {
         final Drawable hintIcon = kdc.getHintIcon();
         float labelX = centerX;
         float labelBaseline = centerY;
-        final String label = kdc.getLabel();
+        String label = kdc.getLabel();
+        // A latched sticky modifier (Ctrl, Alt) shows its label in capitals.
+        if (label != null && StickyModifiers.isLatched(key.getCode())) {
+            label = label.toUpperCase(java.util.Locale.ROOT);
+        }
         final Rect bgPadding = kdc.getBackgroundPadding();
         final KeyOutline outline = kdc.getOutline();
 
