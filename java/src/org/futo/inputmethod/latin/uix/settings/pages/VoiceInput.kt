@@ -31,6 +31,7 @@ import org.futo.inputmethod.latin.uix.settings.Tip
 import org.futo.inputmethod.latin.uix.settings.UserSetting
 import org.futo.inputmethod.latin.uix.settings.UserSettingsMenu
 import org.futo.inputmethod.latin.uix.settings.useDataStore
+import org.futo.inputmethod.latin.uix.settings.SettingToggleDataStore
 import org.futo.inputmethod.latin.uix.settings.useDataStoreValue
 import org.futo.inputmethod.latin.uix.settings.userSettingNavigationItem
 import org.futo.inputmethod.latin.uix.settings.userSettingToggleDataStore
@@ -209,12 +210,22 @@ val VoiceInputMenu = UserSettingsMenu(
             setting = VOICE_INPUT_OVER_KEYBOARD
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
-        userSettingToggleDataStore(
-            title = R.string.voice_input_settings_tap_circle_to_stop,
+        UserSetting(
+            name = R.string.voice_input_settings_tap_circle_to_stop,
             subtitle = R.string.voice_input_settings_tap_circle_to_stop_subtitle,
-            setting = VOICE_INPUT_TAP_CIRCLE_TO_STOP,
-            // Keeps its stored value but can't be changed while dictating over the keyboard is off.
-            disabled = { !useDataStoreValue(VOICE_INPUT_OVER_KEYBOARD) }
+            component = {
+                // Keeps its stored value but can't be changed while dictating over the keyboard
+                // is off; the original subtitle stays and a note is added underneath.
+                val overKeyboard = useDataStoreValue(VOICE_INPUT_OVER_KEYBOARD)
+                val base = stringResource(R.string.voice_input_settings_tap_circle_to_stop_subtitle)
+                SettingToggleDataStore(
+                    title = stringResource(R.string.voice_input_settings_tap_circle_to_stop),
+                    setting = VOICE_INPUT_TAP_CIRCLE_TO_STOP,
+                    subtitle = if (overKeyboard) base else base + "\n" +
+                            stringResource(R.string.voice_input_settings_tap_circle_to_stop_disabled_note),
+                    disabled = !overKeyboard
+                )
+            }
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(

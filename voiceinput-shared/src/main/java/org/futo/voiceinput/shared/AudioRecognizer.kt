@@ -125,6 +125,11 @@ class AudioRecognizer(
     // committed, so Enter/Submit can't land ahead of the text it follows.
     private var pendingGestureCount = 0
 
+    // Whether any speech has been heard since the last segment boundary. When it hasn't, the
+    // leftover buffer is silence/noise and decoding it just makes the model invent text.
+    @Volatile
+    private var bufferHasSpeech = false
+
     private var focusRequest: AudioFocusRequest? = null
 
     private var communicationDevice = "unknown"
@@ -265,6 +270,7 @@ class AudioRecognizer(
 
         val segmentSamples = floatSamples.array().sliceArray(0 until floatSamples.position())
         floatSamples.clear()
+        bufferHasSpeech = false
 
         if (segmentSamples.isEmpty()) return
 
@@ -425,6 +431,7 @@ class AudioRecognizer(
                 segmentSpeechFrames = 0
                 if (tooLittleSpeech) {
                     floatSamples.clear()
+                    bufferHasSpeech = false
                 } else {
                     yield()
                     withContext(Dispatchers.Main) {
@@ -525,6 +532,7 @@ class AudioRecognizer(
             if (startSoundPassed && ((loudRun >= sustainedLoudRequired) || (numConsecutiveSpeech > 8))) {
                 hasTalked = true
             }
+            if (hasTalked) bufferHasSpeech = true
 
             if (useClickGestures && startSoundPassed) {
                 // TEMPORARY: calibration logging, remove once thresholds are tuned against
@@ -555,7 +563,10 @@ class AudioRecognizer(
                         android.util.Log.d("ClickDetect", "gesture group closed: clicks=$count hasTalked=$hasTalked segmentProcessing=$isSegmentProcessing")
                         // Clicks alone make Whisper hallucinate ("Thank you"); drop them unless
                         // speech is still waiting in the buffer.
-                        if (!hasTalked) floatSamples.clear()
+                        if (!hasTalked) {
+                            floatSamples.clear()
+                            bufferHasSpeech = false
+                        }
                     }
                 }
 
@@ -778,6 +789,19 @@ class AudioRecognizer(
         // Don't let the final decode race a still-in-flight segment decode on the same model.
         segmentJob?.let {
             if (it.isActive) it.join()
+        }
+
+        // With segmented results the buffer holds only what came after the last segment; if no
+        // speech was heard in it, skip the decode rather than let the model make something up.
+        if (useSegmentedResults && !bufferHasSpeech) {
+            yield()
+            lifecycleScope.launch {
+                withContext(Dispatchers.Main) {
+                    yield()
+                    listener.finished("")
+                }
+            }
+            return
         }
 
         val floatArray = floatSamples.array().sliceArray(0 until floatSamples.position())
