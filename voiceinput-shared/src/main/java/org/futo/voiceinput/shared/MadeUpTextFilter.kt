@@ -29,3 +29,41 @@ object MadeUpTextFilter {
         return wordCount > maxWords
     }
 }
+
+/**
+ * Per-recording state for dropping made-up text: how much speech each segment held, and whether
+ * any was heard since the last segment boundary. [AudioRecognizer] has one only when the
+ * setting is on.
+ */
+class MadeUpTextGuard {
+    // Whether any speech has been heard since the last segment boundary.
+    @Volatile
+    private var bufferHasSpeech = false
+
+    // 30ms VAD speech frames in the current segment, and in the segment now being decoded.
+    private var segmentSpeechFrames = 0
+    private var decodingSegmentFrames = Int.MAX_VALUE
+
+    fun onSpeechFrame() { segmentSpeechFrames++ }
+    fun onTalked() { bufferHasSpeech = true }
+    fun bufferCleared() { bufferHasSpeech = false }
+
+    /** At a segment boundary: the segment now being decoded is the one that just ended. */
+    fun cutSegment() {
+        decodingSegmentFrames = segmentSpeechFrames
+        segmentSpeechFrames = 0
+    }
+
+    fun filterSegment(text: String): String =
+        if (MadeUpTextFilter.isMadeUpSegment(text, decodingSegmentFrames)) "" else text
+
+    fun filterFinal(text: String): String =
+        if (MadeUpTextFilter.isRepetitionLoop(text)) "" else text
+
+    /**
+     * With segmented results the buffer holds only what came after the last segment; if no
+     * speech was heard in it, skip the decode rather than let the model make something up.
+     */
+    fun shouldSkipFinalDecode(useSegmentedResults: Boolean): Boolean =
+        useSegmentedResults && !bufferHasSpeech
+}

@@ -113,13 +113,8 @@ class AudioRecognizer(
     // VAD runs in 480-sample (30ms @ 16kHz) frames; convert the configured ms to a frame count.
     private val segmentPauseFrames = (settings.recordingConfiguration.segmentPauseMs / 30).coerceAtLeast(1)
 
-    private val filterMadeUpText = settings.recordingConfiguration.filterMadeUpText
-
-    // Whether any speech has been heard since the last segment boundary, and how many 30ms VAD
-    // speech frames the current segment holds. Used only when filterMadeUpText is on.
-    @Volatile
-    private var bufferHasSpeech = false
-    private var segmentSpeechFrames = 0
+    // Only present when the "drop made-up text" setting is on.
+    private val madeUpGuard = if (settings.recordingConfiguration.filterMadeUpText) MadeUpTextGuard() else null
 
     private var floatSamples: FloatBuffer = FloatBuffer.allocate(16000 * 30)
     private var recorderJob: Job? = null
@@ -262,19 +257,19 @@ class AudioRecognizer(
      * continues immediately; this only snapshots-and-clears the sample
      * buffer so the next segment starts clean.
      */
-    private fun finishSegment(speechFrames: Int = Int.MAX_VALUE) {
+    private fun finishSegment() {
         if (!isRecording || isSegmentProcessing) return
 
         val segmentSamples = floatSamples.array().sliceArray(0 until floatSamples.position())
         floatSamples.clear()
-        bufferHasSpeech = false
+        madeUpGuard?.bufferCleared()
 
         if (segmentSamples.isEmpty()) return
 
         isSegmentProcessing = true
         segmentJob = lifecycleScope.launch {
             withContext(Dispatchers.Default) {
-                runSegmentModel(segmentSamples, speechFrames)
+                runSegmentModel(segmentSamples)
             }
         }
     }
@@ -392,11 +387,10 @@ class AudioRecognizer(
                 numConsecutiveNonSpeech = 0
                 numConsecutiveSpeech = 0
                 hasTalked = false
-                val framesThisSegment = segmentSpeechFrames
-                segmentSpeechFrames = 0
+                madeUpGuard?.cutSegment()
                 yield()
                 withContext(Dispatchers.Main) {
-                    finishSegment(framesThisSegment)
+                    finishSegment()
                 }
             }
 
@@ -416,7 +410,7 @@ class AudioRecognizer(
                         } else {
                             numConsecutiveNonSpeech = 0
                             numConsecutiveSpeech++
-                            segmentSpeechFrames++
+                            madeUpGuard?.onSpeechFrame()
                         }
                     }
 
@@ -446,7 +440,7 @@ class AudioRecognizer(
             if (startSoundPassed && ((rms > 0.01) || (numConsecutiveSpeech > 8))) {
                 hasTalked = true
             }
-            if (hasTalked) bufferHasSpeech = true
+            if (hasTalked) madeUpGuard?.onTalked()
 
             if (rms > 0.0001) {
                 anyNoiseAtAll = true
@@ -598,7 +592,7 @@ class AudioRecognizer(
         }
     }
 
-    private suspend fun runSegmentModel(segmentSamples: FloatArray, speechFrames: Int) {
+    private suspend fun runSegmentModel(segmentSamples: FloatArray) {
         loadModelJob?.let {
             if (it.isActive) it.join()
         }
@@ -622,8 +616,7 @@ class AudioRecognizer(
             isBlankResult(outputText) -> ""
             else -> outputText
         }
-
-        if (filterMadeUpText && MadeUpTextFilter.isMadeUpSegment(text, speechFrames)) text = ""
+        text = madeUpGuard?.filterSegment(text) ?: text
 
         if (text.isNotEmpty()) {
             yield()
@@ -649,9 +642,7 @@ class AudioRecognizer(
             if (it.isActive) it.join()
         }
 
-        // With segmented results the buffer holds only what came after the last segment; if no
-        // speech was heard in it, skip the decode rather than let the model make something up.
-        if (filterMadeUpText && useSegmentedResults && !bufferHasSpeech) {
+        if (madeUpGuard?.shouldSkipFinalDecode(useSegmentedResults) == true) {
             yield()
             lifecycleScope.launch {
                 withContext(Dispatchers.Main) {
@@ -681,8 +672,7 @@ class AudioRecognizer(
             isBlankResult(outputText) -> ""
             else -> outputText
         }
-
-        if (filterMadeUpText && MadeUpTextFilter.isRepetitionLoop(text)) text = ""
+        text = madeUpGuard?.filterFinal(text) ?: text
 
         yield()
         lifecycleScope.launch {
