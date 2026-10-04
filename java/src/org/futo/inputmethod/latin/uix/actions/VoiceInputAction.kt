@@ -415,6 +415,19 @@ private class VoiceInputActionWindow(
         ) {
             recognizerView.value?.Content()
         }
+        // A precise tap on the middle of the circle ends the session; a touch anywhere else
+        // falls through to the keys underneath.
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { recognizerView.value?.finish() ?: manager.closeActionWindow() }
+            )
+        }
     }
 
     @Composable
