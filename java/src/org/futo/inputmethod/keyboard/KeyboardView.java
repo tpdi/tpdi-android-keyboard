@@ -38,6 +38,7 @@ import org.futo.inputmethod.keyboard.internal.KeyVisualAttributes;
 import org.futo.inputmethod.latin.uix.DynamicThemeProvider;
 import org.futo.inputmethod.latin.R;
 import org.futo.inputmethod.latin.common.Constants;
+import org.futo.inputmethod.latin.inputlogic.StickyModifiers;
 import org.futo.inputmethod.latin.uix.theme.KeyDrawingConfiguration;
 import org.futo.inputmethod.latin.uix.theme.KeyOutline;
 import org.futo.inputmethod.latin.utils.TypefaceUtils;
@@ -451,7 +452,7 @@ public class KeyboardView extends View {
         final Drawable hintIcon = kdc.getHintIcon();
         float labelX = centerX;
         float labelBaseline = centerY;
-        final String label = kdc.getLabel();
+        final String label = StickyModifiers.labelFor(key.getCode(), kdc.getLabel());
         final Rect bgPadding = kdc.getBackgroundPadding();
         final KeyOutline outline = kdc.getOutline();
 

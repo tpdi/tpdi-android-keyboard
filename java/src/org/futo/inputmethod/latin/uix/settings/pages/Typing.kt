@@ -88,6 +88,7 @@ import org.futo.inputmethod.latin.HideKeyboardWhenHardKeyboardConnected
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.SEND_KEY_CODES_RATHER_THAN_TEXT
 import org.futo.inputmethod.latin.uix.SHOW_LOAD_LAYOUT_FROM_FILE
+import org.futo.inputmethod.latin.uix.STICKY_MODIFIER_KEYS
 import org.futo.inputmethod.latin.settings.LongPressKey
 import org.futo.inputmethod.latin.settings.LongPressKeyLayoutSetting
 import org.futo.inputmethod.latin.settings.Settings
@@ -851,6 +852,11 @@ val KeyboardSettingsMenu = UserSettingsMenu(
             subtitle = R.string.keyboard_settings_period_key_subtitle2,
             key = Settings.PREF_ENABLE_ALT_PERIOD_KEY,
             default = {false},
+        ),
+        userSettingToggleDataStore(
+            title = R.string.keyboard_settings_sticky_modifier_keys,
+            subtitle = R.string.keyboard_settings_sticky_modifier_keys_subtitle,
+            setting = STICKY_MODIFIER_KEYS
         ),
         userSettingToggleDataStore(
             title = R.string.keyboard_settings_hide_when_hardware_keyboard_is_connected,
