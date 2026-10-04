@@ -159,10 +159,10 @@ private class VoiceInputActionWindow(
         shouldPlaySounds = enableSound
 
         return RecognizerViewSettings(
-            shouldShowInlinePartialResult = context.getSetting(VOICE_INPUT_INLINE_PARTIAL_RESULT),
             // Dictating over the keyboard puts the words straight into the text field, so the bubble
             // doesn't repeat them.
-            shouldShowInlinePartialResult = !context.getSetting(VOICE_INPUT_OVER_KEYBOARD),
+            shouldShowInlinePartialResult = context.getSetting(VOICE_INPUT_INLINE_PARTIAL_RESULT) &&
+                    !context.getSetting(VOICE_INPUT_OVER_KEYBOARD),
             shouldShowVerboseFeedback = verboseFeedback,
             shouldAnimateBubble = animateBubble,
             modelRunConfiguration = MultiModelRunConfiguration(
@@ -310,13 +310,14 @@ private class VoiceInputActionWindow(
     private fun pressEnter() {
         manager.getLifecycleScope().launch(Dispatchers.Main) {
             inputTransaction.commit("\n")
-            inputTransaction = manager.createInputTransaction()
+            inputTransaction = newTransaction()
             undoHistory.pushVoiceEntry("\n")
         }
     }
 
     /** Removes the most recent entry of the undo history from the text before the cursor. */
     internal fun undoLast() {
+        android.util.Log.d("VoiceUndo", "undo pressed: entries=${undoHistory.size} inlineMode=$inlineMode")
         manager.getLifecycleScope().launch(Dispatchers.Main) {
             undoHistory.undoLast(inputTransaction)
         }
@@ -354,11 +355,16 @@ private class VoiceInputActionWindow(
                 }
             }
 
-            if (showActionButtons && recognizerView.value != null) {
+            // The Undo/Enter strip shows when its own setting is on, and also whenever the mode
+            // buttons are on, so a session switched to this window keeps the same controls.
+            if ((showActionButtons || switchModeButtons) && recognizerView.value != null) {
                 VoiceActionButtons(
                     onUndo = { undoLast() },
                     onEnter = { pressEnter() },
                     modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp)
+                )
+            }
+
             if (switchModeButtons && recognizerView.value != null) {
                 VoiceSwitchToKeyboardButton(
                     onClick = { switchMode(true) },
@@ -444,11 +450,7 @@ private class VoiceInputActionWindow(
 
     override fun clickGesture(clickCount: Int) {
         // Any burst of two or more clicks is one Enter.
-        if (clickCount < 2) return
-        manager.getLifecycleScope().launch(Dispatchers.Main) {
-            inputTransaction.commit("\n")
-            inputTransaction = manager.createInputTransaction()
-        }
+        if (clickCount >= 2) pressEnter()
     }
 
     override fun partialResult(result: String) {

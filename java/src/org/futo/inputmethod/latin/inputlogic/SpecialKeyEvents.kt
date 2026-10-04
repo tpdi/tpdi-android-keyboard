@@ -56,7 +56,7 @@ interface SpecialKeyBehavior {
 private object KeyEventBehavior : SpecialKeyBehavior {
     override fun handleSpecial(layoutCode: Int, logic: InputLogic, transaction: InputTransaction) {
         logic.commitTyped(transaction.mSettingsValues, "")
-        logic.sendDownUpKeyEvent(SpecialKeyEvents.androidKeyCodeFor(layoutCode), 0)
+        logic.sendDownUpKeyEvent(SpecialKeyEvents.androidKeyCodeFor(layoutCode), StickyModifiers.take())
     }
 
     override fun handleTab(logic: InputLogic, transaction: InputTransaction): Boolean {

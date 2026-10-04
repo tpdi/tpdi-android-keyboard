@@ -190,6 +190,9 @@ val VoiceInputMenu = UserSettingsMenu(
             title = R.string.voice_input_settings_filter_stock_phrases,
             subtitle = R.string.voice_input_settings_filter_stock_phrases_subtitle,
             setting = VOICE_INPUT_FILTER_STOCK_PHRASES
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
             title = R.string.voice_input_settings_action_buttons,
             subtitle = R.string.voice_input_settings_action_buttons_subtitle,
             setting = VOICE_INPUT_ACTION_BUTTONS
