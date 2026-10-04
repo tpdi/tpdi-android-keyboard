@@ -552,6 +552,7 @@ class AudioRecognizer(
                     clickTimestamps.clear()
                     if (count >= 2) {
                         pendingGestureCount = count.coerceAtMost(3)
+                        android.util.Log.d("ClickDetect", "gesture group closed: clicks=$count hasTalked=$hasTalked segmentProcessing=$isSegmentProcessing")
                         // Clicks alone make Whisper hallucinate ("Thank you"); drop them unless
                         // speech is still waiting in the buffer.
                         if (!hasTalked) floatSamples.clear()
@@ -572,6 +573,7 @@ class AudioRecognizer(
                     } else if (!hasTalked && !isSegmentProcessing) {
                         val reportedCount = pendingGestureCount
                         pendingGestureCount = 0
+                        android.util.Log.d("ClickDetect", "gesture fired: $reportedCount")
                         yield()
                         withContext(Dispatchers.Main) {
                             listener.clickGesture(reportedCount)
