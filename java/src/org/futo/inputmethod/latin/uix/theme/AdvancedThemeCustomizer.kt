@@ -66,7 +66,7 @@ class AdvancedThemeMatcher(
     val scheme: KeyboardColorScheme
 ) {
     val theme = scheme.extended.advancedThemeOptions
-    private val extraHintScale = if(context.getSetting(LARGER_KEY_HINTS.key, LARGER_KEY_HINTS.default)) LARGER_KEY_HINTS_SCALE else 1.0f
+    private val extraHintScale get() = if(context.getSetting(LARGER_KEY_HINTS.key, LARGER_KEY_HINTS.default)) LARGER_KEY_HINTS_SCALE else 1.0f
 
     val backgroundList = theme.keyBackgrounds?.v ?: emptyList()
     val layers = (listOf(0) + backgroundList.map { getLayer(it.qualifiers) })
