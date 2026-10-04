@@ -68,6 +68,9 @@ interface RecognizerViewListener {
 
     fun partialResult(result: String)
 
+    /** A segment was just handed off for transcription (speech ended); its result comes later. */
+    fun segmentStarted() {}
+
     /** A segment was finalized mid-recording (pause-triggered); recording continues. */
     fun segmentResult(result: String)
 
@@ -107,7 +110,7 @@ class RecognizerView(
     ))
 
     @Composable
-    fun Content() {
+    fun Content(circleOnly: Boolean = false) {
         when (currentViewState.value) {
             CurrentView.LoadingCircle -> {
                 Column {
@@ -125,7 +128,8 @@ class RecognizerView(
                 InnerRecognize(
                     magnitude = magnitudeState,
                     state = statusState,
-                    device = currentDeviceState
+                    device = currentDeviceState,
+                    circleOnly = circleOnly
                 )
             }
 
@@ -172,6 +176,10 @@ class RecognizerView(
 
         override fun finished(result: String) {
             listener.finished(result)
+        }
+
+        override fun segmentStarted() {
+            listener.segmentStarted()
         }
 
         override fun segmentResult(result: String) {

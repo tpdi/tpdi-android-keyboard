@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +49,11 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_STOCK_PHRASES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
+import androidx.compose.ui.unit.Dp
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
+import org.futo.inputmethod.latin.uix.TypedTextTap
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
 import org.futo.inputmethod.latin.uix.settings.SettingsActivity
@@ -152,6 +159,9 @@ private class VoiceInputActionWindow(
 
         return RecognizerViewSettings(
             shouldShowInlinePartialResult = context.getSetting(VOICE_INPUT_INLINE_PARTIAL_RESULT),
+            // Dictating over the keyboard puts the words straight into the text field, so the bubble
+            // doesn't repeat them.
+            shouldShowInlinePartialResult = !context.getSetting(VOICE_INPUT_OVER_KEYBOARD),
             shouldShowVerboseFeedback = verboseFeedback,
             shouldAnimateBubble = animateBubble,
             modelRunConfiguration = MultiModelRunConfiguration(
@@ -207,7 +217,85 @@ private class VoiceInputActionWindow(
         recognizerView.start()
     }
 
-    private var inputTransaction = manager.createInputTransaction()
+    // Which way this session is being shown right now; starts as the setting says and can be
+    // switched with the mode buttons.
+    private var overKeyboardMode by mutableStateOf(context.getSetting(VOICE_INPUT_OVER_KEYBOARD))
+    private val inlineMode: Boolean get() = overKeyboardMode
+    private val switchModeButtons = context.getSetting(VOICE_INPUT_SWITCH_MODE_BUTTONS)
+    private val hideKeyboardButton = context.getSetting(VOICE_INPUT_HIDE_KEYBOARD_BUTTON)
+    private var keyboardCollapsed by mutableStateOf(false)
+
+    private fun newTransaction() =
+        if (inlineMode) manager.createUnroutedInputTransaction() else manager.createInputTransaction()
+
+    private var inputTransaction = newTransaction()
+
+    // Typing while a segment is being transcribed: the spoken text arrives after the keys, so
+    // it would land after them. Remember what was typed since the segment was handed off, and
+    // when the result arrives put the spoken text first and retype that text after it.
+    private var typedWhilePending: StringBuilder? = null
+    private var undoIndexAtSegmentStart = 0
+
+    override fun segmentStarted() {
+        if (!inlineMode) return
+        typedWhilePending = StringBuilder()
+        undoIndexAtSegmentStart = undoHistory.size
+    }
+
+    private fun onTypedEvent(codePoint: Int, isDelete: Boolean) {
+        typedWhilePending?.let { pending ->
+            if (isDelete) {
+                if (pending.isNotEmpty()) pending.setLength(pending.length - 1)
+            } else {
+                pending.appendCodePoint(codePoint)
+            }
+        }
+        undoHistory.onTypedEvent(codePoint, isDelete)
+    }
+
+    private fun switchMode(toOverKeyboard: Boolean) {
+        if (overKeyboardMode == toOverKeyboard) return
+        manager.getLifecycleScope().launch(Dispatchers.Main) {
+            // Commit any provisional text and end this transaction before swapping kinds.
+            inputTransaction.cancel()
+            overKeyboardMode = toOverKeyboard
+            keyboardCollapsed = false
+            typedWhilePending = null
+            TypedTextTap.listener =
+                if (toOverKeyboard) ({ cp: Int, del: Boolean -> onTypedEvent(cp, del) }) else null
+            inputTransaction = newTransaction()
+            manager.onWindowLayoutModeChanged()
+        }
+    }
+
+    init {
+        if (inlineMode) TypedTextTap.listener = { cp, del -> onTypedEvent(cp, del) }
+    }
+
+    override val onlyShowAboveKeyboard: Boolean get() = inlineMode
+    override val fixedWindowHeight: Dp? get() = if (inlineMode) 0.dp else null
+    override val showCloseButton: Boolean get() = !inlineMode
+    override val overridesSuggestionBar: Boolean get() = inlineMode
+
+    @Composable
+    override fun SuggestionBarOverride() {
+        VoiceListeningBar(
+            circle = { recognizerView.value?.Content(circleOnly = true) },
+            onUndo = { undoLast() },
+            onStop = { recognizerView.value?.finish() ?: manager.closeActionWindow() },
+            onSwitchToWindow = if (switchModeButtons) ({ switchMode(false) }) else null,
+            keyboardCollapsed = if (hideKeyboardButton) keyboardCollapsed else null,
+            onToggleKeyboard = {
+                keyboardCollapsed = !keyboardCollapsed
+                manager.setKeyboardCollapsed(keyboardCollapsed)
+            }
+        )
+    }
+
+    @Composable
+    override fun KeyboardOverlay() {
+        VoiceVolumeCircleOverlay { recognizerView.value?.Content(circleOnly = true) }
+    }
 
     // What this session has committed (and, with the UI PRs, typed), so Undo can take it back
     // one unit at a time.
@@ -242,6 +330,7 @@ private class VoiceInputActionWindow(
 
     @Composable
     override fun WindowContents(keyboardShown: Boolean) {
+        if (inlineMode) return
         Box(modifier = Modifier
             .fillMaxSize()
             .clickable(
@@ -266,12 +355,17 @@ private class VoiceInputActionWindow(
                     onUndo = { undoLast() },
                     onEnter = { pressEnter() },
                     modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp)
+            if (switchModeButtons && recognizerView.value != null) {
+                VoiceSwitchToKeyboardButton(
+                    onClick = { switchMode(true) },
+                    modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)
                 )
             }
         }
     }
 
     override fun close(): CloseResult {
+        TypedTextTap.listener = null
         inputTransaction.cancel()
         runBlocking { initJob.cancelAndJoin() }
         recognizerView.value?.cancel()
@@ -318,14 +412,28 @@ private class VoiceInputActionWindow(
 
     override fun segmentResult(result: String) {
         manager.getLifecycleScope().launch(Dispatchers.Main) {
+            val typed = typedWhilePending?.toString() ?: ""
+            typedWhilePending = null
             val sanitized = ModelOutputSanitizer.sanitize(result, inputTransaction.textContext)
             if (sanitized.isNotBlank()) {
+                val committedText = sanitized.trimEnd() + " "
+                if (typed.isNotEmpty()) {
+                    // Take back what was typed while this was being transcribed; it goes after.
+                    inputTransaction.finishComposingText()
+                    inputTransaction.deleteTextBeforeCursor(typed.length)
+                }
                 // Committed for good, no later revision: start a fresh transaction so the
                 // next segment's partial/commit calls don't touch what's already locked in.
-                val committedText = sanitized.trimEnd() + " "
                 inputTransaction.commit(committedText)
-                inputTransaction = manager.createInputTransaction()
-                undoHistory.pushVoiceEntry(committedText)
+                inputTransaction = newTransaction()
+                if (typed.isNotEmpty()) {
+                    inputTransaction.commit(typed)
+                    inputTransaction = newTransaction()
+                    // Undo history follows the on-screen order: spoken text, then typed.
+                    undoHistory.insertVoiceEntryAt(undoIndexAtSegmentStart, committedText)
+                } else {
+                    undoHistory.pushVoiceEntry(committedText)
+                }
             }
         }
     }
