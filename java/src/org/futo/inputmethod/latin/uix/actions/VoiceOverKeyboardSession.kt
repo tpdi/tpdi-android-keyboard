@@ -17,9 +17,14 @@ import org.futo.inputmethod.latin.uix.TypedTextTap
  */
 internal class VoiceOverKeyboardSession(
     private val manager: KeyboardManagerForAction,
-    val inlineMode: Boolean
+    startOverKeyboard: Boolean
 ) {
-    /** Whether the keyboard is hidden by the hide-keyboard button. */
+    // Which way this session is being shown right now; starts as the setting says and can be
+    // switched with the mode buttons.
+    var overKeyboardMode by mutableStateOf(startOverKeyboard)
+        private set
+    val inlineMode: Boolean get() = overKeyboardMode
+
     var keyboardCollapsed by mutableStateOf(false)
 
     /** What this session has committed (and typed), so Undo can take it back one unit at a time. */
@@ -57,6 +62,21 @@ internal class VoiceOverKeyboardSession(
         undoHistory.onTypedEvent(codePoint, isDelete)
     }
 
+    fun switchMode(toOverKeyboard: Boolean) {
+        if (overKeyboardMode == toOverKeyboard) return
+        manager.getLifecycleScope().launch(Dispatchers.Main) {
+            // Commit any provisional text and end this transaction before swapping kinds.
+            transaction.cancel()
+            overKeyboardMode = toOverKeyboard
+            keyboardCollapsed = false
+            typedWhilePending = null
+            TypedTextTap.listener =
+                if (toOverKeyboard) ({ cp: Int, del: Boolean -> onTypedEvent(cp, del) }) else null
+            transaction = newTransaction()
+            manager.onWindowLayoutModeChanged()
+        }
+    }
+
     /** Commits a finished segment, putting anything typed meanwhile after it. */
     fun commitSegment(committedText: String) {
         val typed = typedWhilePending?.toString() ?: ""
@@ -80,7 +100,7 @@ internal class VoiceOverKeyboardSession(
         }
     }
 
-    /** A segment result that is blank: forget what was typed, nothing is reordered. */
+    /** For a segment result that is blank: forget what was typed, nothing is reordered. */
     fun segmentEmpty() {
         typedWhilePending = null
     }

@@ -52,7 +52,9 @@ fun VoiceListeningBar(
     onStop: () -> Unit,
     // null: no button. Otherwise whether the keyboard is currently collapsed.
     keyboardCollapsed: Boolean? = null,
-    onToggleKeyboard: () -> Unit = {}
+    onToggleKeyboard: () -> Unit = {},
+    // null: no button. Otherwise switches to the full voice input window.
+    onSwitchToWindow: (() -> Unit)? = null
 ) {
     val density = LocalDensity.current
     var barLeft by remember { mutableStateOf(0f) }
@@ -126,6 +128,22 @@ fun VoiceListeningBar(
                 )
             }
         }
+        if (onSwitchToWindow != null) {
+            IconButton(
+                onClick = onSwitchToWindow,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset {
+                        IntOffset((micLeft + micWidthPx + gapPx + undoWidthPx).toInt(), 0)
+                    }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.maximize),
+                    contentDescription = stringResource(R.string.voice_input_switch_to_window),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
         val pillColor = LocalKeyboardScheme.current.keyboardContainer
         val pillRadiusPx = with(density) { 16.dp.toPx() }
         Box(
@@ -171,5 +189,17 @@ fun VoiceVolumeCircleOverlay(circle: @Composable () -> Unit) {
         ) {
             circle()
         }
+    }
+}
+
+/** In the full voice input window: switch to dictating over the keyboard. */
+@Composable
+fun VoiceSwitchToKeyboardButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    IconButton(onClick = onClick, modifier = modifier) {
+        Icon(
+            painter = painterResource(R.drawable.keyboard_icon),
+            contentDescription = stringResource(R.string.voice_input_switch_to_keyboard),
+            tint = MaterialTheme.colorScheme.onSurface
+        )
     }
 }

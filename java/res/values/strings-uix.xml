@@ -724,4 +724,8 @@ Default is %1$s</string>
     <string name="voice_input_settings_hide_button_needs_over_keyboard_note">Turn on \"Dictate over the keyboard\" to use this.</string>
     <string name="voice_input_hide_keyboard">Hide keyboard</string>
     <string name="voice_input_show_keyboard">Show keyboard</string>
+    <string name="voice_input_settings_switch_mode_buttons">Mode-switch buttons</string>
+    <string name="voice_input_settings_switch_mode_buttons_subtitle">While dictating, show buttons to switch between dictating over the keyboard and the full voice input window without ending the session. Dictate over the keyboard decides which one a session starts in.</string>
+    <string name="voice_input_switch_to_window">Full voice window</string>
+    <string name="voice_input_switch_to_keyboard">Dictate over the keyboard</string>
 </resources>
