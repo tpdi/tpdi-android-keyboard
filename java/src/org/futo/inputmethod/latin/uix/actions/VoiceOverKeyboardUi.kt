@@ -68,7 +68,11 @@ fun VoiceListeningBar(
     val micCenter = barWidth / 2f
     val micLeft = (micCenter - micWidthPx / 2f)
         .coerceIn(0f, (barWidth - micWidthPx).coerceAtLeast(0f))
-    val undoLeft = (micLeft - gapPx - undoWidthPx).coerceAtLeast(0f)
+    // To the right of the microphone, from the middle outward: hide/show keyboard, switch to the
+    // full window, and Undo at the far right.
+    val hideLeft = micLeft + micWidthPx + gapPx
+    val undoLeft = (barWidth - undoWidthPx - gapPx / 2f).coerceAtLeast(hideLeft)
+    val switchLeft = (hideLeft + undoLeft) / 2f
 
     Box(
         modifier = Modifier
@@ -114,7 +118,7 @@ fun VoiceListeningBar(
                 onClick = onToggleKeyboard,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .offset { IntOffset((micLeft + micWidthPx + gapPx).toInt(), 0) }
+                    .offset { IntOffset(hideLeft.toInt(), 0) }
             ) {
                 Icon(
                     painter = painterResource(
@@ -133,12 +137,10 @@ fun VoiceListeningBar(
                 onClick = onSwitchToWindow,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .offset {
-                        IntOffset((micLeft + micWidthPx + gapPx + undoWidthPx).toInt(), 0)
-                    }
+                    .offset { IntOffset(switchLeft.toInt(), 0) }
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.maximize),
+                    painter = painterResource(R.drawable.chevron_right),
                     contentDescription = stringResource(R.string.voice_input_switch_to_window),
                     tint = MaterialTheme.colorScheme.onSurface
                 )
