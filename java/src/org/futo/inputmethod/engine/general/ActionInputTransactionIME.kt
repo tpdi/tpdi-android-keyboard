@@ -84,8 +84,14 @@ class ActionInputTransactionIME(
 
     private var isFinished = false
     private var partialText = ""
+    private fun dbg(what: String, text: String) {
+        val tail = ic?.getTextBeforeCursor(40, 0)?.toString()?.takeLast(40)
+        android.util.Log.d("VoiceOrder", "$what plain=$plain tx=${System.identityHashCode(this)} text=[$text] beforeCursorTail=[$tail]")
+    }
+
     override fun updatePartial(text: String) {
         if (isFinished || !useComposingMode) return
+        dbg("partial", text)
         helper.requestCursorUpdate()
         partialText = text
         ic?.setComposingText(
@@ -98,6 +104,7 @@ class ActionInputTransactionIME(
 
     override fun commit(text: String) {
         if (isFinished) return
+        dbg("commit", text)
         helper.requestCursorUpdate()
         isFinished = true
         ic?.commitText(
@@ -113,6 +120,10 @@ class ActionInputTransactionIME(
         helper.requestCursorUpdate()
         ic?.deleteSurroundingText(length, 0)
         (ic as? InputConnectionInternalComposingWrapper)?.send()
+    }
+
+    override fun finishComposingText() {
+        ic?.finishComposingText()
     }
 
     override fun liveTextBeforeCursor(length: Int): String? =

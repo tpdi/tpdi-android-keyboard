@@ -245,12 +245,31 @@ private class VoiceInputActionWindow(
     // typing and dictation interleaving.
     private var openTypedEntry = false
 
+    // Typing while a segment is being transcribed: the spoken text arrives after the keys, so
+    // it would land after them. Remember what was typed since the segment was handed off, and
+    // when the result arrives put the spoken text first and retype that text after it.
+    private var typedWhilePending: StringBuilder? = null
+    private var undoIndexAtSegmentStart = 0
+
+    override fun segmentStarted() {
+        if (!inlineMode) return
+        typedWhilePending = StringBuilder()
+        undoIndexAtSegmentStart = committedTexts.size
+    }
+
     private fun pushVoiceEntry(text: String) {
         committedTexts.add(text)
         openTypedEntry = false
     }
 
     private fun onTypedEvent(codePoint: Int, isDelete: Boolean) {
+        typedWhilePending?.let { pending ->
+            if (isDelete) {
+                if (pending.isNotEmpty()) pending.setLength(pending.length - 1)
+            } else {
+                pending.appendCodePoint(codePoint)
+            }
+        }
         if (isDelete) {
             val last = committedTexts.lastOrNull() ?: return
             if (last.length <= 1) {
@@ -448,14 +467,34 @@ private class VoiceInputActionWindow(
 
     override fun segmentResult(result: String) {
         manager.getLifecycleScope().launch(Dispatchers.Main) {
+            val typed = typedWhilePending?.toString() ?: ""
+            typedWhilePending = null
             val sanitized = ModelOutputSanitizer.sanitize(result, inputTransaction.textContext)
             if (sanitized.isNotBlank()) {
+                val committedText = sanitized.trimEnd() + " "
+                if (typed.isNotEmpty()) {
+                    // Take back what was typed while this was being transcribed; it goes after.
+                    inputTransaction.finishComposingText()
+                    inputTransaction.deleteTextBeforeCursor(typed.length)
+                }
                 // Committed for good, no later revision: start a fresh transaction so the
                 // next segment's partial/commit calls don't touch what's already locked in.
-                val committedText = sanitized.trimEnd() + " "
                 inputTransaction.commit(committedText)
                 inputTransaction = newTransaction()
-                pushVoiceEntry(committedText)
+                if (typed.isNotEmpty()) {
+                    inputTransaction.commit(typed)
+                    inputTransaction = newTransaction()
+                    // Undo history follows the on-screen order: spoken text, then typed.
+                    val from = undoIndexAtSegmentStart.coerceIn(0, committedTexts.size)
+                    val typedEntries = committedTexts.subList(from, committedTexts.size).toList()
+                    while (committedTexts.size > from) committedTexts.removeAt(committedTexts.lastIndex)
+                    committedTexts.add(committedText)
+                    committedTexts.addAll(typedEntries)
+                } else {
+                    pushVoiceEntry(committedText)
+                }
+            } else if (typed.isNotEmpty()) {
+                // Nothing was said; leave what was typed where it is.
             }
         }
     }

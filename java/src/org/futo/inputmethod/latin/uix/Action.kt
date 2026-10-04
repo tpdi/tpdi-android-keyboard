@@ -50,6 +50,9 @@ interface ActionInputTransaction {
      */
     fun deleteTextBeforeCursor(length: Int)
 
+    /** Ends any composing region, leaving its text in place. */
+    fun finishComposingText()
+
     /** Reads the text currently before the cursor, live (unlike the [textContext] snapshot). */
     fun liveTextBeforeCursor(length: Int): String?
 }
