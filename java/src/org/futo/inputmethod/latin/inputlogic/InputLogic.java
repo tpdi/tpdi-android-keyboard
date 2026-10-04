@@ -55,6 +55,7 @@ import org.futo.inputmethod.latin.settings.SpacingAndPunctuations;
 import org.futo.inputmethod.latin.suggestions.SuggestionStripViewAccessor;
 import org.futo.inputmethod.latin.uix.KeyCodesSettingKeysKt;
 import org.futo.inputmethod.latin.uix.SettingsKt;
+import org.futo.inputmethod.latin.uix.StickyModifiersSettingKeysKt;
 import org.futo.inputmethod.latin.uix.actions.BugViewerKt;
 import org.futo.inputmethod.latin.utils.InputTypeUtils;
 import org.futo.inputmethod.latin.utils.RecapitalizeStatus;
@@ -234,6 +235,7 @@ public final class InputLogic {
      * @param settingsValues the current settings values
      */
     public void startInput(final String combiningSpec, final SettingsValues settingsValues) {
+        StickyModifiers.clear();
         mEnteredText = null;
         mWordBeingCorrectedByCursor = null;
         numCursorUpdatesSinceInputStarted = 0;
@@ -928,8 +930,19 @@ public final class InputLogic {
             return;
         }
 
+        if (event.mKeyCode == Constants.CODE_CTRL || event.mKeyCode == Constants.CODE_ALT) {
+            if (stickyModifiersEnabled()) StickyModifiers.toggle(event.mKeyCode);
+            return;
+        }
+
         switch (event.mKeyCode) {
             case Constants.CODE_DELETE:
+                if (StickyModifiers.getActive()) {
+                    commitTyped(inputTransaction.mSettingsValues, "");
+                    sendDownUpKeyEvent(KeyEvent.KEYCODE_DEL, StickyModifiers.take());
+                    inputTransaction.setDidAffectContents();
+                    break;
+                }
                 handleBackspaceEvent(event, inputTransaction, currentKeyboardScriptId);
                 // Backspace is a functional key, but it affects the contents of the editor.
                 inputTransaction.setDidAffectContents();
@@ -1023,6 +1036,23 @@ public final class InputLogic {
         if (text != null) mConnection.commitText(text, 1);
     }
 
+    private boolean stickyModifiersEnabled() {
+        return SettingsKt.getSettingBlocking(mImeHelper.getContextForSettings(),
+                StickyModifiersSettingKeysKt.getSTICKY_MODIFIER_KEYS());
+    }
+
+    /**
+     * Sends a typed character as a key event carrying the latched modifiers. Returns false if
+     * the character has no hardware key, in which case it is typed normally.
+     */
+    private boolean sendWithStickyModifiers(final Event event, final InputTransaction inputTransaction) {
+        final kotlin.Pair<Integer, Integer> key = StickyModifiers.keyEventFor(event.mCodePoint);
+        if (key == null) return false;
+        commitTyped(inputTransaction.mSettingsValues, "");
+        sendDownUpKeyEvent(key.getFirst(), key.getSecond() | StickyModifiers.take());
+        return true;
+    }
+
     /**
      * Handle an event that is not a functional event.
      *
@@ -1035,6 +1065,7 @@ public final class InputLogic {
     private void handleNonFunctionalEvent(final Event event,
             final InputTransaction inputTransaction) {
         inputTransaction.setDidAffectContents();
+        if (StickyModifiers.getActive() && sendWithStickyModifiers(event, inputTransaction)) return;
         switch (event.mCodePoint) {
             case Constants.CODE_TAB:
                 if (sendKeyCodesRatherThanText()) {
