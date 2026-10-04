@@ -212,7 +212,9 @@ val VoiceInputMenu = UserSettingsMenu(
         userSettingToggleDataStore(
             title = R.string.voice_input_settings_tap_circle_to_stop,
             subtitle = R.string.voice_input_settings_tap_circle_to_stop_subtitle,
-            setting = VOICE_INPUT_TAP_CIRCLE_TO_STOP
+            setting = VOICE_INPUT_TAP_CIRCLE_TO_STOP,
+            // Keeps its stored value but can't be changed while dictating over the keyboard is off.
+            disabled = { !useDataStoreValue(VOICE_INPUT_OVER_KEYBOARD) }
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(
