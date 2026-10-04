@@ -388,6 +388,13 @@ class AudioRecognizer(
         // Consecutive 100ms chunks louder than the talking threshold; a click's ring-down is
         // one or two chunks, speech lasts longer.
         var loudRun = 0
+        // A real click is followed by quiet; the opening consonants of a phrase look like clicks
+        // but are followed by sustained speech. Onsets are cancelled if speech-level sound
+        // follows them within CLICK_QUIET_AFTER_MS.
+        var onsetWindowStartMs = 0L
+        var postOnsetLoudChunks = 0
+        val CLICK_QUIET_AFTER_MS = 500L
+        val CLICK_FOLLOWING_SPEECH_RMS = 0.025f
         // VAD speech frames (30ms each) seen since the last segment boundary; used to throw away
         // segments that are really just clicks plus silence.
         var segmentSpeechFrames = 0
@@ -546,12 +553,34 @@ class AudioRecognizer(
                 }
 
                 val now = System.currentTimeMillis()
+                // Cancel recent onsets that turned out to be the start of speech.
+                if (onsetWindowStartMs > 0L) {
+                    if (now - onsetWindowStartMs > CLICK_QUIET_AFTER_MS) {
+                        onsetWindowStartMs = 0L
+                        postOnsetLoudChunks = 0
+                    } else if (onsetSubIndices.isEmpty() && rms > CLICK_FOLLOWING_SPEECH_RMS) {
+                        postOnsetLoudChunks++
+                        if (postOnsetLoudChunks >= 2) {
+                            val cutoff = onsetWindowStartMs - 50L
+                            val before = clickTimestamps.size
+                            clickTimestamps.removeAll { it >= cutoff }
+                            lastClickAtMs = clickTimestamps.lastOrNull() ?: 0L
+                            android.util.Log.d("ClickDetect", "dropped ${before - clickTimestamps.size} onset(s) followed by speech")
+                            onsetWindowStartMs = 0L
+                            postOnsetLoudChunks = 0
+                        }
+                    }
+                }
                 for (idx in onsetSubIndices) {
                     val t = now - ((nSubs - idx) * SUB * 1000L / 16000L)
                     // A key tap on the keyboard sounds like a click; ignore onsets near key presses.
                     if (kotlin.math.abs(t - ClickSuppression.lastKeyPressMs) < 400L) continue
                     clickTimestamps.add(t)
                     lastClickAtMs = t
+                    if (onsetWindowStartMs == 0L) {
+                        onsetWindowStartMs = t
+                        postOnsetLoudChunks = 0
+                    }
                     android.util.Log.d("ClickDetect", "ONSET click #${clickTimestamps.size} sub=$idx")
                 }
 
