@@ -16,18 +16,34 @@ object StickyModifiers {
     @JvmStatic
     val active: Boolean get() = ctrl || alt
 
+    /** Called after the latched state changes, so the keyboard can redraw the key labels. */
+    @Volatile
+    @JvmStatic
+    var onChanged: Runnable? = null
+
+    /** Whether the key with this layout code is currently latched. */
+    @JvmStatic
+    fun isLatched(layoutCode: Int): Boolean = when (layoutCode) {
+        Constants.CODE_CTRL -> ctrl
+        Constants.CODE_ALT -> alt
+        else -> false
+    }
+
     @JvmStatic
     fun toggle(layoutCode: Int) {
         when (layoutCode) {
             Constants.CODE_CTRL -> ctrl = !ctrl
             Constants.CODE_ALT -> alt = !alt
         }
+        onChanged?.run()
     }
 
     @JvmStatic
     fun clear() {
+        val changed = ctrl || alt
         ctrl = false
         alt = false
+        if (changed) onChanged?.run()
     }
 
     /** The meta state of the latched modifiers; clears them. */
