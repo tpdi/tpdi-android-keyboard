@@ -43,6 +43,7 @@ import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import androidx.compose.ui.unit.Dp
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
@@ -206,6 +207,7 @@ private class VoiceInputActionWindow(
     private val session = VoiceOverKeyboardSession(manager, context.getSetting(VOICE_INPUT_OVER_KEYBOARD))
     private val inlineMode: Boolean get() = session.inlineMode
     private var inputTransaction by session::transaction
+    private val hideKeyboardButton = context.getSetting(VOICE_INPUT_HIDE_KEYBOARD_BUTTON)
 
     override fun segmentStarted() = session.segmentStarted()
 
@@ -219,7 +221,12 @@ private class VoiceInputActionWindow(
         VoiceListeningBar(
             circle = { recognizerView.value?.Content(circleOnly = true) },
             onUndo = { session.undoLast() },
-            onStop = { recognizerView.value?.finish() ?: manager.closeActionWindow() }
+            onStop = { recognizerView.value?.finish() ?: manager.closeActionWindow() },
+            keyboardCollapsed = if (hideKeyboardButton) session.keyboardCollapsed else null,
+            onToggleKeyboard = {
+                session.keyboardCollapsed = !session.keyboardCollapsed
+                manager.setKeyboardCollapsed(session.keyboardCollapsed)
+            }
         )
     }
 

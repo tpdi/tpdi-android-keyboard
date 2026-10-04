@@ -719,4 +719,9 @@ Default is %1$s</string>
     <string name="action_voice_input_undo">Undo last</string>
     <string name="voice_input_settings_over_keyboard">Dictate over the keyboard</string>
     <string name="voice_input_settings_over_keyboard_subtitle">Keep the keyboard visible while dictating: shows Listening… and Undo in the suggestion bar and the volume circle over the keys. Tap the blue microphone to stop. Typed text goes into the same Undo history as dictated text. Off by default.</string>
+    <string name="voice_input_settings_hide_keyboard_button">Hide-keyboard button</string>
+    <string name="voice_input_settings_hide_keyboard_button_subtitle">While dictating over the keyboard, show a button on the bar that hides the keyboard, leaving only the bar, and brings it back.</string>
+    <string name="voice_input_settings_hide_button_needs_over_keyboard_note">Turn on \"Dictate over the keyboard\" to use this.</string>
+    <string name="voice_input_hide_keyboard">Hide keyboard</string>
+    <string name="voice_input_show_keyboard">Show keyboard</string>
 </resources>

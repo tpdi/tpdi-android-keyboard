@@ -1,5 +1,8 @@
 package org.futo.inputmethod.latin.uix.actions
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.futo.inputmethod.latin.uix.ActionInputTransaction
@@ -16,6 +19,9 @@ internal class VoiceOverKeyboardSession(
     private val manager: KeyboardManagerForAction,
     val inlineMode: Boolean
 ) {
+    /** Whether the keyboard is hidden by the hide-keyboard button. */
+    var keyboardCollapsed by mutableStateOf(false)
+
     /** What this session has committed (and typed), so Undo can take it back one unit at a time. */
     val undoHistory = VoiceUndoHistory()
 
