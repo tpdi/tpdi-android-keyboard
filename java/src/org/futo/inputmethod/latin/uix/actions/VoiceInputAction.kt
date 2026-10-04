@@ -201,6 +201,17 @@ private class VoiceInputActionWindow(
 
     private var inputTransaction = manager.createInputTransaction()
 
+    // What this session has committed (and, with the UI PRs, typed), so Undo can take it back
+    // one unit at a time.
+    private val undoHistory = VoiceUndoHistory()
+
+    /** Removes the most recent entry of the undo history from the text before the cursor. */
+    internal fun undoLast() {
+        manager.getLifecycleScope().launch(Dispatchers.Main) {
+            undoHistory.undoLast(inputTransaction)
+        }
+    }
+
     @Composable
     private fun ModelDownloader(modelException: ModelDoesNotExistException) {
         NoModelInstalled(locales.firstOrNull() ?: Locale.ROOT)
@@ -285,8 +296,10 @@ private class VoiceInputActionWindow(
             if (sanitized.isNotBlank()) {
                 // Committed for good, no later revision: start a fresh transaction so the
                 // next segment's partial/commit calls don't touch what's already locked in.
-                inputTransaction.commit(sanitized.trimEnd() + " ")
+                val committedText = sanitized.trimEnd() + " "
+                inputTransaction.commit(committedText)
                 inputTransaction = manager.createInputTransaction()
+                undoHistory.pushVoiceEntry(committedText)
             }
         }
     }
