@@ -14,8 +14,7 @@ import org.futo.inputmethod.keyboard.Keyboard
 import org.futo.inputmethod.keyboard.internal.KeyDrawParams
 import org.futo.inputmethod.latin.uix.DynamicThemeProvider
 import org.futo.inputmethod.latin.uix.KeyboardColorScheme
-import org.futo.inputmethod.latin.uix.LARGER_KEY_HINTS
-import org.futo.inputmethod.latin.uix.LARGER_KEY_HINTS_SCALE
+import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE_PERCENT
 import org.futo.inputmethod.latin.uix.getSetting
 import kotlin.math.roundToInt
 
@@ -66,7 +65,7 @@ class AdvancedThemeMatcher(
     val scheme: KeyboardColorScheme
 ) {
     val theme = scheme.extended.advancedThemeOptions
-    private val extraHintScale get() = if(context.getSetting(LARGER_KEY_HINTS.key, LARGER_KEY_HINTS.default)) LARGER_KEY_HINTS_SCALE else 1.0f
+    private val extraHintScale get() = context.getSetting(KEY_HINT_SCALE_PERCENT.key, KEY_HINT_SCALE_PERCENT.default) / 100f
 
     val backgroundList = theme.keyBackgrounds?.v ?: emptyList()
     val layers = (listOf(0) + backgroundList.map { getLayer(it.qualifiers) })

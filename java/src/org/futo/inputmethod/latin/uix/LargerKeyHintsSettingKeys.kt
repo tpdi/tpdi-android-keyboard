@@ -1,12 +1,10 @@
 package org.futo.inputmethod.latin.uix
 
-import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 
-// Draws the small hint characters on keys 30% larger, on top of the theme's own hint size.
-// Off by default; with it off hints are drawn exactly as before.
-val LARGER_KEY_HINTS = SettingsKey(
-    key = booleanPreferencesKey("larger_key_hints"),
-    default = false
+// Scales the small hint characters on keys, as a percentage on top of the theme's own hint size.
+// 100 (the default) draws hints exactly as before.
+val KEY_HINT_SCALE_PERCENT = SettingsKey(
+    key = intPreferencesKey("key_hint_scale_percent"),
+    default = 100
 )
-
-const val LARGER_KEY_HINTS_SCALE = 1.3f
