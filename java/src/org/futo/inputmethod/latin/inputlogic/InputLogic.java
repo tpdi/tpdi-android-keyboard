@@ -53,6 +53,7 @@ import org.futo.inputmethod.latin.settings.SettingsValues;
 import org.futo.inputmethod.latin.settings.SettingsValuesForSuggestion;
 import org.futo.inputmethod.latin.settings.SpacingAndPunctuations;
 import org.futo.inputmethod.latin.suggestions.SuggestionStripViewAccessor;
+import org.futo.inputmethod.latin.uix.SettingsKt;
 import org.futo.inputmethod.latin.uix.actions.BugViewerKt;
 import org.futo.inputmethod.latin.utils.InputTypeUtils;
 import org.futo.inputmethod.latin.utils.RecapitalizeStatus;
@@ -921,6 +922,11 @@ public final class InputLogic {
             return;
         }
 
+        if (SpecialKeyEvents.isKeyEventOnly(event.mKeyCode)) {
+            handleSpecialKeyEvent(event, inputTransaction);
+            return;
+        }
+
         switch (event.mKeyCode) {
             case Constants.CODE_DELETE:
                 handleBackspaceEvent(event, inputTransaction, currentKeyboardScriptId);
@@ -994,6 +1000,27 @@ public final class InputLogic {
         }
     }
 
+    private boolean sendKeyCodesRatherThanText() {
+        return SettingsKt.getSettingBlocking(mImeHelper.getContextForSettings(),
+                SettingsKt.getSEND_KEY_CODES_RATHER_THAN_TEXT());
+    }
+
+    /**
+     * Handle Escape, Home, End, Page Up/Down, Forward Delete, Insert and F1-F12: keys that a
+     * hardware keyboard sends as key events. With the "send key codes rather than text"
+     * setting off they do nothing, except Escape which inserts a literal ESC character.
+     */
+    private void handleSpecialKeyEvent(final Event event, final InputTransaction inputTransaction) {
+        commitTyped(inputTransaction.mSettingsValues, "");
+        inputTransaction.setRequiresUpdateSuggestions();
+        if (sendKeyCodesRatherThanText()) {
+            sendDownUpKeyEvent(SpecialKeyEvents.androidKeyCodeFor(event.mKeyCode), 0);
+            return;
+        }
+        final String text = SpecialKeyEvents.textFallbackFor(event.mKeyCode);
+        if (text != null) mConnection.commitText(text, 1);
+    }
+
     /**
      * Handle an event that is not a functional event.
      *
@@ -1007,6 +1034,14 @@ public final class InputLogic {
             final InputTransaction inputTransaction) {
         inputTransaction.setDidAffectContents();
         switch (event.mCodePoint) {
+            case Constants.CODE_TAB:
+                if (sendKeyCodesRatherThanText()) {
+                    commitTyped(inputTransaction.mSettingsValues, "");
+                    sendDownUpKeyEvent(SpecialKeyEvents.androidKeyCodeFor(event.mCodePoint), 0);
+                } else {
+                    handleNonSpecialCharacterEvent(event, inputTransaction);
+                }
+                break;
             case Constants.CODE_ENTER:
                 final EditorInfo editorInfo = getCurrentInputEditorInfo();
                 final int imeOptionsActionId =
@@ -1072,7 +1107,8 @@ public final class InputLogic {
         }
 
         if(codePoint == Constants.CODE_ENTER
-                && inputTransaction.mSettingsValues.mInputAttributes.mSendKeyEventsMode
+                && (inputTransaction.mSettingsValues.mInputAttributes.mSendKeyEventsMode
+                        || sendKeyCodesRatherThanText())
         ) {
             sendDownUpKeyEvent(KeyEvent.KEYCODE_ENTER, 0);
             return;
