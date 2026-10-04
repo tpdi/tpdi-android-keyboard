@@ -524,7 +524,8 @@ private class VoiceInputActionWindow(
         wasFinished = true
 
         manager.getLifecycleScope().launch(Dispatchers.Main) {
-            val sanitized = ModelOutputSanitizer.sanitize(result, inputTransaction.textContext)
+            val sanitized = if (inlineMode && looksLikeHallucination(result)) "" else
+                ModelOutputSanitizer.sanitize(result, inputTransaction.textContext)
             inputTransaction.commit(sanitized)
             manager.announce(result)
             manager.closeActionWindow()
@@ -535,7 +536,12 @@ private class VoiceInputActionWindow(
     // Drop results that are clearly that: four or more words that are all the same word.
     private fun looksLikeHallucination(text: String): Boolean {
         val words = text.lowercase().split(Regex("[^\\p{L}\\p{N}']+")).filter { it.isNotEmpty() }
-        return words.size >= 4 && words.toSet().size == 1
+        if (words.size >= 4 && words.toSet().size == 1) return true
+        // Or one sentence repeated three or more times ("I'm not sure if I can do it. ...").
+        val sentences = text.lowercase().split(Regex("[.!?]+"))
+            .map { it.replace(Regex("[^\\p{L}\\p{N}' ]"), "").trim() }
+            .filter { it.isNotEmpty() }
+        return sentences.size >= 3 && sentences.groupingBy { it }.eachCount().values.max() >= 3
     }
 
     override fun segmentResult(result: String) {

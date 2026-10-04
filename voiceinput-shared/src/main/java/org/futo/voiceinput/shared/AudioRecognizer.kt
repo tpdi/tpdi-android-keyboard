@@ -265,7 +265,7 @@ class AudioRecognizer(
      * continues immediately; this only snapshots-and-clears the sample
      * buffer so the next segment starts clean.
      */
-    private fun finishSegment() {
+    private fun finishSegment(speechFrames: Int = Int.MAX_VALUE) {
         if (!isRecording || isSegmentProcessing) return
 
         val segmentSamples = floatSamples.array().sliceArray(0 until floatSamples.position())
@@ -278,7 +278,7 @@ class AudioRecognizer(
         listener.segmentStarted()
         segmentJob = lifecycleScope.launch {
             withContext(Dispatchers.Default) {
-                runSegmentModel(segmentSamples)
+                runSegmentModel(segmentSamples, speechFrames)
             }
         }
     }
@@ -433,6 +433,7 @@ class AudioRecognizer(
                 numConsecutiveNonSpeech = 0
                 numConsecutiveSpeech = 0
                 hasTalked = false
+                val framesThisSegment = segmentSpeechFrames
                 val tooLittleSpeech = useClickGestures && segmentSpeechFrames < MIN_SEGMENT_SPEECH_FRAMES
                 android.util.Log.d("ClickDetect", "segment end: speechFrames=$segmentSpeechFrames dropped=$tooLittleSpeech")
                 segmentSpeechFrames = 0
@@ -442,7 +443,7 @@ class AudioRecognizer(
                 } else {
                     yield()
                     withContext(Dispatchers.Main) {
-                        finishSegment()
+                        finishSegment(framesThisSegment)
                     }
                 }
             }
@@ -772,7 +773,7 @@ class AudioRecognizer(
         }
     }
 
-    private suspend fun runSegmentModel(segmentSamples: FloatArray) {
+    private suspend fun runSegmentModel(segmentSamples: FloatArray, speechFrames: Int) {
         loadModelJob?.let {
             if (it.isActive) it.join()
         }
@@ -792,9 +793,20 @@ class AudioRecognizer(
 
         // Stays true until the result has been handed to the listener, so a pending click
         // gesture can't be posted ahead of the text it follows.
-        val text = when {
+        var text = when {
             isBlankResult(outputText) -> ""
             else -> outputText
+        }
+
+        // The model can loop on short, unclear audio and return far more words than the speech
+        // in it could hold (about 4.5 words/second plus slack); discard those.
+        if (text.isNotEmpty() && speechFrames != Int.MAX_VALUE) {
+            val wordCount = text.split(Regex("\\s+")).count { it.isNotEmpty() }
+            val maxWords = (speechFrames * 0.03f * 4.5f + 4f).toInt()
+            if (wordCount > maxWords) {
+                android.util.Log.d("ClickDetect", "dropped implausible segment: words=$wordCount max=$maxWords speechFrames=$speechFrames")
+                text = ""
+            }
         }
 
         yield()
