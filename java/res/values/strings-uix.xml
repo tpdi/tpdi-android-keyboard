@@ -735,4 +735,5 @@ Default is %1$s</string>
     <string name="voice_input_settings_tap_circle_to_stop">Tap the circle to stop</string>
     <string name="voice_input_settings_tap_circle_to_stop_subtitle">When dictating over the keyboard, a precise tap on the middle of the volume circle ends the session. Turn this off to stop only with the blue microphone button.</string>
     <string name="voice_input_settings_tap_circle_to_stop_disabled_note">Turn on \"Dictate over the keyboard\" to use this.</string>
+    <string name="toms_features_title">Tom\'s Features</string>
 </resources>

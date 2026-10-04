@@ -147,6 +147,12 @@ val HomeScreenLite = UserSettingsMenu(
         //}
 
         userSettingNavigationItem(
+            title = R.string.toms_features_title,
+            style = NavigationItemStyle.MiscNoArrow,
+            navigateTo = TomsFeaturesMenu.navPath,
+        ),
+
+        userSettingNavigationItem(
             title = R.string.misc_settings_title,
             style = NavigationItemStyle.MiscNoArrow,
             navigateTo = "misc",
