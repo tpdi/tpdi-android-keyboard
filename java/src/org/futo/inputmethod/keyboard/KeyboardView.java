@@ -452,11 +452,7 @@ public class KeyboardView extends View {
         final Drawable hintIcon = kdc.getHintIcon();
         float labelX = centerX;
         float labelBaseline = centerY;
-        String label = kdc.getLabel();
-        // A latched sticky modifier (Ctrl, Alt) shows its label in capitals.
-        if (label != null && StickyModifiers.isLatched(key.getCode())) {
-            label = label.toUpperCase(java.util.Locale.ROOT);
-        }
+        final String label = StickyModifiers.labelFor(key.getCode(), kdc.getLabel());
         final Rect bgPadding = kdc.getBackgroundPadding();
         final KeyOutline outline = kdc.getOutline();
 
