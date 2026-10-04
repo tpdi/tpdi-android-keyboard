@@ -89,6 +89,7 @@ import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.SEND_KEY_CODES_RATHER_THAN_TEXT
 import org.futo.inputmethod.latin.uix.SHOW_LOAD_LAYOUT_FROM_FILE
 import org.futo.inputmethod.latin.uix.STICKY_MODIFIER_KEYS
+import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE_PERCENT
 import org.futo.inputmethod.latin.settings.LongPressKey
 import org.futo.inputmethod.latin.settings.LongPressKeyLayoutSetting
 import org.futo.inputmethod.latin.settings.Settings
@@ -852,6 +853,19 @@ val KeyboardSettingsMenu = UserSettingsMenu(
             subtitle = R.string.keyboard_settings_period_key_subtitle2,
             key = Settings.PREF_ENABLE_ALT_PERIOD_KEY,
             default = {false},
+        ),
+        UserSetting(
+            name = R.string.keyboard_settings_key_hint_size,
+            component = {
+                SettingSlider(
+                    title = stringResource(R.string.keyboard_settings_key_hint_size),
+                    subtitle = stringResource(R.string.keyboard_settings_key_hint_size_subtitle),
+                    setting = KEY_HINT_SCALE_PERCENT,
+                    range = 80.0f .. 200.0f,
+                    transform = { (it / 5f).roundToInt() * 5 },
+                    indicator = { "$it%" }
+                )
+            }
         ),
         userSettingToggleDataStore(
             title = R.string.keyboard_settings_sticky_modifier_keys,
