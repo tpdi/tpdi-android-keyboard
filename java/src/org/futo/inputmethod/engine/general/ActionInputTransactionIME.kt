@@ -131,10 +131,13 @@ class ActionInputTransactionIME(val helper: IMEHelper) : IMEInterface, ActionInp
             // apps handle it without declaring it. If the text is still there shortly after,
             // fall back to a real Ctrl+Enter sequence (Ctrl down, Enter down/up, Ctrl up).
             val before = ic?.getTextBeforeCursor(2000, 0)?.toString()
+            android.util.Log.d("SubmitDebug", "no declared action (imeOptions=${editorInfo.imeOptions}, inputType=${editorInfo.inputType}); trying IME_ACTION_SEND, before.len=${before?.length}")
             ic?.performEditorAction(EditorInfo.IME_ACTION_SEND)
             android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
                 val after = ic?.getTextBeforeCursor(2000, 0)?.toString()
+                android.util.Log.d("SubmitDebug", "after SEND: unchanged=${after == before} after.len=${after?.length}")
                 if (after == before) {
+                    android.util.Log.d("SubmitDebug", "sending Ctrl+Enter sequence")
                     val now = android.os.SystemClock.uptimeMillis()
                     val ctrl = android.view.KeyEvent.META_CTRL_ON or android.view.KeyEvent.META_CTRL_LEFT_ON
                     fun key(action: Int, code: Int, meta: Int) =

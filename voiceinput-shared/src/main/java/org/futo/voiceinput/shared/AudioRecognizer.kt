@@ -745,20 +745,19 @@ class AudioRecognizer(
             return
         }
 
-        isSegmentProcessing = false
-
+        // Stays true until the result has been handed to the listener, so a pending click
+        // gesture can't be posted ahead of the text it follows.
         val text = when {
             isBlankResult(outputText) -> ""
             else -> outputText
         }
 
-        if (text.isNotEmpty()) {
-            yield()
-            lifecycleScope.launch {
-                withContext(Dispatchers.Main) {
-                    yield()
-                    listener.segmentResult(text)
-                }
+        yield()
+        lifecycleScope.launch {
+            withContext(Dispatchers.Main) {
+                yield()
+                if (text.isNotEmpty()) listener.segmentResult(text)
+                isSegmentProcessing = false
             }
         }
     }
