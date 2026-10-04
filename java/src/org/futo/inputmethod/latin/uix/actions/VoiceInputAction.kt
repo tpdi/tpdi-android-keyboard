@@ -246,6 +246,7 @@ private class VoiceInputActionWindow(
     @Composable
     override fun SuggestionBarOverride() {
         VoiceListeningBar(
+            circle = { recognizerView.value?.Content(circleOnly = true) },
             onUndo = { undoLast() },
             onStop = { recognizerView.value?.finish() ?: manager.closeActionWindow() }
         )
@@ -253,7 +254,7 @@ private class VoiceInputActionWindow(
 
     @Composable
     override fun KeyboardOverlay() {
-        VoiceVolumeCircleOverlay { recognizerView.value?.Content() }
+        VoiceVolumeCircleOverlay { recognizerView.value?.Content(circleOnly = true) }
     }
 
     // What this session has committed (and, with the UI PRs, typed), so Undo can take it back

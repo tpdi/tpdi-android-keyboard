@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,6 +27,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
@@ -44,7 +46,7 @@ import org.futo.inputmethod.latin.uix.LocalKeyboardScheme
  * microphone ends the session.
  */
 @Composable
-fun VoiceListeningBar(onUndo: () -> Unit, onStop: () -> Unit) {
+fun VoiceListeningBar(circle: @Composable () -> Unit, onUndo: () -> Unit, onStop: () -> Unit) {
     val density = LocalDensity.current
     var barLeft by remember { mutableStateOf(0f) }
     var barWidth by remember { mutableStateOf(0) }
@@ -52,8 +54,9 @@ fun VoiceListeningBar(onUndo: () -> Unit, onStop: () -> Unit) {
     val undoWidthPx = with(density) { 48.dp.toPx() }
     val gapPx = with(density) { 20.dp.toPx() }
 
-    val micCenter = ActionBarMicPosition.centerX?.let { it - barLeft }
-        ?: (barWidth - micWidthPx / 2f)
+    // The blue microphone sits at the middle of the bar; the volume circle radiates from there
+    // (see VoiceVolumeCircleOverlay).
+    val micCenter = barWidth / 2f
     val micLeft = (micCenter - micWidthPx / 2f)
         .coerceIn(0f, (barWidth - micWidthPx).coerceAtLeast(0f))
     val undoLeft = (micLeft - gapPx - undoWidthPx).coerceAtLeast(0f)
@@ -67,6 +70,17 @@ fun VoiceListeningBar(onUndo: () -> Unit, onStop: () -> Unit) {
                 barWidth = it.size.width
             }
     ) {
+        // The volume circle also covers the bar (the keyboard overlay draws the rest), centered
+        // on the bar, behind the controls.
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clipToBounds()
+                .alpha(0.55f),
+            contentAlignment = Alignment.Center
+        ) {
+            circle()
+        }
         Text(
             text = "Listening…",
             color = MaterialTheme.colorScheme.onSurface,
@@ -112,12 +126,24 @@ fun VoiceListeningBar(onUndo: () -> Unit, onStop: () -> Unit) {
 /** The volume circle drawn translucently over the keys. */
 @Composable
 fun VoiceVolumeCircleOverlay(circle: @Composable () -> Unit) {
+    val barHeightPx = with(LocalDensity.current) { ActionBarHeight.roundToPx() }
     Box(
         modifier = Modifier
             .fillMaxSize()
             .alpha(0.55f),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.TopCenter
     ) {
-        circle()
+        // Centered horizontally, vertically on the middle of the bar above the keys, so the
+        // circle radiates from the microphone; its top part is cut off by the screen edge.
+        Box(
+            modifier = Modifier.layout { measurable, constraints ->
+                val p = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
+                layout(p.width, p.height) {
+                    p.place(0, -p.height / 2 - barHeightPx / 2)
+                }
+            }
+        ) {
+            circle()
+        }
     }
 }
