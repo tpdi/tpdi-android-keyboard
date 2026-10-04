@@ -117,3 +117,11 @@ val VOICE_INPUT_OVER_KEYBOARD = SettingsKey(
     key = booleanPreferencesKey("voice_input_over_keyboard"),
     default = false
 )
+
+
+// When dictating over the keyboard: a precise tap on the middle of the volume circle ends the
+// session. With it off, only the blue microphone in the suggestion bar stops it.
+val VOICE_INPUT_TAP_CIRCLE_TO_STOP = SettingsKey(
+    key = booleanPreferencesKey("voice_input_tap_circle_to_stop"),
+    default = true
+)

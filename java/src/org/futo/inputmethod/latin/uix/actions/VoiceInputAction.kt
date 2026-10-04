@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.Dp
 import org.futo.inputmethod.latin.uix.ActionBarHeight
 import org.futo.inputmethod.latin.uix.TypedTextTap
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_TAP_CIRCLE_TO_STOP
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -238,6 +239,7 @@ private class VoiceInputActionWindow(
     }
 
     private val inlineMode = context.getSetting(VOICE_INPUT_OVER_KEYBOARD)
+    private val tapCircleToStop = context.getSetting(VOICE_INPUT_TAP_CIRCLE_TO_STOP)
 
     private fun newTransaction() =
         if (inlineMode) manager.createUnroutedInputTransaction() else manager.createInputTransaction()
@@ -417,7 +419,7 @@ private class VoiceInputActionWindow(
         }
         // A precise tap on the middle of the circle ends the session; a touch anywhere else
         // falls through to the keys underneath.
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        if (tapCircleToStop) Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Box(
                 modifier = Modifier
                     .size(56.dp)
