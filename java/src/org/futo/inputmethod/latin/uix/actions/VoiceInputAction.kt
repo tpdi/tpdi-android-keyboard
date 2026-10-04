@@ -257,6 +257,7 @@ private class VoiceInputActionWindow(
     @Composable
     override fun SuggestionBarOverride() {
         VoiceListeningBar(
+            circle = { recognizerView.value?.Content(circleOnly = true) },
             onUndo = { undoLast() },
             onStop = { recognizerView.value?.finish() ?: manager.closeActionWindow() }
         )
@@ -264,7 +265,7 @@ private class VoiceInputActionWindow(
 
     @Composable
     override fun KeyboardOverlay() {
-        VoiceVolumeCircleOverlay { recognizerView.value?.Content() }
+        VoiceVolumeCircleOverlay { recognizerView.value?.Content(circleOnly = true) }
         // EXPERIMENT: the blue microphone is the one place to stop; no tap target on the circle.
     }
 

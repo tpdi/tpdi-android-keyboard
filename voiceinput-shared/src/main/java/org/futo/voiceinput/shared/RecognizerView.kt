@@ -110,7 +110,7 @@ class RecognizerView(
     ))
 
     @Composable
-    fun Content() {
+    fun Content(circleOnly: Boolean = false) {
         when (currentViewState.value) {
             CurrentView.LoadingCircle -> {
                 Column {
@@ -128,7 +128,8 @@ class RecognizerView(
                 InnerRecognize(
                     magnitude = magnitudeState,
                     state = statusState,
-                    device = currentDeviceState
+                    device = currentDeviceState,
+                    circleOnly = circleOnly
                 )
             }
 

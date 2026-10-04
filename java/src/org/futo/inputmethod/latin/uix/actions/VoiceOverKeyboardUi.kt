@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -46,7 +47,7 @@ import org.futo.inputmethod.latin.uix.LocalKeyboardScheme
  * microphone ends the session.
  */
 @Composable
-fun VoiceListeningBar(onUndo: () -> Unit, onStop: () -> Unit) {
+fun VoiceListeningBar(circle: @Composable () -> Unit, onUndo: () -> Unit, onStop: () -> Unit) {
     val density = LocalDensity.current
     var barLeft by remember { mutableStateOf(0f) }
     var barWidth by remember { mutableStateOf(0) }
@@ -70,6 +71,17 @@ fun VoiceListeningBar(onUndo: () -> Unit, onStop: () -> Unit) {
                 barWidth = it.size.width
             }
     ) {
+        // The volume circle also covers the bar (the keyboard overlay draws the rest), centered
+        // on the bar, behind the controls.
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clipToBounds()
+                .alpha(0.55f),
+            contentAlignment = Alignment.Center
+        ) {
+            circle()
+        }
         Text(
             text = "Listening…",
             color = MaterialTheme.colorScheme.onSurface,
