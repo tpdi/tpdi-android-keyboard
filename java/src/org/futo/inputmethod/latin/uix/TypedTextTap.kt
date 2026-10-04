@@ -12,6 +12,7 @@ object TypedTextTap {
     var listener: ((codePoint: Int, isDelete: Boolean) -> Unit)? = null
 
     fun dispatch(event: Event) {
+        org.futo.voiceinput.shared.ClickSuppression.lastKeyPressMs = System.currentTimeMillis()
         val l = listener ?: return
         if (event.mKeyCode == Constants.CODE_DELETE) {
             l(-1, true)

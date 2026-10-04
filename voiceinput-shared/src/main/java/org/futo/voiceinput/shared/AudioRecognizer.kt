@@ -540,6 +540,8 @@ class AudioRecognizer(
                 val now = System.currentTimeMillis()
                 for (idx in onsetSubIndices) {
                     val t = now - ((nSubs - idx) * SUB * 1000L / 16000L)
+                    // A key tap on the keyboard sounds like a click; ignore onsets near key presses.
+                    if (kotlin.math.abs(t - ClickSuppression.lastKeyPressMs) < 400L) continue
                     clickTimestamps.add(t)
                     lastClickAtMs = t
                     android.util.Log.d("ClickDetect", "ONSET click #${clickTimestamps.size} sub=$idx")
