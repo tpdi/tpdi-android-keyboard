@@ -1165,6 +1165,10 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
                 mMoreKeysPanel.onUpEvent(translatedX, translatedY, mPointerId, eventTime);
             }
             dismissMoreKeysPanel();
+            // The touch started recording a gesture stroke before the long press fired; the early
+            // return skips the normal end-of-gesture cleanup, leaving the shared batch state stale.
+            Log.d(TAG, "SwipeState: more-keys up, resetting batch input state");
+            mBatchInputArbiter.onCancelBatchInput();
             return;
         }
 
