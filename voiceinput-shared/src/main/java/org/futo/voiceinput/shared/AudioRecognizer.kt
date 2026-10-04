@@ -822,7 +822,10 @@ class AudioRecognizer(
 
         android.util.Log.d("SegText", "segment frames=${if (speechFrames == Int.MAX_VALUE) -1 else speechFrames} raw=[$outputText]")
         if (filterMadeUpText && MadeUpTextFilter.isMadeUpSegment(text, speechFrames)) text = ""
-        if (filterStockPhrases && StockPhraseFilter.isStockPhrase(text)) text = ""
+        if (StockPhraseFilter.isStockPhrase(text)) {
+            android.util.Log.d("StockPhrase", "segment result is a stock phrase [$text]; dropping=$filterStockPhrases")
+            if (filterStockPhrases) text = ""
+        }
 
         if (text.isNotEmpty() || useClickGestures) {
             yield()
@@ -884,7 +887,10 @@ class AudioRecognizer(
 
         android.util.Log.d("SegText", "final raw=[$outputText]")
         if (filterMadeUpText && MadeUpTextFilter.isRepetitionLoop(text)) text = ""
-        if (filterStockPhrases && StockPhraseFilter.isStockPhrase(text)) text = ""
+        if (StockPhraseFilter.isStockPhrase(text)) {
+            android.util.Log.d("StockPhrase", "final result is a stock phrase [$text]; dropping=$filterStockPhrases")
+            if (filterStockPhrases) text = ""
+        }
 
         yield()
         lifecycleScope.launch {
