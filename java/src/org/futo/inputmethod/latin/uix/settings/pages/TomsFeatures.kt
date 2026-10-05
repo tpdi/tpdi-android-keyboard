@@ -7,6 +7,7 @@ import org.futo.inputmethod.latin.uix.SHOW_LOAD_LAYOUT_FROM_FILE
 import org.futo.inputmethod.latin.uix.STICKY_MODIFIER_KEYS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_MADE_UP_TEXT
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_STOCK_PHRASES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_INLINE_PARTIAL_RESULT
@@ -70,6 +71,11 @@ val TomsFeaturesMenu = UserSettingsMenu(
             title = R.string.voice_input_settings_filter_stock_phrases,
             subtitle = R.string.voice_input_settings_filter_stock_phrases_subtitle,
             setting = VOICE_INPUT_FILTER_STOCK_PHRASES
+        ),
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_noise_gate,
+            subtitle = R.string.voice_input_settings_noise_gate_subtitle,
+            setting = VOICE_INPUT_NOISE_GATE
         ),
         userSettingToggleDataStore(
             title = R.string.voice_input_settings_click_gestures,
