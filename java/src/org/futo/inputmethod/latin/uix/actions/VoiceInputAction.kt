@@ -41,6 +41,7 @@ import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
@@ -205,6 +206,16 @@ private class VoiceInputActionWindow(
     // one unit at a time.
     private val undoHistory = VoiceUndoHistory()
 
+    private val showActionButtons = context.getSetting(VOICE_INPUT_ACTION_BUTTONS)
+
+    private fun pressEnter() {
+        manager.getLifecycleScope().launch(Dispatchers.Main) {
+            inputTransaction.commit("\n")
+            inputTransaction = manager.createInputTransaction()
+            undoHistory.pushVoiceEntry("\n")
+        }
+    }
+
     /** Removes the most recent entry of the undo history from the text before the cursor. */
     internal fun undoLast() {
         manager.getLifecycleScope().launch(Dispatchers.Main) {
@@ -241,6 +252,14 @@ private class VoiceInputActionWindow(
                     modelException.value != null -> ModelDownloader(modelException.value!!)
                     recognizerView.value != null -> recognizerView.value!!.Content()
                 }
+            }
+
+            if (showActionButtons && recognizerView.value != null) {
+                VoiceActionButtons(
+                    onUndo = { undoLast() },
+                    onEnter = { pressEnter() },
+                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp)
+                )
             }
         }
     }
