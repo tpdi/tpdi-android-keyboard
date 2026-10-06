@@ -109,3 +109,19 @@ val VOICE_INPUT_ACTION_BUTTONS = SettingsKey(
     key = booleanPreferencesKey("voice_input_action_buttons"),
     default = false
 )
+
+// Dictate over the regular keyboard: "Listening..." + Undo in the suggestion bar, the volume
+// circle drawn on the keys, and typing allowed during the session. When off, the voice input
+// window replaces the keyboard as in the stock app (the default).
+val VOICE_INPUT_OVER_KEYBOARD = SettingsKey(
+    key = booleanPreferencesKey("voice_input_over_keyboard"),
+    default = false
+)
+
+
+// When dictating over the keyboard: a precise tap on the middle of the volume circle ends the
+// session. With it off, only the blue microphone in the suggestion bar stops it.
+val VOICE_INPUT_TAP_CIRCLE_TO_STOP = SettingsKey(
+    key = booleanPreferencesKey("voice_input_tap_circle_to_stop"),
+    default = true
+)

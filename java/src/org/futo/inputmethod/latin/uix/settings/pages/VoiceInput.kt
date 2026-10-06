@@ -20,6 +20,8 @@ import org.futo.inputmethod.latin.uix.USE_SYSTEM_VOICE_INPUT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_TAP_CIRCLE_TO_STOP
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import org.futo.inputmethod.latin.uix.settings.DropDownPickerSettingItem
@@ -29,6 +31,7 @@ import org.futo.inputmethod.latin.uix.settings.Tip
 import org.futo.inputmethod.latin.uix.settings.UserSetting
 import org.futo.inputmethod.latin.uix.settings.UserSettingsMenu
 import org.futo.inputmethod.latin.uix.settings.useDataStore
+import org.futo.inputmethod.latin.uix.settings.SettingToggleDataStore
 import org.futo.inputmethod.latin.uix.settings.useDataStoreValue
 import org.futo.inputmethod.latin.uix.settings.userSettingNavigationItem
 import org.futo.inputmethod.latin.uix.settings.userSettingToggleDataStore
@@ -199,6 +202,30 @@ val VoiceInputMenu = UserSettingsMenu(
             title = R.string.voice_input_settings_click_gestures,
             subtitle = R.string.voice_input_settings_click_gestures_subtitle,
             setting = VOICE_INPUT_CLICK_GESTURES
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_over_keyboard,
+            subtitle = R.string.voice_input_settings_over_keyboard_subtitle,
+            setting = VOICE_INPUT_OVER_KEYBOARD
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        UserSetting(
+            name = R.string.voice_input_settings_tap_circle_to_stop,
+            subtitle = R.string.voice_input_settings_tap_circle_to_stop_subtitle,
+            component = {
+                // Keeps its stored value but can't be changed while dictating over the keyboard
+                // is off; the original subtitle stays and a note is added underneath.
+                val overKeyboard = useDataStoreValue(VOICE_INPUT_OVER_KEYBOARD)
+                val base = stringResource(R.string.voice_input_settings_tap_circle_to_stop_subtitle)
+                SettingToggleDataStore(
+                    title = stringResource(R.string.voice_input_settings_tap_circle_to_stop),
+                    setting = VOICE_INPUT_TAP_CIRCLE_TO_STOP,
+                    subtitle = if (overKeyboard) base else base + "\n" +
+                            stringResource(R.string.voice_input_settings_tap_circle_to_stop_disabled_note),
+                    disabled = !overKeyboard
+                )
+            }
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(

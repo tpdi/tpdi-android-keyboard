@@ -6,8 +6,35 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Row
+import org.futo.inputmethod.latin.uix.LocalKeyboardScheme
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.foundation.layout.fillMaxHeight
+import org.futo.inputmethod.latin.uix.ActionBarMicPosition
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
+import org.futo.inputmethod.latin.uix.ActionBarHeight
+import org.futo.inputmethod.latin.uix.TypedTextTap
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_TAP_CIRCLE_TO_STOP
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -211,7 +238,13 @@ private class VoiceInputActionWindow(
         recognizerView.start()
     }
 
-    private var inputTransaction = manager.createInputTransaction()
+    private val inlineMode = context.getSetting(VOICE_INPUT_OVER_KEYBOARD)
+    private val tapCircleToStop = context.getSetting(VOICE_INPUT_TAP_CIRCLE_TO_STOP)
+
+    private fun newTransaction() =
+        if (inlineMode) manager.createUnroutedInputTransaction() else manager.createInputTransaction()
+
+    private var inputTransaction = newTransaction()
 
     // Text of what voice input itself has committed (segments, manual Enters), most recent
     // last -- lets Undo remove just our own output, one unit at a time, repeatable. Stores the
@@ -223,29 +256,180 @@ private class VoiceInputActionWindow(
     // its own cached text/cursor state that never learned about anything this action committed.
     private val committedTexts = mutableListOf<String>()
 
+    // Undo history: dictated segments and typed words, most recent last. Typed characters are
+    // grouped into a word (closed by whitespace); a backspace shortens the latest entry, so the
+    // regular keyboard backspace and Undo stay consistent. No attempt is made to guard against
+    // typing and dictation interleaving.
+    private var openTypedEntry = false
+
+    // Typing while a segment is being transcribed: the spoken text arrives after the keys, so
+    // it would land after them. Remember what was typed since the segment was handed off, and
+    // when the result arrives put the spoken text first and retype that text after it.
+    private var typedWhilePending: StringBuilder? = null
+    private var undoIndexAtSegmentStart = 0
+
+    override fun segmentStarted() {
+        if (!inlineMode) return
+        typedWhilePending = StringBuilder()
+        undoIndexAtSegmentStart = committedTexts.size
+    }
+
+    private fun pushVoiceEntry(text: String) {
+        committedTexts.add(text)
+        openTypedEntry = false
+    }
+
+    private fun onTypedEvent(codePoint: Int, isDelete: Boolean) {
+        typedWhilePending?.let { pending ->
+            if (isDelete) {
+                if (pending.isNotEmpty()) pending.setLength(pending.length - 1)
+            } else {
+                pending.appendCodePoint(codePoint)
+            }
+        }
+        if (isDelete) {
+            val last = committedTexts.lastOrNull() ?: return
+            if (last.length <= 1) {
+                committedTexts.removeAt(committedTexts.lastIndex)
+                openTypedEntry = false
+            } else {
+                committedTexts[committedTexts.lastIndex] = last.dropLast(1)
+            }
+            return
+        }
+        val ch = String(Character.toChars(codePoint))
+        if (openTypedEntry && committedTexts.isNotEmpty()) {
+            committedTexts[committedTexts.lastIndex] = committedTexts.last() + ch
+        } else {
+            committedTexts.add(ch)
+        }
+        openTypedEntry = !Character.isWhitespace(codePoint)
+    }
+
+    init {
+        if (inlineMode) TypedTextTap.listener = { cp, del -> onTypedEvent(cp, del) }
+    }
+
     private fun undoLast() {
         val text = committedTexts.lastOrNull() ?: return
         manager.getLifecycleScope().launch(Dispatchers.Main) {
-            // Only one transaction can be active, so read the live text through the current one.
-            val before = inputTransaction.liveTextBeforeCursor(text.length + 8) ?: ""
-            if (before.endsWith(text)) {
-                committedTexts.removeAt(committedTexts.lastIndex)
-                inputTransaction.deleteTextBeforeCursor(text.length)
-            }
+            committedTexts.removeAt(committedTexts.lastIndex)
+            openTypedEntry = false
+            inputTransaction.deleteTextBeforeCursor(text.length)
         }
     }
 
     private fun pressEnter() {
         manager.getLifecycleScope().launch(Dispatchers.Main) {
             inputTransaction.commit("\n")
-            inputTransaction = manager.createInputTransaction()
-            committedTexts.add("\n")
+            inputTransaction = newTransaction()
+            pushVoiceEntry("\n")
         }
     }
 
     @Composable
     private fun ModelDownloader(modelException: ModelDoesNotExistException) {
         NoModelInstalled(locales.firstOrNull() ?: Locale.ROOT)
+    }
+
+    override val onlyShowAboveKeyboard: Boolean get() = inlineMode
+    override val fixedWindowHeight: Dp? get() = if (inlineMode) 0.dp else null
+    override val showCloseButton: Boolean get() = !inlineMode
+    override val overridesSuggestionBar: Boolean get() = inlineMode
+
+    @Composable
+    override fun SuggestionBarOverride() {
+        val density = LocalDensity.current
+        var barLeft by remember { mutableStateOf(0f) }
+        var barWidth by remember { mutableStateOf(0) }
+        val micWidthPx = with(density) { 42.dp.toPx() }
+        val undoWidthPx = with(density) { 48.dp.toPx() }
+        val gapPx = with(density) { 20.dp.toPx() }
+
+        // Put the blue microphone exactly where the action bar's own microphone icon is.
+        val micCenter = ActionBarMicPosition.centerX?.let { it - barLeft }
+            ?: (barWidth - micWidthPx / 2f)
+        val micLeft = (micCenter - micWidthPx / 2f)
+            .coerceIn(0f, (barWidth - micWidthPx).coerceAtLeast(0f))
+        val undoLeft = (micLeft - gapPx - undoWidthPx).coerceAtLeast(0f)
+        android.util.Log.d("MicPos", "listening bar: barLeft=$barLeft barWidth=$barWidth recorded=${ActionBarMicPosition.centerX} micCenter=$micCenter micLeft=$micLeft")
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(ActionBarHeight)
+                .onGloballyPositioned {
+                    barLeft = it.positionInRoot().x
+                    barWidth = it.size.width
+                }
+        ) {
+            Text(
+                text = "Listening…",
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .padding(start = 16.dp)
+            )
+            IconButton(
+                onClick = { undoLast() },
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset { IntOffset(undoLeft.toInt(), 0) }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.undo),
+                    contentDescription = stringResource(R.string.action_voice_input_undo),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            val pillColor = LocalKeyboardScheme.current.keyboardContainer
+            val pillRadiusPx = with(density) { 16.dp.toPx() }
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset { IntOffset(micLeft.toInt(), 0) }
+                    .width(42.dp)
+                    .fillMaxHeight()
+                    .drawBehind {
+                        drawCircle(color = pillColor, radius = pillRadiusPx)
+                    }
+                    .clip(CircleShape)
+                    .clickable { recognizerView.value?.finish() ?: manager.closeActionWindow() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.mic_fill),
+                    contentDescription = stringResource(R.string.action_voice_input_title),
+                    tint = Color(0xFF3B82F6),
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+    }
+
+    @Composable
+    override fun KeyboardOverlay() {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.55f),
+            contentAlignment = Alignment.Center
+        ) {
+            recognizerView.value?.Content()
+        }
+        // A precise tap on the middle of the circle ends the session; a touch anywhere else
+        // falls through to the keys underneath.
+        if (tapCircleToStop) Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { recognizerView.value?.finish() ?: manager.closeActionWindow() }
+            )
+        }
     }
 
     @Composable
@@ -255,6 +439,7 @@ private class VoiceInputActionWindow(
 
     @Composable
     override fun WindowContents(keyboardShown: Boolean) {
+        if (inlineMode) return
         Box(modifier = Modifier
             .fillMaxSize()
             .clickable(
@@ -301,6 +486,7 @@ private class VoiceInputActionWindow(
     }
 
     override fun close(): CloseResult {
+        TypedTextTap.listener = null
         inputTransaction.cancel()
         runBlocking { initJob.cancelAndJoin() }
         recognizerView.value?.cancel()
@@ -338,31 +524,68 @@ private class VoiceInputActionWindow(
         wasFinished = true
 
         manager.getLifecycleScope().launch(Dispatchers.Main) {
-            val sanitized = ModelOutputSanitizer.sanitize(result, inputTransaction.textContext)
+            val sanitized = if (inlineMode && looksLikeHallucination(result)) "" else
+                ModelOutputSanitizer.sanitize(result, inputTransaction.textContext)
             inputTransaction.commit(sanitized)
             manager.announce(result)
             manager.closeActionWindow()
         }
     }
 
+    // The speech model sometimes invents text from near-silence ("Good. Good. Good. ...").
+    // Drop results that are clearly that: four or more words that are all the same word.
+    private fun looksLikeHallucination(text: String): Boolean {
+        val words = text.lowercase().split(Regex("[^\\p{L}\\p{N}']+")).filter { it.isNotEmpty() }
+        if (words.size >= 4 && words.toSet().size == 1) return true
+        // Or one sentence repeated three or more times ("I'm not sure if I can do it. ...").
+        val sentences = text.lowercase().split(Regex("[.!?]+"))
+            .map { it.replace(Regex("[^\\p{L}\\p{N}' ]"), "").trim() }
+            .filter { it.isNotEmpty() }
+        return sentences.size >= 3 && sentences.groupingBy { it }.eachCount().values.max() >= 3
+    }
+
     override fun segmentResult(result: String) {
+        if (looksLikeHallucination(result)) {
+            // Still release any typed-text hold started for this segment.
+            manager.getLifecycleScope().launch(Dispatchers.Main) { typedWhilePending = null }
+            return
+        }
         manager.getLifecycleScope().launch(Dispatchers.Main) {
+            val typed = typedWhilePending?.toString() ?: ""
+            typedWhilePending = null
             val sanitized = ModelOutputSanitizer.sanitize(result, inputTransaction.textContext)
             if (sanitized.isNotBlank()) {
+                val committedText = sanitized.trimEnd() + " "
+                if (typed.isNotEmpty()) {
+                    // Take back what was typed while this was being transcribed; it goes after.
+                    inputTransaction.finishComposingText()
+                    inputTransaction.deleteTextBeforeCursor(typed.length)
+                }
                 // Committed for good, no later revision: start a fresh transaction so the
                 // next segment's partial/commit calls don't touch what's already locked in.
-                val committedText = sanitized.trimEnd() + " "
                 inputTransaction.commit(committedText)
-                inputTransaction = manager.createInputTransaction()
-                committedTexts.add(committedText)
+                inputTransaction = newTransaction()
+                if (typed.isNotEmpty()) {
+                    inputTransaction.commit(typed)
+                    inputTransaction = newTransaction()
+                    // Undo history follows the on-screen order: spoken text, then typed.
+                    val from = undoIndexAtSegmentStart.coerceIn(0, committedTexts.size)
+                    val typedEntries = committedTexts.subList(from, committedTexts.size).toList()
+                    while (committedTexts.size > from) committedTexts.removeAt(committedTexts.lastIndex)
+                    committedTexts.add(committedText)
+                    committedTexts.addAll(typedEntries)
+                } else {
+                    pushVoiceEntry(committedText)
+                }
+            } else if (typed.isNotEmpty()) {
+                // Nothing was said; leave what was typed where it is.
             }
         }
     }
 
     override fun clickGesture(clickCount: Int) {
-        when {
-            clickCount == 2 -> pressEnter()
-        }
+        // Any burst of two or more clicks is one Enter.
+        if (clickCount >= 2) pressEnter()
     }
 
     override fun partialResult(result: String) {

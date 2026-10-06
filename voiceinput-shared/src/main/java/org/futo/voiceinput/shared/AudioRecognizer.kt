@@ -125,6 +125,11 @@ class AudioRecognizer(
     // committed, so Enter/Submit can't land ahead of the text it follows.
     private var pendingGestureCount = 0
 
+    // Whether any speech has been heard since the last segment boundary. When it hasn't, the
+    // leftover buffer is silence/noise and decoding it just makes the model invent text.
+    @Volatile
+    private var bufferHasSpeech = false
+
     private var focusRequest: AudioFocusRequest? = null
 
     private var communicationDevice = "unknown"
@@ -260,18 +265,20 @@ class AudioRecognizer(
      * continues immediately; this only snapshots-and-clears the sample
      * buffer so the next segment starts clean.
      */
-    private fun finishSegment() {
+    private fun finishSegment(speechFrames: Int = Int.MAX_VALUE) {
         if (!isRecording || isSegmentProcessing) return
 
         val segmentSamples = floatSamples.array().sliceArray(0 until floatSamples.position())
         floatSamples.clear()
+        bufferHasSpeech = false
 
         if (segmentSamples.isEmpty()) return
 
         isSegmentProcessing = true
+        listener.segmentStarted()
         segmentJob = lifecycleScope.launch {
             withContext(Dispatchers.Default) {
-                runSegmentModel(segmentSamples)
+                runSegmentModel(segmentSamples, speechFrames)
             }
         }
     }
@@ -381,6 +388,13 @@ class AudioRecognizer(
         // Consecutive 100ms chunks louder than the talking threshold; a click's ring-down is
         // one or two chunks, speech lasts longer.
         var loudRun = 0
+        // A real click is followed by quiet; the opening consonants of a phrase look like clicks
+        // but are followed by sustained speech. Onsets are cancelled if speech-level sound
+        // follows them within CLICK_QUIET_AFTER_MS.
+        var onsetWindowStartMs = 0L
+        var postOnsetLoudChunks = 0
+        val CLICK_QUIET_AFTER_MS = 500L
+        val CLICK_FOLLOWING_SPEECH_RMS = 0.025f
         // VAD speech frames (30ms each) seen since the last segment boundary; used to throw away
         // segments that are really just clicks plus silence.
         var segmentSpeechFrames = 0
@@ -419,15 +433,17 @@ class AudioRecognizer(
                 numConsecutiveNonSpeech = 0
                 numConsecutiveSpeech = 0
                 hasTalked = false
+                val framesThisSegment = segmentSpeechFrames
                 val tooLittleSpeech = useClickGestures && segmentSpeechFrames < MIN_SEGMENT_SPEECH_FRAMES
                 android.util.Log.d("ClickDetect", "segment end: speechFrames=$segmentSpeechFrames dropped=$tooLittleSpeech")
                 segmentSpeechFrames = 0
                 if (tooLittleSpeech) {
                     floatSamples.clear()
+                    bufferHasSpeech = false
                 } else {
                     yield()
                     withContext(Dispatchers.Main) {
-                        finishSegment()
+                        finishSegment(framesThisSegment)
                     }
                 }
             }
@@ -524,6 +540,7 @@ class AudioRecognizer(
             if (startSoundPassed && ((loudRun >= sustainedLoudRequired) || (numConsecutiveSpeech > 8))) {
                 hasTalked = true
             }
+            if (hasTalked) bufferHasSpeech = true
 
             if (useClickGestures && startSoundPassed) {
                 // TEMPORARY: calibration logging, remove once thresholds are tuned against
@@ -537,10 +554,34 @@ class AudioRecognizer(
                 }
 
                 val now = System.currentTimeMillis()
+                // Cancel recent onsets that turned out to be the start of speech.
+                if (onsetWindowStartMs > 0L) {
+                    if (now - onsetWindowStartMs > CLICK_QUIET_AFTER_MS) {
+                        onsetWindowStartMs = 0L
+                        postOnsetLoudChunks = 0
+                    } else if (onsetSubIndices.isEmpty() && rms > CLICK_FOLLOWING_SPEECH_RMS) {
+                        postOnsetLoudChunks++
+                        if (postOnsetLoudChunks >= 2) {
+                            val cutoff = onsetWindowStartMs - 50L
+                            val before = clickTimestamps.size
+                            clickTimestamps.removeAll { it >= cutoff }
+                            lastClickAtMs = clickTimestamps.lastOrNull() ?: 0L
+                            android.util.Log.d("ClickDetect", "dropped ${before - clickTimestamps.size} onset(s) followed by speech")
+                            onsetWindowStartMs = 0L
+                            postOnsetLoudChunks = 0
+                        }
+                    }
+                }
                 for (idx in onsetSubIndices) {
                     val t = now - ((nSubs - idx) * SUB * 1000L / 16000L)
+                    // A key tap on the keyboard sounds like a click; ignore onsets near key presses.
+                    if (kotlin.math.abs(t - ClickSuppression.lastKeyPressMs) < 400L) continue
                     clickTimestamps.add(t)
                     lastClickAtMs = t
+                    if (onsetWindowStartMs == 0L) {
+                        onsetWindowStartMs = t
+                        postOnsetLoudChunks = 0
+                    }
                     android.util.Log.d("ClickDetect", "ONSET click #${clickTimestamps.size} sub=$idx")
                 }
 
@@ -549,9 +590,13 @@ class AudioRecognizer(
                     clickTimestamps.clear()
                     if (count >= 2) {
                         pendingGestureCount = count.coerceAtMost(3)
+                        android.util.Log.d("ClickDetect", "gesture group closed: clicks=$count hasTalked=$hasTalked segmentProcessing=$isSegmentProcessing")
                         // Clicks alone make Whisper hallucinate ("Thank you"); drop them unless
                         // speech is still waiting in the buffer.
-                        if (!hasTalked) floatSamples.clear()
+                        if (!hasTalked) {
+                            floatSamples.clear()
+                            bufferHasSpeech = false
+                        }
                     }
                 }
 
@@ -569,6 +614,7 @@ class AudioRecognizer(
                     } else if (!hasTalked && !isSegmentProcessing) {
                         val reportedCount = pendingGestureCount
                         pendingGestureCount = 0
+                        android.util.Log.d("ClickDetect", "gesture fired: $reportedCount")
                         yield()
                         withContext(Dispatchers.Main) {
                             listener.clickGesture(reportedCount)
@@ -727,7 +773,7 @@ class AudioRecognizer(
         }
     }
 
-    private suspend fun runSegmentModel(segmentSamples: FloatArray) {
+    private suspend fun runSegmentModel(segmentSamples: FloatArray, speechFrames: Int) {
         loadModelJob?.let {
             if (it.isActive) it.join()
         }
@@ -747,9 +793,20 @@ class AudioRecognizer(
 
         // Stays true until the result has been handed to the listener, so a pending click
         // gesture can't be posted ahead of the text it follows.
-        val text = when {
+        var text = when {
             isBlankResult(outputText) -> ""
             else -> outputText
+        }
+
+        // The model can loop on short, unclear audio and return far more words than the speech
+        // in it could hold (about 4.5 words/second plus slack); discard those.
+        if (text.isNotEmpty() && speechFrames != Int.MAX_VALUE) {
+            val wordCount = text.split(Regex("\\s+")).count { it.isNotEmpty() }
+            val maxWords = (speechFrames * 0.03f * 4.5f + 4f).toInt()
+            if (wordCount > maxWords) {
+                android.util.Log.d("ClickDetect", "dropped implausible segment: words=$wordCount max=$maxWords speechFrames=$speechFrames")
+                text = ""
+            }
         }
 
         yield()
@@ -773,6 +830,19 @@ class AudioRecognizer(
         // Don't let the final decode race a still-in-flight segment decode on the same model.
         segmentJob?.let {
             if (it.isActive) it.join()
+        }
+
+        // With segmented results the buffer holds only what came after the last segment; if no
+        // speech was heard in it, skip the decode rather than let the model make something up.
+        if (useSegmentedResults && !bufferHasSpeech) {
+            yield()
+            lifecycleScope.launch {
+                withContext(Dispatchers.Main) {
+                    yield()
+                    listener.finished("")
+                }
+            }
+            return
         }
 
         val floatArray = floatSamples.array().sliceArray(0 until floatSamples.position())

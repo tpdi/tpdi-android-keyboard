@@ -735,6 +735,7 @@ public class LatinIMELegacy implements KeyboardActionListener,
                         mKeyboardSwitcher.getCurrentKeyboardScriptId(), mHandler);
         updateStateAfterInputTransaction(completeInputTransaction);*/
         getActiveIME().onEvent(event);
+        org.futo.inputmethod.latin.uix.TypedTextTap.INSTANCE.dispatch(event);
         mKeyboardSwitcher.onEvent(event, getCurrentAutoCapsState());
     }
 
