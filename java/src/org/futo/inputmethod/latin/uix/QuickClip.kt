@@ -156,7 +156,7 @@ fun RowScope.QuickClipView(state: QuickClipState, dismiss: () -> Unit) {
         }
     } else state.isSensitive
 
-    val showSensitive = if(!LocalInspectionMode.current) useDataStoreValue(QUICK_CLIP_SHOW_SENSITIVE) else false
+    val showSensitive = !LocalInspectionMode.current && useDataStoreValue(QUICK_CLIP_SHOW_SENSITIVE)
 
     val view = LocalView.current
     LazyRow(Modifier.weight(1.0f)) {
