@@ -20,6 +20,7 @@ import org.futo.inputmethod.latin.uix.USE_SYSTEM_VOICE_INPUT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_TRIM_TRAILING_SILENCE
 import org.futo.inputmethod.latin.uix.settings.DropDownPickerSettingItem
 import org.futo.inputmethod.latin.uix.settings.NavigationItemStyle
 import org.futo.inputmethod.latin.uix.settings.SettingSlider
@@ -168,6 +169,12 @@ val VoiceInputMenu = UserSettingsMenu(
             title = R.string.voice_input_settings_autostop_vad,
             subtitle = R.string.voice_input_settings_autostop_vad_subtitle,
             setting = USE_VAD_AUTOSTOP
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_trim_trailing_silence,
+            subtitle = R.string.voice_input_settings_trim_trailing_silence_subtitle,
+            setting = VOICE_INPUT_TRIM_TRAILING_SILENCE
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(
