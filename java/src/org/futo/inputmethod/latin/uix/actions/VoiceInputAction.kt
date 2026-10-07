@@ -50,6 +50,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_CIRCLE_OVER_KEYS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_TRIM_TRAILING_SILENCE
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
 import org.futo.inputmethod.latin.uix.settings.SettingsActivity
@@ -176,7 +177,8 @@ private class VoiceInputActionWindow(
                 useSegmentedResults = useSegmentedResults,
                 segmentPauseMs = segmentPauseMs,
                 useClickGestures = context.getSetting(VOICE_INPUT_CLICK_GESTURES),
-                useNoiseGate = context.getSetting(VOICE_INPUT_NOISE_GATE)
+                useNoiseGate = context.getSetting(VOICE_INPUT_NOISE_GATE),
+                trimTrailingSilence = context.getSetting(VOICE_INPUT_TRIM_TRAILING_SILENCE)
             )
         )
     }

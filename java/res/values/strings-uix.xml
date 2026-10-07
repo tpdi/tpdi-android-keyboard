@@ -95,6 +95,8 @@
     <string name="action_clipboard_manager_settings_save_screenshots_subtitle">You\'ll need to grant permission to access your screenshots</string>
     <string name="action_clipboard_manager_settings_hours_to_keep_clips">Hours to keep unpinned clips</string>
     <string name="action_clipboard_manager_settings_maximum_clips">Number of unpinned clips to keep</string>
+    <string name="action_clipboard_manager_settings_quick_clips_show_sensitive">Show sensitive quick clips</string>
+    <string name="action_clipboard_manager_settings_quick_clips_show_sensitive_subtitle">If enabled, the quick clip shows its text even when the app that copied it marked it as sensitive. Off by default (shows dots)</string>
     <string name="action_clipboard_manager_settings_save_sensitive_clips">Save sensitive clips</string>
     <string name="action_clipboard_manager_settings_save_sensitive_clips_subtitle">If enabled, it will save items from password managers, incognito windows, etc</string>
     <string name="action_clipboard_manager_settings_list_layout">Use vertical list layout instead of grid</string>
@@ -599,6 +601,8 @@
     <string name="voice_input_settings_autostop_vad_subtitle">Automatically stop when silence is detected. You may need to manually stop regardless if there\'s too much background noise.</string>
     <string name="voice_input_settings_noise_gate">Automatic noise gate</string>
     <string name="voice_input_settings_noise_gate_subtitle">Learns the background noise level and turns audio near it down, so only your voice reaches the model. Off by default; may clip the very start of quiet words.</string>
+    <string name="voice_input_settings_trim_trailing_silence">Trim trailing silence</string>
+    <string name="voice_input_settings_trim_trailing_silence_subtitle">Cuts the quiet end off the audio before it is transcribed, so the model doesn\'t invent extra text such as "Thank you." Off by default.</string>
     <string name="voice_input_settings_segmented_results">Incremental results</string>
     <string name="voice_input_settings_segmented_results_subtitle">Commit text as you speak instead of only after you stop. Each committed segment is decoded on its own and won\'t later be revised, so accuracy may be slightly lower than a single full decode.</string>
     <string name="voice_input_settings_segment_pause">Pause before committing a segment</string>

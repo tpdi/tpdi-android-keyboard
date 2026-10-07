@@ -87,7 +87,8 @@ data class RecordingSettings(
     val filterMadeUpText: Boolean = false,
     val filterStockPhrases: Boolean = false,
     val useClickGestures: Boolean = false,
-    val useNoiseGate: Boolean = false
+    val useNoiseGate: Boolean = false,
+    val trimTrailingSilence: Boolean = false
 )
 
 data class AudioRecognizerSettings(
@@ -277,7 +278,7 @@ class AudioRecognizer(
         listener.segmentStarted()
         segmentJob = lifecycleScope.launch {
             withContext(Dispatchers.Default) {
-                runSegmentModel(segmentSamples)
+                runSegmentModel(trimIfEnabled(segmentSamples))
             }
         }
     }
@@ -636,6 +637,9 @@ class AudioRecognizer(
         }
     }
 
+    private fun trimIfEnabled(samples: FloatArray): FloatArray =
+        if (settings.recordingConfiguration.trimTrailingSilence) TrailingSilenceTrimmer.trim(samples) else samples
+
     private suspend fun runSegmentModel(segmentSamples: FloatArray) {
         loadModelJob?.let {
             if (it.isActive) it.join()
@@ -703,7 +707,7 @@ class AudioRecognizer(
             return
         }
 
-        val floatArray = floatSamples.array().sliceArray(0 until floatSamples.position())
+        val floatArray = trimIfEnabled(floatSamples.array().sliceArray(0 until floatSamples.position()))
 
         yield()
         val outputText = try {
