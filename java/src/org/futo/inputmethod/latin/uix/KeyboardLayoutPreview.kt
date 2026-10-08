@@ -37,7 +37,7 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 @Composable
-fun KeyboardViewCompose(keyboard: Keyboard?, width: Dp, customThemeCtx: Context?) {
+fun KeyboardViewCompose(keyboard: Keyboard?, width: Dp, customThemeCtx: Context?, redrawKey: Any? = null) {
     if(keyboard == null) {
         val presumedHeight = width * 0.61f
 
@@ -71,6 +71,7 @@ fun KeyboardViewCompose(keyboard: Keyboard?, width: Dp, customThemeCtx: Context?
                         setKeyboard(keyboard)
                     }
                 },
+                update = { view -> if (redrawKey != null) view.invalidateAllKeys() },
                 modifier = Modifier.scale(scale).size(width, height)
             )
         }
@@ -78,7 +79,7 @@ fun KeyboardViewCompose(keyboard: Keyboard?, width: Dp, customThemeCtx: Context?
 }
 
 @Composable
-fun KeyboardLayoutPreview(id: String, width: Dp = 172.dp, locale: Locale? = null, shifted: Boolean = false, customThemeCtx: Context? = null) {
+fun KeyboardLayoutPreview(id: String, width: Dp = 172.dp, locale: Locale? = null, shifted: Boolean = false, customThemeCtx: Context? = null, redrawKey: Any? = null) {
     val context = customThemeCtx ?: LocalContext.current
 
     val layout = remember(id) {
@@ -99,7 +100,7 @@ fun KeyboardLayoutPreview(id: String, width: Dp = 172.dp, locale: Locale? = null
 
     val keyboard = remember { mutableStateOf<Keyboard?>(null) }
 
-    KeyboardViewCompose(keyboard.value, width, customThemeCtx)
+    KeyboardViewCompose(keyboard.value, width, customThemeCtx, redrawKey)
 
     LaunchedEffect(id) {
         withContext(Dispatchers.Default) {
