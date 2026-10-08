@@ -854,7 +854,7 @@ val KeyboardSettingsMenu = UserSettingsMenu(
                     title = stringResource(R.string.keyboard_settings_key_hint_brightness),
                     subtitle = stringResource(R.string.keyboard_settings_key_hint_brightness_subtitle),
                     setting = KEY_HINT_BRIGHTNESS_PERCENT,
-                    range = 0.0f .. 100.0f,
+                    range = 0.0f .. 200.0f,
                     transform = { (it / 5f).roundToInt() * 5 },
                     indicator = { "$it%" }
                 )
