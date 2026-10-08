@@ -105,6 +105,7 @@ import org.futo.inputmethod.latin.uix.actions.BugViewerState
 import org.futo.inputmethod.latin.uix.actions.PasteAction
 import org.futo.inputmethod.latin.uix.actions.fonttyper.SuperheroRenderer
 import org.futo.inputmethod.latin.uix.actions.throwIfDebug
+import org.futo.inputmethod.latin.uix.QUICK_CLIP_SHOW_SENSITIVE
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.getSettingBlocking
 import org.futo.inputmethod.latin.uix.getUnlockedSetting
@@ -1324,6 +1325,12 @@ val ClipboardHistoryAction = Action(
                 title = R.string.action_clipboard_manager_settings_show_quick_clips,
                 setting = ClipboardQuickClipsEnabled
             ),
+
+            userSettingToggleDataStore(
+                title = R.string.action_clipboard_manager_settings_quick_clips_show_sensitive,
+                subtitle = R.string.action_clipboard_manager_settings_quick_clips_show_sensitive_subtitle,
+                setting = QUICK_CLIP_SHOW_SENSITIVE
+            ).copy(visibilityCheck = { useDataStoreValue(ClipboardQuickClipsEnabled) }),
 
             userSettingToggleDataStore(
                 title = R.string.typing_settings_enable_clipboard_history,
