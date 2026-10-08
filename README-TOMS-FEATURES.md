@@ -1,6 +1,6 @@
 # Tom's Futo Keyboard: added features
 
-Every feature below is behind its own setting, off by default (unless noted), so with all of them off the keyboard behaves like the Play Store build. All of them are collected on Settings > Tom's Features in the combined build.
+Every feature below is behind its own setting, off by default (unless noted), so with all of them off the keyboard behaves like the Play Store build. Each one is on its own page in the settings (Typing, Voice input or Clipboard manager), and every flag is duplicated on Settings > Tom's Features in the combined build.
 
 - Dictate over the keyboard: keep the keyboard visible while dictating, with a Listening bar, Undo and a stop microphone (#25).
 - Hide-keyboard button: a chevron on the dictation bar collapses the keys and brings them back (#35).
@@ -17,7 +17,7 @@ Every feature below is behind its own setting, off by default (unless noted), so
 - Trim trailing silence: cut the quiet end off audio before it is transcribed (#54).
 - Inline partial result: show words recognized so far inside the voice bubble (#20).
 - Send key codes rather than text: Tab, Enter, Escape, Home, End, Page Up/Down, Forward Delete, Insert and F1 to F12 as real key events (#16, merged).
-- Sticky Ctrl and Alt keys: tap to latch for the next key (#40).
+- Sticky Ctrl and Alt keys: tap to latch; the next key is sent with real Ctrl or Alt meta state (#40).
 - Load layout from file: show the Load from file button in the custom layout editor (#19).
 - Key hint size: slider to scale the small hint characters on keys (#44).
 - Key hint brightness: slider from 0% to 100% to dim the hint characters (#56).
