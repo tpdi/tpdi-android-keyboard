@@ -1522,6 +1522,8 @@ class UixManager(private val latinIME: LatinIME) {
         if(alt) {
             onActionAltActivatedInternal(action)
         } else {
+            if (currWindowActionWindow.value?.interceptActionKey(action) == true) return
+
             if (currWindowAction.value != null && action.windowImpl != null) {
                 closeActionWindow()
             }

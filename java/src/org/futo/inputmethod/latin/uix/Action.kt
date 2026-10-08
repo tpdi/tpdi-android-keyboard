@@ -180,6 +180,12 @@ abstract class ActionWindow {
     open fun close(): CloseResult {
         return CloseResult.Default
     }
+
+    /**
+     * A key for [action] was pressed while this window is open. Return true to handle it here
+     * (the key then does nothing else); false, the default, lets it act as usual.
+     */
+    open fun interceptActionKey(action: Action): Boolean = false
 }
 
 interface PersistentActionState {
