@@ -17,6 +17,7 @@ import org.futo.inputmethod.latin.uix.KeyHintBrightness
 import org.futo.inputmethod.latin.uix.KeyboardColorScheme
 import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE_PERCENT
 import org.futo.inputmethod.latin.uix.getSetting
+import org.futo.inputmethod.latin.uix.MicKeyBlueWhenListening
 import kotlin.math.roundToInt
 
 data class KeyOutline(
@@ -147,7 +148,8 @@ class AdvancedThemeMatcher(
         val backgroundPadding = foundBackground?.padding ?: identityRect
         val backgroundGap = foundBackground?.gap ?: identityGap
         val background = foundBackground?.background ?: key.selectBackground(drawableProvider)
-        val textColor = foundBackground?.foregroundColor ?: key.selectTextColor(drawableProvider, params)
+        val textColor = MicKeyBlueWhenListening.tint(context, key,
+            foundBackground?.foregroundColor ?: key.selectTextColor(drawableProvider, params))
 
         val outline = foundBackground?.outlineColor?.let {
             KeyOutline(it, TypedValue.applyDimension(

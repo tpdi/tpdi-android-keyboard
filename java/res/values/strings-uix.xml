@@ -607,6 +607,8 @@
     <string name="voice_input_settings_undo_key_subtitle">While dictating, the keyboard\'s Undo key removes the last dictated segment, like the Undo button on the bar, instead of sending Ctrl+Z to the app. Off by default.</string>
     <string name="voice_input_settings_mic_key_toggle">Microphone key toggles</string>
     <string name="voice_input_settings_mic_key_toggle_subtitle">Pressing the voice input key on the keyboard while dictating stops and transcribes the recording, instead of restarting voice input. Off by default.</string>
+    <string name="voice_input_settings_mic_key_blue">Blue microphone key while dictating</string>
+    <string name="voice_input_settings_mic_key_blue_subtitle">Draw the keyboard\'s microphone key blue while voice input is running, so you can see it is on. Off by default.</string>
     <string name="voice_input_settings_segmented_results">Incremental results</string>
     <string name="voice_input_settings_segmented_results_subtitle">Commit text as you speak instead of only after you stop. Each committed segment is decoded on its own and won\'t later be revised, so accuracy may be slightly lower than a single full decode.</string>
     <string name="voice_input_settings_segment_pause">Pause before committing a segment</string>

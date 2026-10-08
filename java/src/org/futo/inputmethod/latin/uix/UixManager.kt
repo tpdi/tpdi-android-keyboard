@@ -774,6 +774,7 @@ class UixManager(private val latinIME: LatinIME) {
         assert(action.windowImpl != null)
 
         currWindowAction.value = action
+        MicKeyBlueWhenListening.onWindowChanged(latinIME, action)
 
         if (persistentStates[action] == null) {
             persistentStates[action] = action.persistentState?.let { it(keyboardManagerForAction) }
@@ -807,6 +808,7 @@ class UixManager(private val latinIME: LatinIME) {
         }
 
         currWindowAction.value = null
+        MicKeyBlueWhenListening.onWindowChanged(latinIME, null)
         currWindowActionWindow.value = null
 
         mainKeyboardHidden.value = false
