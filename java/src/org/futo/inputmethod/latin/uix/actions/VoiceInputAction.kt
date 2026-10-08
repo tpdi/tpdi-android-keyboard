@@ -40,12 +40,15 @@ import org.futo.inputmethod.latin.uix.ResourceHelper
 import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import androidx.compose.ui.unit.Dp
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_UNDO_KEY
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
 import org.futo.inputmethod.latin.uix.settings.SettingsActivity
@@ -170,7 +173,8 @@ private class VoiceInputActionWindow(
                 canExpandSpace = canExpandSpace,
                 useVADAutoStop = useVAD,
                 useSegmentedResults = useSegmentedResults,
-                segmentPauseMs = segmentPauseMs
+                segmentPauseMs = segmentPauseMs,
+                useNoiseGate = context.getSetting(VOICE_INPUT_NOISE_GATE)
             )
         )
     }
@@ -212,6 +216,8 @@ private class VoiceInputActionWindow(
     private val hideKeyboardButton = context.getSetting(VOICE_INPUT_HIDE_KEYBOARD_BUTTON)
 
     override fun segmentStarted() = session.segmentStarted()
+
+    private val showActionButtons = context.getSetting(VOICE_INPUT_ACTION_BUTTONS)
 
     override val onlyShowAboveKeyboard: Boolean get() = inlineMode
     override val fixedWindowHeight: Dp? get() = if (inlineMode) 0.dp else null
@@ -276,6 +282,14 @@ private class VoiceInputActionWindow(
                     modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)
                 )
             }
+
+            if (showActionButtons && recognizerView.value != null) {
+                VoiceActionButtons(
+                    onUndo = { session.undoLast() },
+                    onEnter = { session.pressEnter() },
+                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp)
+                )
+            }
         }
     }
 
@@ -286,6 +300,13 @@ private class VoiceInputActionWindow(
         recognizerView.value?.cancel()
         state.modelManager.cancelAll()
         return CloseResult.Default
+    }
+
+    // With the setting on, the keyboard's Undo key undoes the last dictated segment, like the bar's Undo.
+    override fun interceptActionKey(action: Action): Boolean {
+        if (action !== UndoAction || !context.getSetting(VOICE_INPUT_UNDO_KEY)) return false
+        session.undoLast()
+        return true
     }
 
     private var wasFinished = false

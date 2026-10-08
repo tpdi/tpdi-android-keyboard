@@ -105,6 +105,14 @@ internal class VoiceOverKeyboardSession(
         typedWhilePending = null
     }
 
+    fun pressEnter() {
+        manager.getLifecycleScope().launch(Dispatchers.Main) {
+            transaction.commit("\n")
+            transaction = newTransaction()
+            undoHistory.pushVoiceEntry("\n")
+        }
+    }
+
     fun undoLast() {
         manager.getLifecycleScope().launch(Dispatchers.Main) {
             undoHistory.undoLast(transaction)

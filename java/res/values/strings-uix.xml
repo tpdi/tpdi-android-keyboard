@@ -95,6 +95,8 @@
     <string name="action_clipboard_manager_settings_save_screenshots_subtitle">You\'ll need to grant permission to access your screenshots</string>
     <string name="action_clipboard_manager_settings_hours_to_keep_clips">Hours to keep unpinned clips</string>
     <string name="action_clipboard_manager_settings_maximum_clips">Number of unpinned clips to keep</string>
+    <string name="action_clipboard_manager_settings_quick_clips_show_sensitive">Show sensitive quick clips</string>
+    <string name="action_clipboard_manager_settings_quick_clips_show_sensitive_subtitle">If enabled, the quick clip shows its text even when the app that copied it marked it as sensitive. Off by default (shows dots)</string>
     <string name="action_clipboard_manager_settings_save_sensitive_clips">Save sensitive clips</string>
     <string name="action_clipboard_manager_settings_save_sensitive_clips_subtitle">If enabled, it will save items from password managers, incognito windows, etc</string>
     <string name="action_clipboard_manager_settings_list_layout">Use vertical list layout instead of grid</string>
@@ -597,6 +599,10 @@
     <string name="voice_input_settings_long_form_subtitle">If disabled, voice input will auto-stop after 30 seconds.</string>
     <string name="voice_input_settings_autostop_vad">Auto-stop on silence</string>
     <string name="voice_input_settings_autostop_vad_subtitle">Automatically stop when silence is detected. You may need to manually stop regardless if there\'s too much background noise.</string>
+    <string name="voice_input_settings_undo_key">Undo key undoes dictation</string>
+    <string name="voice_input_settings_undo_key_subtitle">While dictating, the keyboard\'s Undo key removes the last dictated segment, like the Undo button on the bar, instead of sending Ctrl+Z to the app. Off by default.</string>
+    <string name="voice_input_settings_noise_gate">Automatic noise gate</string>
+    <string name="voice_input_settings_noise_gate_subtitle">Learns the background noise level and turns audio near it down, so only your voice reaches the model. Off by default; may clip the very start of quiet words.</string>
     <string name="voice_input_settings_segmented_results">Incremental results</string>
     <string name="voice_input_settings_segmented_results_subtitle">Commit text as you speak instead of only after you stop. Each committed segment is decoded on its own and won\'t later be revised, so accuracy may be slightly lower than a single full decode.</string>
     <string name="voice_input_settings_segment_pause">Pause before committing a segment</string>
@@ -728,4 +734,9 @@ Default is %1$s</string>
     <string name="voice_input_settings_switch_mode_buttons_subtitle">While dictating, show buttons to switch between dictating over the keyboard and the full voice input window without ending the session. Dictate over the keyboard decides which one a session starts in.</string>
     <string name="voice_input_switch_to_window">Full voice window</string>
     <string name="voice_input_switch_to_keyboard">Dictate over the keyboard</string>
+    <string name="action_voice_input_enter">Enter</string>
+    <string name="voice_input_settings_action_buttons">On-screen Undo/Enter buttons</string>
+    <string name="voice_input_settings_action_buttons_subtitle">Show a button strip next to the voice input bubble to undo the last thing it typed, or press Enter. Off by default.</string>
+    <string name="keyboard_settings_send_key_codes_rather_than_text">Send key codes rather than text</string>
+    <string name="keyboard_settings_send_key_codes_rather_than_text_subtitle">Send Tab, Enter, Escape, Home, End, Page Up/Down, Forward Delete, Insert and F1-F12 as real key events, like a hardware keyboard, instead of as text. Off by default.</string>
 </resources>
