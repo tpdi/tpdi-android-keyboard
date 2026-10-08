@@ -3,7 +3,6 @@ package org.futo.inputmethod.latin.uix.settings.pages
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,9 +35,7 @@ fun KeyHintsScreen() {
         ScreenTitle(stringResource(R.string.key_hints_title), showBack = true)
 
         Spacer(Modifier.height(8.dp))
-        key(size, brightness) {
-            KeyboardLayoutPreview(id = layout, width = width.dp)
-        }
+        KeyboardLayoutPreview(id = layout, width = width.dp, redrawKey = size to brightness)
         Spacer(Modifier.height(16.dp))
 
         SettingSlider(
