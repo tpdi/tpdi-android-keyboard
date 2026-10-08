@@ -44,6 +44,7 @@ import org.futo.inputmethod.accessibility.AccessibilityUtils
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.common.Constants
 import org.futo.inputmethod.latin.uix.actions.clipboard.ClipboardQuickClipsEnabled
+import org.futo.inputmethod.latin.uix.settings.useDataStoreValue
 import org.futo.inputmethod.latin.uix.theme.Typography
 
 enum class QuickClipKind {
@@ -155,6 +156,8 @@ fun RowScope.QuickClipView(state: QuickClipState, dismiss: () -> Unit) {
         }
     } else state.isSensitive
 
+    val showSensitive = !LocalInspectionMode.current && useDataStoreValue(QUICK_CLIP_SHOW_SENSITIVE)
+
     val view = LocalView.current
     LazyRow(Modifier.weight(1.0f)) {
         state.image?.let { uri ->
@@ -200,7 +203,7 @@ fun RowScope.QuickClipView(state: QuickClipState, dismiss: () -> Unit) {
                                 }
                         }
                     }.let {
-                        if(state.isSensitive) {
+                        if(state.isSensitive && !showSensitive) {
                             "•".repeat(it.length)
                         } else {
                             it

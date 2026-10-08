@@ -40,7 +40,9 @@ import org.futo.inputmethod.latin.uix.ResourceHelper
 import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import androidx.compose.ui.unit.Dp
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
@@ -169,7 +171,8 @@ private class VoiceInputActionWindow(
                 canExpandSpace = canExpandSpace,
                 useVADAutoStop = useVAD,
                 useSegmentedResults = useSegmentedResults,
-                segmentPauseMs = segmentPauseMs
+                segmentPauseMs = segmentPauseMs,
+                useNoiseGate = context.getSetting(VOICE_INPUT_NOISE_GATE)
             )
         )
     }
@@ -209,6 +212,8 @@ private class VoiceInputActionWindow(
     private var inputTransaction by session::transaction
 
     override fun segmentStarted() = session.segmentStarted()
+
+    private val showActionButtons = context.getSetting(VOICE_INPUT_ACTION_BUTTONS)
 
     override val onlyShowAboveKeyboard: Boolean get() = inlineMode
     override val fixedWindowHeight: Dp? get() = if (inlineMode) 0.dp else null
@@ -259,6 +264,14 @@ private class VoiceInputActionWindow(
                     modelException.value != null -> ModelDownloader(modelException.value!!)
                     recognizerView.value != null -> recognizerView.value!!.Content()
                 }
+            }
+
+            if (showActionButtons && recognizerView.value != null) {
+                VoiceActionButtons(
+                    onUndo = { session.undoLast() },
+                    onEnter = { session.pressEnter() },
+                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp)
+                )
             }
         }
     }
