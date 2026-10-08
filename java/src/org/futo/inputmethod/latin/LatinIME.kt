@@ -62,6 +62,7 @@ import org.futo.inputmethod.engine.general.WordLearner
 import org.futo.inputmethod.latin.SuggestedWords.SuggestedWordInfo
 import org.futo.inputmethod.latin.common.Constants
 import org.futo.inputmethod.latin.settings.Settings
+import org.futo.inputmethod.latin.uix.KeyHintsRedraw
 import org.futo.inputmethod.latin.uix.BasicThemeProvider
 import org.futo.inputmethod.latin.uix.DataStoreHelper
 import org.futo.inputmethod.latin.uix.DynamicThemeProvider
@@ -483,6 +484,10 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
             dataStore.data.collect {
                 CrashLoggingApplication.logPreferences(it)
             }
+        }
+
+        launchJob {
+            KeyHintsRedraw.watch(this@LatinIME) { latinIMELegacy.mKeyboardSwitcher?.mainKeyboardView?.invalidateAllKeys() }
         }
 
         // Listen to size changes

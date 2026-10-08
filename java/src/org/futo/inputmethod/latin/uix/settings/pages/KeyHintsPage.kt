@@ -18,6 +18,9 @@ fun KeyHintsScreen() {
     ScrollableList(horizontalAlignment = Alignment.CenterHorizontally) {
         ScreenTitle(stringResource(R.string.key_hints_title), showBack = true)
 
+        // The real keyboard shows below, as on the Resize page, so changes are visible as you drag.
+        AndroidTextInput(allowPredictions = false)
+
         SettingSlider(
             title = stringResource(R.string.keyboard_settings_key_hint_size),
             subtitle = stringResource(R.string.keyboard_settings_key_hint_size_subtitle),
@@ -34,8 +37,5 @@ fun KeyHintsScreen() {
             transform = { (it / 5f).roundToInt() * 5 },
             indicator = { "$it%" }
         )
-
-        // The real keyboard shows below, as on the Resize page, so changes are visible as you drag.
-        AndroidTextInput(allowPredictions = false)
     }
 }
