@@ -767,5 +767,7 @@ Default is %1$s</string>
     <string name="keyboard_settings_key_hint_brightness">Key hint brightness</string>
     <string name="keyboard_settings_key_hint_brightness_subtitle">How bright the small hint characters on keys are. 100% is unchanged, which is the default; 0% hides them; above 100% makes them more opaque, up to fully opaque at 200%.</string>
     <string name="key_hints_title">Key hints</string>
-    <string name="key_hints_subtitle">Size and brightness of the small hint characters on keys, with a live preview.</string>
+    <string name="key_hints_size_subtitle">Scale the hints. 100% is unchanged.</string>
+    <string name="key_hints_brightness_subtitle">Dim or brighten the hints. 0% hides them.</string>
+    <string name="key_hints_subtitle">Size and brightness of the hints on keys.</string>
 </resources>
