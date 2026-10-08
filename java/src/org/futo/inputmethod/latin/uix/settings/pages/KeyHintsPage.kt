@@ -18,7 +18,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import kotlinx.coroutines.delay
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.KEY_HINT_BRIGHTNESS_PERCENT
-import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE_PERCENT
+import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE
 import org.futo.inputmethod.latin.uix.settings.ScreenTitle
 import org.futo.inputmethod.latin.uix.settings.ScrollableList
 import org.futo.inputmethod.latin.uix.settings.SettingSlider
@@ -53,10 +53,10 @@ fun KeyHintsScreen() {
         SettingSlider(
             title = stringResource(R.string.keyboard_settings_key_hint_size),
             subtitle = stringResource(R.string.key_hints_size_subtitle),
-            setting = KEY_HINT_SCALE_PERCENT,
-            range = 0.0f .. 200.0f,
-            transform = { (it / 5f).roundToInt() * 5 },
-            indicator = { "$it%" }
+            setting = KEY_HINT_SCALE,
+            range = 0.0f .. 2.0f,
+            transform = { (it * 100f).roundToInt() / 100f },
+            indicator = { "${(it * 100f).roundToInt()}%" }
         )
         SettingSlider(
             title = stringResource(R.string.keyboard_settings_key_hint_brightness),

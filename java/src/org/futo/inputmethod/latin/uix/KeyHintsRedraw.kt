@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.drop
 object KeyHintsRedraw {
     suspend fun watch(context: Context, redraw: () -> Unit) {
         combine(
-            context.getSettingFlow(KEY_HINT_SCALE_PERCENT),
+            context.getSettingFlow(KEY_HINT_SCALE),
             context.getSettingFlow(KEY_HINT_BRIGHTNESS_PERCENT)
         ) { size, brightness -> size to brightness }
             .distinctUntilChanged()

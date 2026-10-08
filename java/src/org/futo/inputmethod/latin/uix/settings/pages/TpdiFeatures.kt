@@ -3,7 +3,7 @@ package org.futo.inputmethod.latin.uix.settings.pages
 import androidx.compose.ui.res.stringResource
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.KEY_HINT_BRIGHTNESS_PERCENT
-import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE_PERCENT
+import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE
 import org.futo.inputmethod.latin.uix.SEND_KEY_CODES_RATHER_THAN_TEXT
 import org.futo.inputmethod.latin.uix.SHOW_LOAD_LAYOUT_FROM_FILE
 import org.futo.inputmethod.latin.uix.STICKY_MODIFIER_KEYS
@@ -66,10 +66,10 @@ val TpdiFeaturesMenu = UserSettingsMenu(
                 SettingSlider(
                     title = stringResource(R.string.keyboard_settings_key_hint_size),
                     subtitle = stringResource(R.string.keyboard_settings_key_hint_size_subtitle),
-                    setting = KEY_HINT_SCALE_PERCENT,
-                    range = 0.0f .. 200.0f,
-                    transform = { (it / 5f).roundToInt() * 5 },
-                    indicator = { "$it%" }
+                    setting = KEY_HINT_SCALE,
+                    range = 0.0f .. 2.0f,
+                    transform = { (it * 100f).roundToInt() / 100f },
+                    indicator = { "${(it * 100f).roundToInt()}%" }
                 )
             }
         ),
