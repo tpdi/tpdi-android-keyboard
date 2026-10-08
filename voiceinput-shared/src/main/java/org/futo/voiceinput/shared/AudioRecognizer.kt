@@ -114,7 +114,7 @@ class AudioRecognizer(
     // VAD runs in 480-sample (30ms @ 16kHz) frames; convert the configured ms to a frame count.
     private val segmentPauseFrames = (settings.recordingConfiguration.segmentPauseMs / 30).coerceAtLeast(1)
 
-    // Set per recording when click gestures are on; null otherwise.
+    // Set per recording when click gestures (tongue clicks into the microphone) are on; null otherwise.
     private var clicks: ClickGestureDetector? = null
 
     private var floatSamples: FloatBuffer = FloatBuffer.allocate(16000 * 30)
