@@ -9,7 +9,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.content.getSystemService
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.ANIMATE_BUBBLE
-import org.futo.inputmethod.latin.uix.VOICE_INPUT_CIRCLE_OVER_KEYS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_NO_CIRCLE_OVER_KEYS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.AUDIO_FOCUS
 import org.futo.inputmethod.latin.uix.CAN_EXPAND_SPACE
@@ -180,16 +180,16 @@ val VoiceInputMenu = UserSettingsMenu(
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         UserSetting(
-            name = R.string.voice_input_settings_circle_over_keys,
-            subtitle = R.string.voice_input_settings_circle_over_keys_subtitle,
+            name = R.string.voice_input_settings_no_circle_over_keys,
+            subtitle = R.string.voice_input_settings_no_circle_over_keys_subtitle,
             component = {
                 // Keeps its stored value but can't be changed while dictating over the keyboard
                 // is off; the original subtitle stays and a note is added underneath.
                 val overKeyboard = useDataStoreValue(VOICE_INPUT_OVER_KEYBOARD)
-                val base = stringResource(R.string.voice_input_settings_circle_over_keys_subtitle)
+                val base = stringResource(R.string.voice_input_settings_no_circle_over_keys_subtitle)
                 SettingToggleDataStore(
-                    title = stringResource(R.string.voice_input_settings_circle_over_keys),
-                    setting = VOICE_INPUT_CIRCLE_OVER_KEYS,
+                    title = stringResource(R.string.voice_input_settings_no_circle_over_keys),
+                    setting = VOICE_INPUT_NO_CIRCLE_OVER_KEYS,
                     subtitle = if (overKeyboard) base else base + "\n" +
                             stringResource(R.string.voice_input_settings_needs_over_keyboard_note),
                     disabled = !overKeyboard

@@ -43,7 +43,7 @@ import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import androidx.compose.ui.unit.Dp
-import org.futo.inputmethod.latin.uix.VOICE_INPUT_CIRCLE_OVER_KEYS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_NO_CIRCLE_OVER_KEYS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
@@ -207,7 +207,7 @@ private class VoiceInputActionWindow(
     private val session = VoiceOverKeyboardSession(manager, context.getSetting(VOICE_INPUT_OVER_KEYBOARD))
     private val inlineMode: Boolean get() = session.inlineMode
     private var inputTransaction by session::transaction
-    private val circleOverKeys = context.getSetting(VOICE_INPUT_CIRCLE_OVER_KEYS)
+    private val circleOverKeys = !context.getSetting(VOICE_INPUT_NO_CIRCLE_OVER_KEYS)
 
     override fun segmentStarted() = session.segmentStarted()
 
