@@ -1,10 +1,10 @@
 package org.futo.inputmethod.latin.uix
 
-import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.floatPreferencesKey
 
-// Scales the small hint characters on keys, as a percentage on top of the theme's own hint size.
-// 100 (the default) draws hints exactly as before.
-val KEY_HINT_SCALE_PERCENT = SettingsKey(
-    key = intPreferencesKey("key_hint_scale_percent"),
-    default = 100
+// Scales the small hint characters on keys, as a multiplier on top of the theme's own hint size.
+// 1.0 (the default) draws hints exactly as before.
+val KEY_HINT_SCALE = SettingsKey(
+    key = floatPreferencesKey("key_hint_scale"),
+    default = 1.0f
 )
