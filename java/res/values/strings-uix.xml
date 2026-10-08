@@ -714,4 +714,6 @@ Default is %1$s</string>
     <string name="personal_dictionary_delete_additional_file_text">%1$s will be deleted</string>
     <string name="keyboard_settings_key_hint_size">Key hint size</string>
     <string name="keyboard_settings_key_hint_size_subtitle">Scale the small hint characters on keys. 100% is unchanged, which is the default.</string>
+    <string name="keyboard_settings_key_hint_brightness">Key hint brightness</string>
+    <string name="keyboard_settings_key_hint_brightness_subtitle">How bright the small hint characters on keys are. 100% is unchanged, which is the default; 0% hides them.</string>
 </resources>

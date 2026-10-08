@@ -87,6 +87,7 @@ import org.futo.inputmethod.engine.IMESettingsMenu
 import org.futo.inputmethod.latin.HideKeyboardWhenHardKeyboardConnected
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE_PERCENT
+import org.futo.inputmethod.latin.uix.KEY_HINT_BRIGHTNESS_PERCENT
 import org.futo.inputmethod.latin.settings.LongPressKey
 import org.futo.inputmethod.latin.settings.LongPressKeyLayoutSetting
 import org.futo.inputmethod.latin.settings.Settings
@@ -853,6 +854,19 @@ val KeyboardSettingsMenu = UserSettingsMenu(
                     title = stringResource(R.string.keyboard_settings_key_hint_size),
                     subtitle = stringResource(R.string.keyboard_settings_key_hint_size_subtitle),
                     setting = KEY_HINT_SCALE_PERCENT,
+                    range = 0.0f .. 200.0f,
+                    transform = { (it / 5f).roundToInt() * 5 },
+                    indicator = { "$it%" }
+                )
+            }
+        ),
+        UserSetting(
+            name = R.string.keyboard_settings_key_hint_brightness,
+            component = {
+                SettingSlider(
+                    title = stringResource(R.string.keyboard_settings_key_hint_brightness),
+                    subtitle = stringResource(R.string.keyboard_settings_key_hint_brightness_subtitle),
+                    setting = KEY_HINT_BRIGHTNESS_PERCENT,
                     range = 0.0f .. 200.0f,
                     transform = { (it / 5f).roundToInt() * 5 },
                     indicator = { "$it%" }
