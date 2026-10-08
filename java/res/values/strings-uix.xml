@@ -720,6 +720,6 @@ Default is %1$s</string>
     <string name="voice_input_settings_over_keyboard">Dictate over the keyboard</string>
     <string name="voice_input_settings_over_keyboard_subtitle">Keep the keyboard visible while dictating: shows Listening… and Undo in the suggestion bar and the volume circle over the keys. Tap the blue microphone to stop. Typed text goes into the same Undo history as dictated text. Off by default.</string>
     <string name="voice_input_settings_no_circle_over_keys">No volume circle over keys</string>
-    <string name="voice_input_settings_no_circle_over_keys_subtitle">While dictating over the keyboard, don\'t draw the volume circle over the keys: only the bar shows it and nothing covers the keyboard. Off by default.</string>
+    <string name="voice_input_settings_no_circle_over_keys_subtitle">While dictating over the keyboard, don\'t draw the volume circle over the keys: only the bar shows it and nothing covers the keyboard. On by default; turn it off to draw the circle over the keys.</string>
     <string name="voice_input_settings_needs_over_keyboard_note">Turn on \"Dictate over the keyboard\" to use this.</string>
 </resources>
