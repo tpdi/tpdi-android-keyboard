@@ -83,7 +83,8 @@ data class RecordingSettings(
     val canExpandSpace: Boolean,
     val useVADAutoStop: Boolean,
     val useSegmentedResults: Boolean = false,
-    val segmentPauseMs: Int = 600
+    val segmentPauseMs: Int = 600,
+    val useNoiseGate: Boolean = false
 )
 
 data class AudioRecognizerSettings(
@@ -357,12 +358,14 @@ class AudioRecognizer(
         var numConsecutiveNonSpeech = 0
         var numConsecutiveSpeech = 0
 
+        val noiseGate = if (settings.recordingConfiguration.useNoiseGate) AdaptiveNoiseGate() else null
         val samples = ShortArray(1600)
 
         while (isRecording) {
             yield()
             val nRead = recorder.read(samples, 0, 1600, AudioRecord.READ_BLOCKING)
             if (nRead <= 0) break
+            noiseGate?.process(samples, nRead)
             yield()
 
             var isRunningOutOfSpace = (floatSamples.remaining() < nRead.coerceAtLeast(1600)) && !expandSpaceIfAllowed()
@@ -468,6 +471,7 @@ class AudioRecognizer(
                     samples, 0, 1600, AudioRecord.READ_NON_BLOCKING
                 )
                 if (nRead2 > 0) {
+                    noiseGate?.process(samples, nRead2)
                     if (floatSamples.remaining() < nRead2 && !expandSpaceIfAllowed()) {
                         yield()
                         withContext(Dispatchers.Main) {
