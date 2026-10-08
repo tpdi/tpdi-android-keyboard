@@ -921,6 +921,10 @@ public final class InputLogic {
             return;
         }
 
+        if (SpecialKeyEvents.handle(this, event, inputTransaction)) {
+            return;
+        }
+
         switch (event.mKeyCode) {
             case Constants.CODE_DELETE:
                 handleBackspaceEvent(event, inputTransaction, currentKeyboardScriptId);
@@ -1007,6 +1011,11 @@ public final class InputLogic {
             final InputTransaction inputTransaction) {
         inputTransaction.setDidAffectContents();
         switch (event.mCodePoint) {
+            case Constants.CODE_TAB:
+                if (!SpecialKeyEvents.handleTab(this, inputTransaction)) {
+                    handleNonSpecialCharacterEvent(event, inputTransaction);
+                }
+                break;
             case Constants.CODE_ENTER:
                 final EditorInfo editorInfo = getCurrentInputEditorInfo();
                 final int imeOptionsActionId =
@@ -1072,7 +1081,8 @@ public final class InputLogic {
         }
 
         if(codePoint == Constants.CODE_ENTER
-                && inputTransaction.mSettingsValues.mInputAttributes.mSendKeyEventsMode
+                && (inputTransaction.mSettingsValues.mInputAttributes.mSendKeyEventsMode
+                        || SpecialKeyEvents.getBehavior().getEnterAsKeyEvent())
         ) {
             sendDownUpKeyEvent(KeyEvent.KEYCODE_ENTER, 0);
             return;

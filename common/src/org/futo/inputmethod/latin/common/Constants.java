@@ -257,6 +257,28 @@ public final class Constants {
     // Code value representing the code is not specified.
     public static final int CODE_UNSPECIFIED = -24;
 
+    // Keys that can be sent as real key events (see SpecialKeyEvents). Their own block so they
+    // never collide with the action ranges below.
+    public static final int CODE_ESCAPE = -3050;
+    public static final int CODE_HOME = -3051;
+    public static final int CODE_END = -3052;
+    public static final int CODE_PAGE_UP = -3053;
+    public static final int CODE_PAGE_DOWN = -3054;
+    public static final int CODE_FORWARD_DELETE = -3055;
+    public static final int CODE_INSERT = -3056;
+    public static final int CODE_F1 = -3060;
+    public static final int CODE_F2 = -3061;
+    public static final int CODE_F3 = -3062;
+    public static final int CODE_F4 = -3063;
+    public static final int CODE_F5 = -3064;
+    public static final int CODE_F6 = -3065;
+    public static final int CODE_F7 = -3066;
+    public static final int CODE_F8 = -3067;
+    public static final int CODE_F9 = -3068;
+    public static final int CODE_F10 = -3069;
+    public static final int CODE_F11 = -3070;
+    public static final int CODE_F12 = -3071;
+
     public static final int CODE_ACTION_0 = -1050;
     public static final int CODE_ACTION_MAX = CODE_ACTION_0 + 100;
 
