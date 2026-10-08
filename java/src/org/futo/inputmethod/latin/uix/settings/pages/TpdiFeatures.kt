@@ -28,12 +28,12 @@ import org.futo.inputmethod.latin.uix.settings.userSettingToggleDataStore
  * as on the Typing and Voice input pages; they write the same stored settings, so changing one
  * here changes it there too. With every flag off the app behaves like the Play Store build.
  */
-val TomsFeaturesMenu = UserSettingsMenu(
-    title = R.string.toms_features_title,
-    navPath = "tomsFeatures", registerNavPath = true,
+val TpdiFeaturesMenu = UserSettingsMenu(
+    title = R.string.tpdi_features_title,
+    navPath = "tpdiFeatures", registerNavPath = true,
     settings = listOf(
         userSettingDecorationOnly {
-            ScreenTitle(stringResource(R.string.toms_features_title))
+            ScreenTitle(stringResource(R.string.tpdi_features_title))
         },
 
         userSettingToggleDataStore(
