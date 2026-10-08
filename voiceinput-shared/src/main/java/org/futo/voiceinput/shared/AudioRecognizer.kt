@@ -120,7 +120,7 @@ class AudioRecognizer(
     // Only present when the "drop made-up text" setting is on.
     private val madeUpGuard = if (settings.recordingConfiguration.filterMadeUpText) MadeUpTextGuard() else null
     private val filterStockPhrases = settings.recordingConfiguration.filterStockPhrases
-    // Set per recording when click gestures are on; null otherwise.
+    // Set per recording when click gestures (tongue clicks into the microphone) are on; null otherwise.
     private var clicks: ClickGestureDetector? = null
 
     private var floatSamples: FloatBuffer = FloatBuffer.allocate(16000 * 30)

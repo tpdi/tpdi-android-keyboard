@@ -6,14 +6,17 @@ import kotlin.math.max
 import kotlin.math.sqrt
 
 /**
- * Click-gesture detection: a click is a brief, sharp, isolated transient -- very different from
- * speech, which carries energy over much longer stretches. Tracked independently of the
+ * Click-gesture detection. The "click" is a tongue click: the short, sharp "tsk" sound made by
+ * pulling the tongue off the roof of the mouth, picked up by the microphone. It is a brief, sharp,
+ * isolated transient -- very different from speech, which carries energy over much longer
+ * stretches. (Clicking a pen or tapping the phone would also register, but a tongue click is what
+ * this is meant for: hands-free, with no extra hardware.) Tracked independently of the
  * VAD/transcription pipeline; the audio never reaches Whisper for this. [AudioRecognizer] feeds
  * it every 100ms chunk and applies the [Result] it returns; it exists only when the click
  * gestures setting is on.
  *
- * Click times (ms) are collected; once CLICK_WINDOW_MS has passed since the last one, the count
- * decides whether it was a double click (Enter); three or more does nothing extra.
+ * Tongue-click times (ms) are collected; once CLICK_WINDOW_MS has passed since the last one, the
+ * count decides whether it was a double click (Enter); three or more does nothing extra.
  */
 class ClickGestureDetector {
     /** What [AudioRecognizer] should do after a chunk, in this order. */
@@ -32,13 +35,13 @@ class ClickGestureDetector {
     // two chunks, speech lasts longer.
     private var loudRun = 0
 
-    // A real click is followed by quiet; the opening consonants of a phrase look like clicks but
+    // A real tongue click is followed by quiet; the opening consonants of a phrase look like clicks but
     // are followed by sustained speech. Onsets are cancelled if speech-level sound follows them
     // within CLICK_QUIET_AFTER_MS.
     private var onsetWindowStartMs = 0L
     private var postOnsetLoudChunks = 0
 
-    // A deliberate click gesture has at least one clearly loud click; a pair of faint transients
+    // A deliberate tongue-click gesture has at least one clearly loud click; a pair of faint transients
     // (lip smacks, breath) after speech does not.
     private var groupMaxPeak = 0f
 
