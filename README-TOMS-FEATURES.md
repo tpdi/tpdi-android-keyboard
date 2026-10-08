@@ -26,3 +26,5 @@ Every feature below is behind its own setting, off by default (unless noted), so
 - Show sensitive quick clips: show the quick-copy chip text even when the source app marks it sensitive (#52, merged).
 - Tom's Features page: one settings page listing every flag (#28).
 - KASROZ layout: an arrow-key layout with symbols on long press, loadable from file (kb repo, PR #10).
+
+![The KASROZ layout](docs/kasroz-layout.png)
