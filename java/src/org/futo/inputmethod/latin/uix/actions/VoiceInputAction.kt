@@ -41,6 +41,7 @@ import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_MIC_KEY_TOGGLE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
@@ -306,6 +307,13 @@ private class VoiceInputActionWindow(
         recognizerView.value?.cancel()
         state.modelManager.cancelAll()
         return CloseResult.Default
+    }
+
+    // With the setting on, pressing the microphone key again stops the recording and transcribes it.
+    override fun onActionKeyPressedAgain(): Boolean {
+        if (!context.getSetting(VOICE_INPUT_MIC_KEY_TOGGLE)) return false
+        recognizerView.value?.finish() ?: return false
+        return true
     }
 
     private var wasFinished = false

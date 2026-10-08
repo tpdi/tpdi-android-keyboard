@@ -183,6 +183,12 @@ abstract class ActionWindow {
     open fun close(): CloseResult {
         return CloseResult.Default
     }
+
+    /**
+     * The key that opened this window was pressed again while it is open. Return true to handle it
+     * (for example by stopping a recording); false, the default, closes the window and opens it again.
+     */
+    open fun onActionKeyPressedAgain(): Boolean = false
 }
 
 interface PersistentActionState {
