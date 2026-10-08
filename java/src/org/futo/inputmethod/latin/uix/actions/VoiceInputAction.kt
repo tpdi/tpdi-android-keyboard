@@ -48,7 +48,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import androidx.compose.ui.unit.Dp
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
-import org.futo.inputmethod.latin.uix.VOICE_INPUT_CIRCLE_OVER_KEYS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_NO_CIRCLE_OVER_KEYS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_TRIM_TRAILING_SILENCE
@@ -221,7 +221,7 @@ private class VoiceInputActionWindow(
     private val switchModeButtons = context.getSetting(VOICE_INPUT_SWITCH_MODE_BUTTONS)
     private val hideKeyboardButton = context.getSetting(VOICE_INPUT_HIDE_KEYBOARD_BUTTON)
     private val showActionButtons = context.getSetting(VOICE_INPUT_ACTION_BUTTONS)
-    private val circleOverKeys = context.getSetting(VOICE_INPUT_CIRCLE_OVER_KEYS)
+    private val circleOverKeys = !context.getSetting(VOICE_INPUT_NO_CIRCLE_OVER_KEYS)
 
     override fun segmentStarted() = session.segmentStarted()
 

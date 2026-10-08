@@ -19,7 +19,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_STOCK_PHRASES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_INLINE_PARTIAL_RESULT
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
-import org.futo.inputmethod.latin.uix.VOICE_INPUT_CIRCLE_OVER_KEYS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_NO_CIRCLE_OVER_KEYS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
 import org.futo.inputmethod.latin.uix.settings.ScreenTitle
@@ -147,14 +147,14 @@ val TomsFeaturesMenu = UserSettingsMenu(
             setting = VOICE_INPUT_OVER_KEYBOARD
         ),
         UserSetting(
-            name = R.string.voice_input_settings_circle_over_keys,
-            subtitle = R.string.voice_input_settings_circle_over_keys_subtitle,
+            name = R.string.voice_input_settings_no_circle_over_keys,
+            subtitle = R.string.voice_input_settings_no_circle_over_keys_subtitle,
             component = {
                 val overKeyboard = useDataStoreValue(VOICE_INPUT_OVER_KEYBOARD)
-                val base = stringResource(R.string.voice_input_settings_circle_over_keys_subtitle)
+                val base = stringResource(R.string.voice_input_settings_no_circle_over_keys_subtitle)
                 SettingToggleDataStore(
-                    title = stringResource(R.string.voice_input_settings_circle_over_keys),
-                    setting = VOICE_INPUT_CIRCLE_OVER_KEYS,
+                    title = stringResource(R.string.voice_input_settings_no_circle_over_keys),
+                    setting = VOICE_INPUT_NO_CIRCLE_OVER_KEYS,
                     subtitle = if (overKeyboard) base else base + "\n" +
                             stringResource(R.string.voice_input_settings_needs_over_keyboard_note),
                     disabled = !overKeyboard
