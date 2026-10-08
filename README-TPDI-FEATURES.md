@@ -1,6 +1,6 @@
-# Tom's Futo Keyboard: added features
+# TPDI Futo Keyboard: added features
 
-Every feature below is behind its own setting, off by default (unless noted), so with all of them off the keyboard behaves like the Play Store build. All of them are collected on Settings > Tom's Features in the combined build.
+Every feature below is behind its own setting, off by default (unless noted), so with all of them off the keyboard behaves like the Play Store build. All of them are collected on Settings > TPDI Features in the combined build.
 
 - Dictate over the keyboard: keep the keyboard visible while dictating, with a Listening bar, Undo and a stop microphone (#25).
 - Hide-keyboard button: a chevron on the dictation bar collapses the keys and brings them back (#35).
@@ -24,5 +24,5 @@ Every feature below is behind its own setting, off by default (unless noted), so
 - Fourth alternate page: a layout key to switch to a fourth page (#39).
 - Dismiss-keyboard key: a layout action that hides the keyboard, long press opens Settings (#46).
 - Show sensitive quick clips: show the quick-copy chip text even when the source app marks it sensitive (#52, merged).
-- Tom's Features page: one settings page listing every flag (#28).
+- TPDI Features page: one settings page listing every flag (#28).
 - KASROZ layout: an arrow-key layout with symbols on long press, loadable from file (kb repo, PR #10).

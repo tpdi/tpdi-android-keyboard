@@ -147,9 +147,9 @@ val HomeScreenLite = UserSettingsMenu(
         //}
 
         userSettingNavigationItem(
-            title = R.string.toms_features_title,
+            title = R.string.tpdi_features_title,
             style = NavigationItemStyle.MiscNoArrow,
-            navigateTo = TomsFeaturesMenu.navPath,
+            navigateTo = TpdiFeaturesMenu.navPath,
         ),
 
         userSettingNavigationItem(
