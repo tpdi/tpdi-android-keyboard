@@ -855,36 +855,11 @@ val KeyboardSettingsMenu = UserSettingsMenu(
             key = Settings.PREF_ENABLE_ALT_PERIOD_KEY,
             default = {false},
         ),
-        UserSetting(
-            name = R.string.keyboard_settings_key_hint_size,
-            component = {
-                SettingSlider(
-                    title = stringResource(R.string.keyboard_settings_key_hint_size),
-                    subtitle = stringResource(R.string.keyboard_settings_key_hint_size_subtitle),
-                    setting = KEY_HINT_SCALE_PERCENT,
-                    range = 0.0f .. 200.0f,
-                    transform = { (it / 5f).roundToInt() * 5 },
-                    indicator = { "$it%" }
-                )
-            }
-        ),
-        UserSetting(
-            name = R.string.keyboard_settings_key_hint_brightness,
-            component = {
-                SettingSlider(
-                    title = stringResource(R.string.keyboard_settings_key_hint_brightness),
-                    subtitle = stringResource(R.string.keyboard_settings_key_hint_brightness_subtitle),
-                    setting = KEY_HINT_BRIGHTNESS_PERCENT,
-                    range = 0.0f .. 200.0f,
-                    transform = { (it / 5f).roundToInt() * 5 },
-                    indicator = { "$it%" }
-                )
-            }
-        ),
-        userSettingToggleDataStore(
-            title = R.string.keyboard_settings_sticky_modifier_keys,
-            subtitle = R.string.keyboard_settings_sticky_modifier_keys_subtitle,
-            setting = STICKY_MODIFIER_KEYS
+        userSettingNavigationItem(
+            title = R.string.key_hints_title,
+            subtitle = R.string.key_hints_subtitle,
+            style = NavigationItemStyle.Misc,
+            navigateTo = "keyhints"
         ),
         userSettingToggleDataStore(
             title = R.string.keyboard_settings_hide_when_hardware_keyboard_is_connected,
