@@ -29,8 +29,7 @@ object MicKeyBlueWhenListening {
     }
 
     /** The color to draw [key] in: blue for the microphone key while listening, else [color]. */
-    fun tint(context: Context, key: Key, color: Int): Int {
-        if (!listening || key.code != VoiceInputAction.keyCode) return color
-        return if (context.getSetting(VOICE_INPUT_MIC_KEY_BLUE.key, VOICE_INPUT_MIC_KEY_BLUE.default)) BLUE else color
-    }
+    fun tint(context: Context, key: Key, color: Int): Int =
+        if (listening && key.code == VoiceInputAction.keyCode &&
+            context.getSetting(VOICE_INPUT_MIC_KEY_BLUE.key, VOICE_INPUT_MIC_KEY_BLUE.default)) BLUE else color
 }
