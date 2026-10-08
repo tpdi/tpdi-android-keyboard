@@ -2,6 +2,8 @@ package org.futo.inputmethod.latin.uix.settings.pages
 
 import androidx.compose.ui.res.stringResource
 import org.futo.inputmethod.latin.R
+import org.futo.inputmethod.latin.uix.KEY_HINT_BRIGHTNESS_PERCENT
+import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE_PERCENT
 import org.futo.inputmethod.latin.uix.SEND_KEY_CODES_RATHER_THAN_TEXT
 import org.futo.inputmethod.latin.uix.SHOW_LOAD_LAYOUT_FROM_FILE
 import org.futo.inputmethod.latin.uix.STICKY_MODIFIER_KEYS
@@ -18,12 +20,14 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_CIRCLE_OVER_KEYS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
 import org.futo.inputmethod.latin.uix.settings.ScreenTitle
+import org.futo.inputmethod.latin.uix.settings.SettingSlider
 import org.futo.inputmethod.latin.uix.settings.SettingToggleDataStore
 import org.futo.inputmethod.latin.uix.settings.UserSetting
 import org.futo.inputmethod.latin.uix.settings.UserSettingsMenu
 import org.futo.inputmethod.latin.uix.settings.useDataStoreValue
 import org.futo.inputmethod.latin.uix.settings.userSettingDecorationOnly
 import org.futo.inputmethod.latin.uix.settings.userSettingToggleDataStore
+import kotlin.math.roundToInt
 
 /**
  * Every feature flag of this build on one page. These are the same toggles, with the same text,
@@ -52,6 +56,32 @@ val TomsFeaturesMenu = UserSettingsMenu(
             title = R.string.keyboard_settings_show_load_layout_from_file,
             subtitle = R.string.keyboard_settings_show_load_layout_from_file_subtitle,
             setting = SHOW_LOAD_LAYOUT_FROM_FILE
+        ),
+        UserSetting(
+            name = R.string.keyboard_settings_key_hint_size,
+            component = {
+                SettingSlider(
+                    title = stringResource(R.string.keyboard_settings_key_hint_size),
+                    subtitle = stringResource(R.string.keyboard_settings_key_hint_size_subtitle),
+                    setting = KEY_HINT_SCALE_PERCENT,
+                    range = 80.0f .. 200.0f,
+                    transform = { (it / 5f).roundToInt() * 5 },
+                    indicator = { "$it%" }
+                )
+            }
+        ),
+        UserSetting(
+            name = R.string.keyboard_settings_key_hint_brightness,
+            component = {
+                SettingSlider(
+                    title = stringResource(R.string.keyboard_settings_key_hint_brightness),
+                    subtitle = stringResource(R.string.keyboard_settings_key_hint_brightness_subtitle),
+                    setting = KEY_HINT_BRIGHTNESS_PERCENT,
+                    range = 0.0f .. 100.0f,
+                    transform = { (it / 5f).roundToInt() * 5 },
+                    indicator = { "$it%" }
+                )
+            }
         ),
         userSettingToggleDataStore(
             title = R.string.voice_input_settings_inline_partial_result,
