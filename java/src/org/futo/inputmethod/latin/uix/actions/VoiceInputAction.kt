@@ -52,6 +52,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_CIRCLE_OVER_KEYS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_TRIM_TRAILING_SILENCE
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_UNDO_KEY
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
 import org.futo.inputmethod.latin.uix.settings.SettingsActivity
@@ -307,6 +308,13 @@ private class VoiceInputActionWindow(
         recognizerView.value?.cancel()
         state.modelManager.cancelAll()
         return CloseResult.Default
+    }
+
+    // With the setting on, the keyboard's Undo key undoes the last dictated segment, like the bar's Undo.
+    override fun interceptActionKey(action: Action): Boolean {
+        if (action !== UndoAction || !context.getSetting(VOICE_INPUT_UNDO_KEY)) return false
+        session.undoLast()
+        return true
     }
 
     // With the setting on, pressing the microphone key again stops the recording and transcribes it.

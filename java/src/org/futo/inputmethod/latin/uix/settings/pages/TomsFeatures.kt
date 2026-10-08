@@ -11,6 +11,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_MIC_KEY_TOGGLE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_UNDO_KEY
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_TRIM_TRAILING_SILENCE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_MADE_UP_TEXT
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_STOCK_PHRASES
@@ -113,6 +114,11 @@ val TomsFeaturesMenu = UserSettingsMenu(
             title = R.string.voice_input_settings_trim_trailing_silence,
             subtitle = R.string.voice_input_settings_trim_trailing_silence_subtitle,
             setting = VOICE_INPUT_TRIM_TRAILING_SILENCE
+        ),
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_undo_key,
+            subtitle = R.string.voice_input_settings_undo_key_subtitle,
+            setting = VOICE_INPUT_UNDO_KEY
         ),
         userSettingToggleDataStore(
             title = R.string.voice_input_settings_mic_key_toggle,

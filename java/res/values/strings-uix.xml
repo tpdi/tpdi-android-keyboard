@@ -603,6 +603,8 @@
     <string name="voice_input_settings_noise_gate_subtitle">Learns the background noise level and turns audio near it down, so only your voice reaches the model. Off by default; may clip the very start of quiet words.</string>
     <string name="voice_input_settings_trim_trailing_silence">Trim trailing silence</string>
     <string name="voice_input_settings_trim_trailing_silence_subtitle">Cuts the quiet end off the audio before it is transcribed, so the model doesn\'t invent extra text such as "Thank you." Off by default.</string>
+    <string name="voice_input_settings_undo_key">Undo key undoes dictation</string>
+    <string name="voice_input_settings_undo_key_subtitle">While dictating, the keyboard\'s Undo key removes the last dictated segment, like the Undo button on the bar, instead of sending Ctrl+Z to the app. Off by default.</string>
     <string name="voice_input_settings_mic_key_toggle">Microphone key toggles</string>
     <string name="voice_input_settings_mic_key_toggle_subtitle">Pressing the voice input key on the keyboard while dictating stops and transcribes the recording, instead of restarting voice input. Off by default.</string>
     <string name="voice_input_settings_segmented_results">Incremental results</string>

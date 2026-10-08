@@ -189,6 +189,12 @@ abstract class ActionWindow {
      * (for example by stopping a recording); false, the default, closes the window and opens it again.
      */
     open fun onActionKeyPressedAgain(): Boolean = false
+
+    /**
+     * A key for [action] was pressed while this window is open. Return true to handle it here
+     * (the key then does nothing else); false, the default, lets it act as usual.
+     */
+    open fun interceptActionKey(action: Action): Boolean = false
 }
 
 interface PersistentActionState {
