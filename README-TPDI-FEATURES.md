@@ -163,9 +163,9 @@ Toggle: Settings > Voice input. Issue [#15](https://github.com/tpdi/tpdi-android
 
 ### Drop made-up text
 
-Discards repeated loops and text the model invents from silence. (Always on within voice input for now.)
+Discards repeated loops and text the model invents from silence.
 
-Toggle: No toggle yet. Issue [#16](https://github.com/tpdi/tpdi-android-keyboard/issues/16), PR [#44](https://github.com/tpdi/tpdi-android-keyboard/pull/44).
+Toggle: Settings > Voice input > Drop made-up text. Issue [#16](https://github.com/tpdi/tpdi-android-keyboard/issues/16), PR [#44](https://github.com/tpdi/tpdi-android-keyboard/pull/44).
 
 ### Drop stock phrases
 
