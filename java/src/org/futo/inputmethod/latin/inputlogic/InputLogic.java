@@ -937,6 +937,8 @@ public final class InputLogic {
                 inputTransaction.setDidAffectContents();
                 break;
             case Constants.CODE_SHIFT:
+                RecapitalizeTouchedWord.selectWordIfTouching(mConnection,
+                        inputTransaction.mSettingsValues, currentKeyboardScriptId);
                 performRecapitalization(inputTransaction.mSettingsValues);
                 inputTransaction.requireShiftUpdate(InputTransaction.SHIFT_UPDATE_NOW);
                 if (mSuggestedWords.isPrediction()) {

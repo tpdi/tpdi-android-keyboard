@@ -86,6 +86,8 @@ import org.futo.inputmethod.latin.inputlogic.SpecialKeyEvents
 import org.futo.inputmethod.latin.uix.SEND_KEY_CODES_RATHER_THAN_TEXT
 import org.futo.inputmethod.latin.inputlogic.StickyModifiers
 import org.futo.inputmethod.latin.uix.STICKY_MODIFIER_KEYS
+import org.futo.inputmethod.latin.inputlogic.RecapitalizeTouchedWord
+import org.futo.inputmethod.latin.uix.RECAPITALIZE_TOUCHED_WORD
 import org.futo.inputmethod.latin.uix.getSettingBlocking
 import org.futo.inputmethod.latin.uix.getSettingFlow
 import org.futo.inputmethod.latin.uix.isDirectBootUnlocked
@@ -421,6 +423,8 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
         }
         StickyModifiers.onSettingChanged(getSettingBlocking(STICKY_MODIFIER_KEYS))
         launchJob { getSettingFlow(STICKY_MODIFIER_KEYS).collect { StickyModifiers.onSettingChanged(it) } }
+        RecapitalizeTouchedWord.onSettingChanged(getSettingBlocking(RECAPITALIZE_TOUCHED_WORD))
+        launchJob { getSettingFlow(RECAPITALIZE_TOUCHED_WORD).collect { RecapitalizeTouchedWord.onSettingChanged(it) } }
 
         scheduleUpdateCheckingJob(this)
         launchJob { uixManager.showUpdateNoticeIfNeeded() }
