@@ -86,6 +86,7 @@ import org.futo.inputmethod.accessibility.AccessibilityUtils
 import org.futo.inputmethod.engine.IMESettingsMenu
 import org.futo.inputmethod.latin.HideKeyboardWhenHardKeyboardConnected
 import org.futo.inputmethod.latin.R
+import org.futo.inputmethod.latin.uix.NORMALIZE_HINT_GLYPH_SIZE
 import org.futo.inputmethod.latin.settings.LongPressKey
 import org.futo.inputmethod.latin.settings.LongPressKeyLayoutSetting
 import org.futo.inputmethod.latin.settings.Settings
@@ -844,6 +845,11 @@ val KeyboardSettingsMenu = UserSettingsMenu(
             subtitle = R.string.keyboard_settings_period_key_subtitle2,
             key = Settings.PREF_ENABLE_ALT_PERIOD_KEY,
             default = {false},
+        ),
+        userSettingToggleDataStore(
+            title = R.string.keyboard_settings_normalize_hint_glyph_size,
+            subtitle = R.string.keyboard_settings_normalize_hint_glyph_size_subtitle,
+            setting = NORMALIZE_HINT_GLYPH_SIZE
         ),
         userSettingToggleDataStore(
             title = R.string.keyboard_settings_hide_when_hardware_keyboard_is_connected,

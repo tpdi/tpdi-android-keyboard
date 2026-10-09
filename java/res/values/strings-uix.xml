@@ -712,4 +712,6 @@ Default is %1$s</string>
     <string name="personal_dictionary_delete_additional_file">Delete extra dictionary file?</string>
     <!-- %1$s will be replaced with the custom dictionary name -->
     <string name="personal_dictionary_delete_additional_file_text">%1$s will be deleted</string>
+    <string name="keyboard_settings_normalize_hint_glyph_size">Even out hint sizes</string>
+    <string name="keyboard_settings_normalize_hint_glyph_size_subtitle">Scale each hint character so small ones like quotes and large ones like braces look about the same size.</string>
 </resources>
