@@ -44,7 +44,7 @@ Toggle: Settings > Typing > Key hints. Issue [#36](https://github.com/tpdi/tpdi-
 
 Ctrl, Alt, Meta, AltGr, Fn, Sym, Shift and lock keys for custom layouts. Tap to latch for the next key (sent as a real key event, so Ctrl+C and Alt+Tab work); long press to lock. A latched key is drawn pressed. Includes an 84-key layout (docs/standard-84-key-layout.yaml).
 
-Toggle: Settings > Typing > Sticky modifier keys. Issue [#25](https://github.com/tpdi/tpdi-android-keyboard/issues/25), PR [#56](https://github.com/tpdi/tpdi-android-keyboard/pull/56).
+Toggle: Settings > TPDI Features > Sticky modifier keys (Settings > Typing in the feature PR). Issue [#25](https://github.com/tpdi/tpdi-android-keyboard/issues/25), PR [#56](https://github.com/tpdi/tpdi-android-keyboard/pull/56).
 
 ### Send key codes rather than text
 
@@ -115,11 +115,17 @@ Toggle: Settings > Voice input > Show words while listening. Issue [#4](https://
 
 Commits speech segment by segment as you talk instead of only after you stop.
 
+![Incremental results](docs/screenshots/toggle-segmented.png)
+
 Toggle: Settings > Voice input > Incremental results. Issue [#10](https://github.com/tpdi/tpdi-android-keyboard/issues/10), PR [#72](https://github.com/tpdi/tpdi-android-keyboard/pull/72).
 
 ### Dictate over the keyboard
 
 The keyboard stays visible while you dictate, with a Listening bar, Undo and a stop microphone, so you can type and talk in one session.
+
+![Dictate over the keyboard](docs/screenshots/voice-over-keyboard.png)
+
+![Dictate over the keyboard](docs/screenshots/toggle-over-keyboard.png)
 
 Toggle: Settings > Voice input. Issue [#13](https://github.com/tpdi/tpdi-android-keyboard/issues/13), PR [#48](https://github.com/tpdi/tpdi-android-keyboard/pull/48).
 
@@ -133,11 +139,17 @@ Toggle: Settings > Voice input. Issue [#14](https://github.com/tpdi/tpdi-android
 
 Draws only the bar part of the volume circle.
 
+![Hide the volume circle over the keys](docs/screenshots/toggle-hide-circle.png)
+
 Toggle: Settings > Voice input. Issue [#21](https://github.com/tpdi/tpdi-android-keyboard/issues/21), PR [#52](https://github.com/tpdi/tpdi-android-keyboard/pull/52).
 
 ### Hide and show the keyboard while dictating
 
 A chevron on the dictation bar collapses the keys and brings them back.
+
+![Hide and show the keyboard while dictating](docs/screenshots/voice-over-keyboard.png)
+
+![Hide and show the keyboard while dictating](docs/screenshots/toggle-hide-keyboard.png)
 
 Toggle: Settings > Voice input. Issue [#22](https://github.com/tpdi/tpdi-android-keyboard/issues/22), PR [#53](https://github.com/tpdi/tpdi-android-keyboard/pull/53).
 
@@ -145,11 +157,15 @@ Toggle: Settings > Voice input. Issue [#22](https://github.com/tpdi/tpdi-android
 
 Switch between dictating over the keyboard and the full voice window without ending the session.
 
+![Switch between dictation modes](docs/screenshots/toggle-switch-modes.png)
+
 Toggle: Settings > Voice input. Issue [#23](https://github.com/tpdi/tpdi-android-keyboard/issues/23), PR [#54](https://github.com/tpdi/tpdi-android-keyboard/pull/54).
 
 ### Undo and Enter buttons
 
 Undo the last dictated segment, or send Enter, from buttons in the voice window. Builds on the undo history (#11, PR #46).
+
+![Undo and Enter buttons](docs/screenshots/toggle-undo-buttons.png)
 
 Toggle: Settings > Voice input > Action buttons. Issue [#12](https://github.com/tpdi/tpdi-android-keyboard/issues/12), PR [#47](https://github.com/tpdi/tpdi-android-keyboard/pull/47).
 
@@ -157,11 +173,15 @@ Toggle: Settings > Voice input > Action buttons. Issue [#12](https://github.com/
 
 While dictating, the keyboard's Undo key removes the last dictated segment.
 
+![Undo key undoes dictation](docs/screenshots/toggle-undo-key.png)
+
 Toggle: Settings > Voice input. Issue [#32](https://github.com/tpdi/tpdi-android-keyboard/issues/32), PR [#66](https://github.com/tpdi/tpdi-android-keyboard/pull/66).
 
 ### Microphone key toggles
 
 Pressing the voice input key again stops and transcribes the recording.
+
+![Microphone key toggles](docs/screenshots/toggle-mic-toggle.png)
 
 Toggle: Settings > Voice input. Issue [#31](https://github.com/tpdi/tpdi-android-keyboard/issues/31), PR [#65](https://github.com/tpdi/tpdi-android-keyboard/pull/65).
 
@@ -169,11 +189,13 @@ Toggle: Settings > Voice input. Issue [#31](https://github.com/tpdi/tpdi-android
 
 The keyboard's microphone key turns blue while voice input is running.
 
+![Blue microphone key while dictating](docs/screenshots/voice-over-keyboard.png)
+
 Toggle: Settings > Voice input. Issue [#34](https://github.com/tpdi/tpdi-android-keyboard/issues/34), PR [#68](https://github.com/tpdi/tpdi-android-keyboard/pull/68).
 
 ### Click gestures
 
-Two sharp finger clicks near the microphone press Enter.
+Click your tongue twice (the sound, not a finger tap) while dictating and the keyboard presses Enter.
 
 Toggle: Settings > Voice input. Issue [#15](https://github.com/tpdi/tpdi-android-keyboard/issues/15), PR [#45](https://github.com/tpdi/tpdi-android-keyboard/pull/45).
 
@@ -181,11 +203,15 @@ Toggle: Settings > Voice input. Issue [#15](https://github.com/tpdi/tpdi-android
 
 Discards repeated loops and text the model invents from silence.
 
+![Drop made-up text](docs/screenshots/toggle-made-up.png)
+
 Toggle: Settings > Voice input > Drop made-up text. Issue [#16](https://github.com/tpdi/tpdi-android-keyboard/issues/16), PR [#44](https://github.com/tpdi/tpdi-android-keyboard/pull/44).
 
 ### Drop stock phrases
 
 Discards results that are only phrases like "Thanks for watching".
+
+![Drop stock phrases](docs/screenshots/toggle-stock-phrases.png)
 
 Toggle: Settings > Voice input. Issue [#20](https://github.com/tpdi/tpdi-android-keyboard/issues/20), PR [#51](https://github.com/tpdi/tpdi-android-keyboard/pull/51).
 
@@ -193,10 +219,14 @@ Toggle: Settings > Voice input. Issue [#20](https://github.com/tpdi/tpdi-android
 
 Learns the background noise level and turns audio near it down, so only your voice reaches the model.
 
+![Automatic noise gate](docs/screenshots/toggle-noise-gate.png)
+
 Toggle: Settings > Voice input. Issue [#28](https://github.com/tpdi/tpdi-android-keyboard/issues/28), PR [#61](https://github.com/tpdi/tpdi-android-keyboard/pull/61).
 
 ### Trim trailing silence
 
 Cuts the quiet end off the audio before it is transcribed, so the model doesn't invent extra text.
+
+![Trim trailing silence](docs/screenshots/toggle-trim-silence.png)
 
 Toggle: Settings > Voice input. Issue [#30](https://github.com/tpdi/tpdi-android-keyboard/issues/30), PR [#63](https://github.com/tpdi/tpdi-android-keyboard/pull/63).
