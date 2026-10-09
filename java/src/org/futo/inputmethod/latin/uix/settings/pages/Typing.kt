@@ -93,6 +93,7 @@ import org.futo.inputmethod.latin.uix.KEY_HINT_BRIGHTNESS_PERCENT
 import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE
 import org.futo.inputmethod.latin.uix.CASE_FORM_SUGGESTIONS
 import org.futo.inputmethod.latin.uix.RECAPITALIZE_TOUCHED_WORD
+import org.futo.inputmethod.latin.uix.KEY_LABEL_SCALE
 import org.futo.inputmethod.latin.settings.LongPressKey
 import org.futo.inputmethod.latin.settings.LongPressKeyLayoutSetting
 import org.futo.inputmethod.latin.settings.Settings
@@ -873,6 +874,16 @@ val KeyboardSettingsMenu = UserSettingsMenu(
             subtitle = R.string.keyboard_settings_recapitalize_touched_word_subtitle,
             setting = RECAPITALIZE_TOUCHED_WORD
         ),
+        userSettingDecorationOnly {
+            SettingSlider(
+                title = stringResource(R.string.keyboard_settings_key_label_size),
+                subtitle = stringResource(R.string.keyboard_settings_key_label_size_subtitle),
+                setting = KEY_LABEL_SCALE,
+                range = 0.5f .. 1.5f,
+                transform = { (it * 20f).roundToInt() / 20f },
+                indicator = { "${(it * 100f).roundToInt()}%" }
+            )
+        },
         userSettingToggleDataStore(
             title = R.string.keyboard_settings_hide_when_hardware_keyboard_is_connected,
             setting = HideKeyboardWhenHardKeyboardConnected

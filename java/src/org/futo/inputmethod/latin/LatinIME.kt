@@ -90,6 +90,7 @@ import org.futo.inputmethod.latin.inputlogic.CaseFormSuggestions
 import org.futo.inputmethod.latin.inputlogic.RecapitalizeTouchedWord
 import org.futo.inputmethod.latin.uix.CASE_FORM_SUGGESTIONS
 import org.futo.inputmethod.latin.uix.RECAPITALIZE_TOUCHED_WORD
+import org.futo.inputmethod.latin.uix.KeyLabelRedraw
 import org.futo.inputmethod.latin.uix.getSettingBlocking
 import org.futo.inputmethod.latin.uix.getSettingFlow
 import org.futo.inputmethod.latin.uix.isDirectBootUnlocked
@@ -496,6 +497,10 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
 
         launchJob {
             KeyHintsRedraw.watch(this@LatinIME) { latinIMELegacy.mKeyboardSwitcher?.mainKeyboardView?.invalidateAllKeys() }
+        }
+
+        launchJob {
+            KeyLabelRedraw.watch(this@LatinIME) { latinIMELegacy.mKeyboardSwitcher?.mainKeyboardView?.invalidateAllKeys() }
         }
 
         // Listen to size changes

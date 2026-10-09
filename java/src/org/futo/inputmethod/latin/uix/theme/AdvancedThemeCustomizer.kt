@@ -14,6 +14,7 @@ import org.futo.inputmethod.keyboard.Keyboard
 import org.futo.inputmethod.keyboard.internal.KeyDrawParams
 import org.futo.inputmethod.latin.uix.DynamicThemeProvider
 import org.futo.inputmethod.latin.uix.KeyHintBrightness
+import org.futo.inputmethod.latin.uix.KEY_LABEL_SCALE
 import org.futo.inputmethod.latin.uix.KeyboardColorScheme
 import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE
 import org.futo.inputmethod.latin.uix.getSetting
@@ -69,6 +70,7 @@ class AdvancedThemeMatcher(
     val scheme: KeyboardColorScheme
 ) {
     val theme = scheme.extended.advancedThemeOptions
+    private val extraLabelScale get() = context.getSetting(KEY_LABEL_SCALE.key, KEY_LABEL_SCALE.default)
     private val extraHintScale get() = context.getSetting(KEY_HINT_SCALE.key, KEY_HINT_SCALE.default)
 
     val backgroundList = theme.keyBackgrounds?.v ?: emptyList()
@@ -138,7 +140,7 @@ class AdvancedThemeMatcher(
             hintLabel = key.effectiveHintLabel,
             textColor = key.selectTextColor(drawableProvider, params),
             hintColor = KeyHintBrightness.apply(context, key.selectHintTextColor(drawableProvider, params)),
-            textSize = key.selectTextSize(params).toFloat(),
+            textSize = key.selectTextSize(params).toFloat() * extraLabelScale,
             hintSize = key.selectHintTextSize(drawableProvider, params).toFloat(),
             textTypeface = key.selectTypeface(params),
             hintTypeface = key.selectHintTypeface(drawableProvider, params)
@@ -171,7 +173,7 @@ class AdvancedThemeMatcher(
         var label: String? = key.labelOverride ?: key.label
         var hintLabel: String? = if(hintIcon == null) key.effectiveHintLabel else null
 
-        val textSize = key.selectTextSize(params).toFloat() * scheme.extended.advancedThemeOptions.textSizeMultiplier
+        val textSize = key.selectTextSize(params).toFloat() * scheme.extended.advancedThemeOptions.textSizeMultiplier * extraLabelScale
         var hintSize = key.selectHintTextSize(drawableProvider, params).toFloat() * scheme.extended.advancedThemeOptions.hintSizeMultiplier * extraHintScale
 
         var textTypeface = drawableProvider.selectKeyTypeface(key.selectTypeface(params))
