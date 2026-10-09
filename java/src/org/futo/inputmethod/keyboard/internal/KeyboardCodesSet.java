@@ -50,7 +50,7 @@ public final class KeyboardCodesSet {
         "key_enter",
         "key_space",
         "key_shift",
-        "key_caps_lock_mod",
+        "key_capslock",
         "key_switch_alpha_symbol",
         "key_output_text",
         "key_delete",
