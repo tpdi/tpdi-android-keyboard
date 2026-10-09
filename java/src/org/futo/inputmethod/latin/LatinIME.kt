@@ -81,6 +81,9 @@ import org.futo.inputmethod.latin.uix.dataStore
 import org.futo.inputmethod.latin.uix.differsFrom
 import org.futo.inputmethod.latin.uix.forceUnlockDatastore
 import org.futo.inputmethod.latin.uix.getSetting
+import org.futo.inputmethod.event.Event
+import org.futo.inputmethod.latin.inputlogic.VerticalSpaceSwipe
+import org.futo.inputmethod.latin.uix.SPACE_SWIPE_VERTICAL
 import org.futo.inputmethod.latin.uix.getSettingBlocking
 import org.futo.inputmethod.latin.uix.getSettingFlow
 import org.futo.inputmethod.latin.uix.isDirectBootUnlocked
@@ -407,6 +410,13 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
 
         imeManager.onCreate()
         latinIMELegacy.onCreate()
+
+        VerticalSpaceSwipe.sender = { keyCode ->
+            imeManager.getActiveIME(Settings.getInstance().current)
+                .onEvent(Event.createDownUpKeyEvent(keyCode, 0))
+        }
+        VerticalSpaceSwipe.onSettingChanged(getSettingBlocking(SPACE_SWIPE_VERTICAL))
+        launchJob { getSettingFlow(SPACE_SWIPE_VERTICAL).collect { VerticalSpaceSwipe.onSettingChanged(it) } }
 
         scheduleUpdateCheckingJob(this)
         launchJob { uixManager.showUpdateNoticeIfNeeded() }

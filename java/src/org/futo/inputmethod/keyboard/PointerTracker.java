@@ -39,6 +39,7 @@ import org.futo.inputmethod.keyboard.internal.TypingTimeRecorder;
 import org.futo.inputmethod.latin.R;
 import org.futo.inputmethod.latin.common.Constants;
 import org.futo.inputmethod.latin.common.CoordinateUtils;
+import org.futo.inputmethod.latin.inputlogic.VerticalSpaceSwipe;
 import org.futo.inputmethod.latin.common.InputPointers;
 import org.futo.inputmethod.latin.define.DebugFlags;
 import org.futo.inputmethod.latin.settings.Settings;
@@ -975,6 +976,19 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
                         || (!mSpacebarLongPressed && settingsValues.mSpacebarSwipeMode != Settings.SPACEBAR_MODE_OFF);
 
             if(allowedBySettings) {
+                if (VerticalSpaceSwipe.isEnabled()
+                        && !(settingsValues.mSpacebarSwipeMode == Settings.SPACEBAR_MODE_LANGUAGE
+                                && !mSpacebarLongPressed)) {
+                    final int lines = VerticalSpaceSwipe.lines(y - mStartY, sPointerBigStep);
+                    if (lines != 0) {
+                        mCursorMoved = true;
+                        mStartY += lines * sPointerBigStep;
+                        VerticalSpaceSwipe.send(lines);
+                        mLastX = x;
+                        mLastY = y;
+                        return;
+                    }
+                }
                 int pointerStep = sPointerStep;
                 boolean useY = false;
                 if (settingsValues.mSpacebarSwipeMode == Settings.SPACEBAR_MODE_LANGUAGE && !mSpacebarLongPressed) {
