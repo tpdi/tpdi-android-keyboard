@@ -45,6 +45,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import androidx.compose.ui.unit.Dp
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_NO_CIRCLE_OVER_KEYS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_UNDO_KEY
 import org.futo.inputmethod.latin.uix.getSetting
@@ -210,6 +211,7 @@ private class VoiceInputActionWindow(
     private val session = VoiceOverKeyboardSession(manager, context.getSetting(VOICE_INPUT_OVER_KEYBOARD))
     private val inlineMode: Boolean get() = session.inlineMode
     private var inputTransaction by session::transaction
+    private val circleOverKeys = !context.getSetting(VOICE_INPUT_NO_CIRCLE_OVER_KEYS)
 
     override fun segmentStarted() = session.segmentStarted()
 
@@ -231,7 +233,9 @@ private class VoiceInputActionWindow(
 
     @Composable
     override fun KeyboardOverlay() {
-        VoiceVolumeCircleOverlay { recognizerView.value?.Content(circleOnly = true) }
+        if (circleOverKeys) {
+            VoiceVolumeCircleOverlay { recognizerView.value?.Content(circleOnly = true) }
+        }
     }
 
     @Composable

@@ -725,6 +725,9 @@ Default is %1$s</string>
     <string name="action_voice_input_undo">Undo last</string>
     <string name="voice_input_settings_over_keyboard">Dictate over the keyboard</string>
     <string name="voice_input_settings_over_keyboard_subtitle">Keep the keyboard visible while dictating: shows Listening… and Undo in the suggestion bar and the volume circle over the keys. Tap the blue microphone to stop. Typed text goes into the same Undo history as dictated text. Off by default.</string>
+    <string name="voice_input_settings_no_circle_over_keys">No volume circle over keys</string>
+    <string name="voice_input_settings_no_circle_over_keys_subtitle">While dictating over the keyboard, don\'t draw the volume circle over the keys: only the bar shows it and nothing covers the keyboard. Off by default.</string>
+    <string name="voice_input_settings_needs_over_keyboard_note">Turn on \"Dictate over the keyboard\" to use this.</string>
     <string name="action_voice_input_enter">Enter</string>
     <string name="voice_input_settings_action_buttons">On-screen Undo/Enter buttons</string>
     <string name="voice_input_settings_action_buttons_subtitle">Show a button strip next to the voice input bubble to undo the last thing it typed, or press Enter. Off by default.</string>
