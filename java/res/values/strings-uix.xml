@@ -756,7 +756,7 @@ Default is %1$s</string>
     <string name="voice_input_switch_to_window">Full voice window</string>
     <string name="voice_input_switch_to_keyboard">Dictate over the keyboard</string>
     <string name="voice_input_settings_no_circle_over_keys">No volume circle over keys</string>
-    <string name="voice_input_settings_no_circle_over_keys_subtitle">While dictating over the keyboard, don\'t draw the volume circle over the keys: only the bar shows it and nothing covers the keyboard. On by default; turn it off to draw the circle over the keys.</string>
+    <string name="voice_input_settings_no_circle_over_keys_subtitle">While dictating over the keyboard, don\'t draw the volume circle over the keys: only the bar shows it and nothing covers the keyboard. Off by default.</string>
     <string name="voice_input_settings_needs_over_keyboard_note">Turn on \"Dictate over the keyboard\" to use this.</string>
     <string name="keyboard_settings_key_hint_size">Key hint size</string>
     <string name="keyboard_settings_key_hint_size_subtitle">Scale the small hint characters on keys. 100% is unchanged, which is the default.</string>
