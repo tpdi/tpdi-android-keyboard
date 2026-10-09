@@ -40,6 +40,7 @@ import org.futo.inputmethod.latin.R;
 import org.futo.inputmethod.latin.common.Constants;
 import org.futo.inputmethod.latin.uix.theme.KeyDrawingConfiguration;
 import org.futo.inputmethod.latin.uix.theme.KeyOutline;
+import org.futo.inputmethod.latin.uix.theme.KeyLabelPosition;
 import org.futo.inputmethod.latin.utils.TypefaceUtils;
 
 import java.util.HashSet;
@@ -482,7 +483,8 @@ public class KeyboardView extends View {
                 labelX = centerX + params.mLabelOffCenterRatio * labelCharWidth;
                 paint.setTextAlign(Align.LEFT);
             } else {
-                labelX = centerX;
+                labelX = centerX - KeyLabelPosition.shiftX(kdc.getLabelAnchor(), keyWidth,
+                        TypefaceUtils.getStringWidth(label, paint));
                 paint.setTextAlign(Align.CENTER);
             }
             if (key.getNeedsAutoXScale()) {

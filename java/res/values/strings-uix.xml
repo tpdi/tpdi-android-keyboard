@@ -716,4 +716,6 @@ Default is %1$s</string>
     <string name="personal_dictionary_delete_additional_file">Delete extra dictionary file?</string>
     <!-- %1$s will be replaced with the custom dictionary name -->
     <string name="personal_dictionary_delete_additional_file_text">%1$s will be deleted</string>
+    <string name="keyboard_settings_key_label_position">Key label position</string>
+    <string name="keyboard_settings_key_label_position_subtitle">Move the letters from the centre of each key toward its left edge. 0% (centred) is unchanged.</string>
 </resources>
