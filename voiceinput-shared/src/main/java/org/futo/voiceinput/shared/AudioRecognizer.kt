@@ -84,6 +84,7 @@ data class RecordingSettings(
     val useVADAutoStop: Boolean,
     val useSegmentedResults: Boolean = false,
     val segmentPauseMs: Int = 600,
+    val filterMadeUpText: Boolean = false,
     val useNoiseGate: Boolean = false
 )
 
@@ -112,6 +113,9 @@ class AudioRecognizer(
     private val useSegmentedResults = settings.recordingConfiguration.useSegmentedResults
     // VAD runs in 480-sample (30ms @ 16kHz) frames; convert the configured ms to a frame count.
     private val segmentPauseFrames = (settings.recordingConfiguration.segmentPauseMs / 30).coerceAtLeast(1)
+
+    // Only present when the "drop made-up text" setting is on.
+    private val madeUpGuard = if (settings.recordingConfiguration.filterMadeUpText) MadeUpTextGuard() else null
 
     private var floatSamples: FloatBuffer = FloatBuffer.allocate(16000 * 30)
     private var recorderJob: Job? = null
@@ -259,6 +263,7 @@ class AudioRecognizer(
 
         val segmentSamples = floatSamples.array().sliceArray(0 until floatSamples.position())
         floatSamples.clear()
+        madeUpGuard?.bufferCleared()
 
         if (segmentSamples.isEmpty()) return
 
@@ -385,6 +390,7 @@ class AudioRecognizer(
                 numConsecutiveNonSpeech = 0
                 numConsecutiveSpeech = 0
                 hasTalked = false
+                madeUpGuard?.cutSegment()
                 yield()
                 withContext(Dispatchers.Main) {
                     finishSegment()
@@ -407,6 +413,7 @@ class AudioRecognizer(
                         } else {
                             numConsecutiveNonSpeech = 0
                             numConsecutiveSpeech++
+                            madeUpGuard?.onSpeechFrame()
                         }
                     }
 
@@ -436,6 +443,7 @@ class AudioRecognizer(
             if (startSoundPassed && ((rms > 0.01) || (numConsecutiveSpeech > 8))) {
                 hasTalked = true
             }
+            if (hasTalked) madeUpGuard?.onTalked()
 
             if (rms > 0.0001) {
                 anyNoiseAtAll = true
@@ -608,10 +616,11 @@ class AudioRecognizer(
 
         isSegmentProcessing = false
 
-        val text = when {
+        var text = when {
             isBlankResult(outputText) -> ""
             else -> outputText
         }
+        text = madeUpGuard?.filterSegment(text) ?: text
 
         if (text.isNotEmpty()) {
             yield()
@@ -637,6 +646,17 @@ class AudioRecognizer(
             if (it.isActive) it.join()
         }
 
+        if (madeUpGuard?.shouldSkipFinalDecode(useSegmentedResults) == true) {
+            yield()
+            lifecycleScope.launch {
+                withContext(Dispatchers.Main) {
+                    yield()
+                    listener.finished("")
+                }
+            }
+            return
+        }
+
         val floatArray = floatSamples.array().sliceArray(0 until floatSamples.position())
 
         yield()
@@ -652,10 +672,11 @@ class AudioRecognizer(
             return
         }
 
-        val text = when {
+        var text = when {
             isBlankResult(outputText) -> ""
             else -> outputText
         }
+        text = madeUpGuard?.filterFinal(text) ?: text
 
         yield()
         lifecycleScope.launch {
