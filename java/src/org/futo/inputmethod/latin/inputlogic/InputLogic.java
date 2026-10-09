@@ -938,8 +938,12 @@ public final class InputLogic {
                     inputTransaction.requireShiftUpdate(InputTransaction.SHIFT_UPDATE_NOW);
                     break;
                 }
-                RecapitalizeTouchedWord.selectWordIfTouching(mConnection,
-                        inputTransaction.mSettingsValues, currentKeyboardScriptId);
+                if (RecapitalizeTouchedWord.selectWordIfTouching(mConnection,
+                        inputTransaction.mSettingsValues, currentKeyboardScriptId)) {
+                    // Right after typing, recapitalization is held off until the cursor moves;
+                    // we just selected the word ourselves, so allow it now.
+                    mRecapitalizeStatus.enable();
+                }
                 performRecapitalization(inputTransaction.mSettingsValues);
                 inputTransaction.requireShiftUpdate(InputTransaction.SHIFT_UPDATE_NOW);
                 if (mSuggestedWords.isPrediction()) {
