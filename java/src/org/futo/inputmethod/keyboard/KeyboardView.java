@@ -572,7 +572,7 @@ public class KeyboardView extends View {
                 }
                 paint.setTextAlign(Align.CENTER);
             }
-            final float adjustmentY = params.mHintLabelVerticalAdjustment * labelCharHeight;
+            final float adjustmentY = params.mHintLabelVerticalAdjustment * labelCharHeight + kdc.getHintOffsetY();
             canvas.drawText(
                     hintLabel, 0, hintLabel.length(), hintX, hintBaseline + adjustmentY, paint);
         } else if(hintIcon != null) {
