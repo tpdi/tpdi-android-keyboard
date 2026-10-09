@@ -717,5 +717,5 @@ Default is %1$s</string>
     <!-- %1$s will be replaced with the custom dictionary name -->
     <string name="personal_dictionary_delete_additional_file_text">%1$s will be deleted</string>
     <string name="keyboard_settings_recapitalize_touched_word">Shift cycles the case of the word the cursor is on</string>
-    <string name="keyboard_settings_recapitalize_touched_word_subtitle">With nothing selected and the cursor touching a word, Shift selects the word and cycles it through lower case, Capitalized and UPPER, like it does for selected text. Off by default.</string>
+    <string name="keyboard_settings_recapitalize_touched_word_subtitle">With nothing selected and the cursor in or next to a word, Shift selects the word and cycles it through lower case, Capitalized and UPPER, like it does for selected text. Off by default.</string>
 </resources>
