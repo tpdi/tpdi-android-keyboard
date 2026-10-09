@@ -4,6 +4,7 @@ import androidx.compose.ui.res.stringResource
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.SEND_KEY_CODES_RATHER_THAN_TEXT
 import org.futo.inputmethod.latin.uix.SHOW_LOAD_LAYOUT_FROM_FILE
+import org.futo.inputmethod.latin.uix.RECAPITALIZE_TOUCHED_WORD
 import org.futo.inputmethod.latin.uix.STICKY_MODIFIER_KEYS
 import org.futo.inputmethod.latin.uix.settings.NavigationItemStyle
 import org.futo.inputmethod.latin.uix.settings.userSettingNavigationItem
@@ -54,6 +55,11 @@ val TpdiFeaturesMenu = UserSettingsMenu(
             title = R.string.keyboard_settings_sticky_modifier_keys,
             subtitle = R.string.keyboard_settings_sticky_modifier_keys_subtitle,
             setting = STICKY_MODIFIER_KEYS
+        ),
+        userSettingToggleDataStore(
+            title = R.string.keyboard_settings_recapitalize_touched_word,
+            subtitle = R.string.keyboard_settings_recapitalize_touched_word_subtitle,
+            setting = RECAPITALIZE_TOUCHED_WORD
         ),
         userSettingToggleDataStore(
             title = R.string.keyboard_settings_show_load_layout_from_file,
