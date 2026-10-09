@@ -284,6 +284,17 @@ public final class Constants {
     // Sticky modifier keys (see StickyModifiers).
     public static final int CODE_CTRL = -3081;
     public static final int CODE_ALT = -3082;
+    public static final int CODE_META = -3083;
+    public static final int CODE_ALTGR = -3084;
+    public static final int CODE_FN = -3085;
+    public static final int CODE_SYM = -3086;
+    public static final int CODE_STICKY_SHIFT = -3087;
+    public static final int CODE_CAPS_LOCK_MOD = -3088;
+    public static final int CODE_NUMLOCK = -3089;
+    public static final int CODE_SCROLLLOCK = -3090;
+    public static final int CODE_CTRL_RIGHT = -3091;
+    public static final int CODE_SHIFT_RIGHT = -3092;
+    public static final int CODE_META_RIGHT = -3093;
 
     public static final int CODE_ACTION_0 = -1050;
     public static final int CODE_ACTION_MAX = CODE_ACTION_0 + 100;

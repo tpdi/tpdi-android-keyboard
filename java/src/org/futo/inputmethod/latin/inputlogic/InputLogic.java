@@ -922,10 +922,11 @@ public final class InputLogic {
             return;
         }
 
-        if (SpecialKeyEvents.handle(this, event, inputTransaction)) {
+        if (StickyModifiers.handleKey(this, event, inputTransaction)) {
             return;
         }
-        if (StickyModifiers.handleKey(this, event, inputTransaction)) {
+
+        if (SpecialKeyEvents.handle(this, event, inputTransaction)) {
             return;
         }
 

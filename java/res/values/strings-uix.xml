@@ -758,8 +758,6 @@ Default is %1$s</string>
     <string name="voice_input_settings_no_circle_over_keys">No volume circle over keys</string>
     <string name="voice_input_settings_no_circle_over_keys_subtitle">While dictating over the keyboard, don\'t draw the volume circle over the keys: only the bar shows it and nothing covers the keyboard. On by default; turn it off to draw the circle over the keys.</string>
     <string name="voice_input_settings_needs_over_keyboard_note">Turn on \"Dictate over the keyboard\" to use this.</string>
-    <string name="keyboard_settings_sticky_modifier_keys">Sticky Ctrl and Alt keys</string>
-    <string name="keyboard_settings_sticky_modifier_keys_subtitle">Make the Ctrl and Alt keys of a custom layout work: tap one, then the next key is sent as a real key event with it held (Ctrl+C, Alt+Tab, ...). Off by default; with it off those keys do nothing.</string>
     <string name="keyboard_settings_key_hint_size">Key hint size</string>
     <string name="keyboard_settings_key_hint_size_subtitle">Scale the small hint characters on keys. 100% is unchanged, which is the default.</string>
     <string name="action_dismiss_keyboard_title">Dismiss keyboard</string>
@@ -770,4 +768,6 @@ Default is %1$s</string>
     <string name="key_hints_size_subtitle">Scale the hints. 100% is unchanged.</string>
     <string name="key_hints_brightness_subtitle">Dim or brighten the hints. 0% hides them.</string>
     <string name="key_hints_subtitle">Size and brightness of the hints on keys.</string>
+    <string name="keyboard_settings_sticky_modifier_keys">Sticky modifier keys</string>
+    <string name="keyboard_settings_sticky_modifier_keys_subtitle">Make the Ctrl, Alt, Meta and AltGr keys of a custom layout work: tap one, then the next key is sent as a real key event with it held (Ctrl+C, Alt+Tab, ...). Off by default; with it off those keys do nothing.</string>
 </resources>

@@ -50,7 +50,7 @@ public final class KeyboardCodesSet {
         "key_enter",
         "key_space",
         "key_shift",
-        "key_capslock",
+        "key_caps_lock_mod",
         "key_switch_alpha_symbol",
         "key_output_text",
         "key_delete",
@@ -93,6 +93,17 @@ public final class KeyboardCodesSet {
         "key_to_alt_3_layout",
         "key_ctrl",
         "key_alt",
+        "key_meta",
+        "key_altgr",
+        "key_fn",
+        "key_sym",
+        "key_sticky_shift",
+        "key_caps_lock_mod",
+        "key_numlock",
+        "key_scrolllock",
+        "key_ctrl_right",
+        "key_shift_right",
+        "key_meta_right",
     };
 
     private static final int[] DEFAULT = {
@@ -143,6 +154,17 @@ public final class KeyboardCodesSet {
         Constants.CODE_TO_ALT_3_LAYOUT,
         Constants.CODE_CTRL,
         Constants.CODE_ALT,
+        Constants.CODE_META,
+        Constants.CODE_ALTGR,
+        Constants.CODE_FN,
+        Constants.CODE_SYM,
+        Constants.CODE_STICKY_SHIFT,
+        Constants.CODE_CAPS_LOCK_MOD,
+        Constants.CODE_NUMLOCK,
+        Constants.CODE_SCROLLLOCK,
+        Constants.CODE_CTRL_RIGHT,
+        Constants.CODE_SHIFT_RIGHT,
+        Constants.CODE_META_RIGHT,
     };
 
     static {
