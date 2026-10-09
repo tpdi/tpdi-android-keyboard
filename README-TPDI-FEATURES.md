@@ -19,6 +19,7 @@ Every feature below is behind its own setting, off by default (unless noted), so
 - Send key codes rather than text: Tab, Enter, Escape, Home, End, Page Up/Down, Forward Delete, Insert and F1 to F12 as real key events (#16, merged).
 - Sticky modifier keys (Ctrl, Alt, Meta, AltGr, Fn, Sym, Shift, lock keys): tap to latch for the next key; a latched key shows as [Label] in amber (#40). Test layout: docs/sticky-modifiers-test-layout.yaml.
 - Shift cycles the case of the word the cursor is on, not only a selection (#78).
+- Shift offers the Capitalized / UPPER / lower forms of the word the cursor is on as suggestions (#77).
 - Load layout from file: show the Load from file button in the custom layout editor (#19).
 - Key hint size: slider to scale the small hint characters on keys (#44).
 - Key hint brightness: slider from 0% to 100% to dim the hint characters (#56).

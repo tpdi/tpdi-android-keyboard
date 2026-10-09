@@ -91,6 +91,7 @@ import org.futo.inputmethod.latin.uix.SHOW_LOAD_LAYOUT_FROM_FILE
 import org.futo.inputmethod.latin.uix.STICKY_MODIFIER_KEYS
 import org.futo.inputmethod.latin.uix.KEY_HINT_BRIGHTNESS_PERCENT
 import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE
+import org.futo.inputmethod.latin.uix.CASE_FORM_SUGGESTIONS
 import org.futo.inputmethod.latin.uix.RECAPITALIZE_TOUCHED_WORD
 import org.futo.inputmethod.latin.settings.LongPressKey
 import org.futo.inputmethod.latin.settings.LongPressKeyLayoutSetting
@@ -861,6 +862,11 @@ val KeyboardSettingsMenu = UserSettingsMenu(
             subtitle = R.string.key_hints_subtitle,
             style = NavigationItemStyle.Misc,
             navigateTo = "keyhints"
+        ),
+        userSettingToggleDataStore(
+            title = R.string.keyboard_settings_case_form_suggestions,
+            subtitle = R.string.keyboard_settings_case_form_suggestions_subtitle,
+            setting = CASE_FORM_SUGGESTIONS
         ),
         userSettingToggleDataStore(
             title = R.string.keyboard_settings_recapitalize_touched_word,
