@@ -147,6 +147,12 @@ val HomeScreenLite = UserSettingsMenu(
         //}
 
         userSettingNavigationItem(
+            title = R.string.tpdi_features_title,
+            style = NavigationItemStyle.MiscNoArrow,
+            navigateTo = TpdiFeaturesMenu.navPath,
+        ),
+
+        userSettingNavigationItem(
             title = R.string.misc_settings_title,
             style = NavigationItemStyle.MiscNoArrow,
             navigateTo = "misc",

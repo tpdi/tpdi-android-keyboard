@@ -232,6 +232,7 @@ public final class InputLogic {
      * @param settingsValues the current settings values
      */
     public void startInput(final String combiningSpec, final SettingsValues settingsValues) {
+        StickyModifiers.clear();
         mEnteredText = null;
         mWordBeingCorrectedByCursor = null;
         numCursorUpdatesSinceInputStarted = 0;
@@ -921,6 +922,10 @@ public final class InputLogic {
             return;
         }
 
+        if (StickyModifiers.handleKey(this, event, inputTransaction)) {
+            return;
+        }
+
         if (SpecialKeyEvents.handle(this, event, inputTransaction)) {
             return;
         }
@@ -932,6 +937,22 @@ public final class InputLogic {
                 inputTransaction.setDidAffectContents();
                 break;
             case Constants.CODE_SHIFT:
+                final SuggestedWords caseForms = CaseFormSuggestions.onShift(
+                        mWordComposer.isComposingWord() ? mWordComposer.getTypedWord() : null,
+                        mConnection.getExpectedSelectionStart(), mConnection.hasSelection(),
+                        inputTransaction.mSettingsValues.mLocale);
+                if (caseForms != null) {
+                    mSuggestionStripViewAccessor.showSuggestionStrip(caseForms);
+                    setSuggestedWords(caseForms);
+                    inputTransaction.requireShiftUpdate(InputTransaction.SHIFT_UPDATE_NOW);
+                    break;
+                }
+                if (RecapitalizeTouchedWord.selectWordIfTouching(mConnection,
+                        inputTransaction.mSettingsValues, currentKeyboardScriptId)) {
+                    // Right after typing, recapitalization is held off until the cursor moves;
+                    // we just selected the word ourselves, so allow it now.
+                    mRecapitalizeStatus.enable();
+                }
                 performRecapitalization(inputTransaction.mSettingsValues);
                 inputTransaction.requireShiftUpdate(InputTransaction.SHIFT_UPDATE_NOW);
                 if (mSuggestedWords.isPrediction()) {
@@ -990,6 +1011,7 @@ public final class InputLogic {
             case Constants.CODE_TO_ALPHA_1_LAYOUT:
             case Constants.CODE_TO_ALPHA_2_LAYOUT:
             case Constants.CODE_TO_ALPHA_3_LAYOUT:
+            case Constants.CODE_TO_ALT_3_LAYOUT:
                 // Handled in KeyboardState
                 break;
             default:
@@ -1010,6 +1032,9 @@ public final class InputLogic {
     private void handleNonFunctionalEvent(final Event event,
             final InputTransaction inputTransaction) {
         inputTransaction.setDidAffectContents();
+        if (StickyModifiers.handleCharacter(this, event, inputTransaction)) {
+            return;
+        }
         switch (event.mCodePoint) {
             case Constants.CODE_TAB:
                 if (!SpecialKeyEvents.handleTab(this, inputTransaction)) {

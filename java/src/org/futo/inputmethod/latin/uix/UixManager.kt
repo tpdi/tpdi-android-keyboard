@@ -274,6 +274,18 @@ class UixActionKeyboardManager(val uixManager: UixManager, val latinIME: LatinIM
         return latinIME.lifecycleScope
     }
 
+    override fun onWindowLayoutModeChanged() {
+        uixManager.refreshWindowLayoutMode()
+    }
+
+    override fun setKeyboardCollapsed(collapsed: Boolean) {
+        uixManager.setWindowKeyboardCollapsed(collapsed)
+    }
+
+    override fun createUnroutedInputTransaction(): ActionInputTransaction {
+        return latinIME.imeManager.createUnroutedInputTransaction()
+    }
+
     override fun createInputTransaction(): ActionInputTransaction {
         return latinIME.imeManager.createInputTransaction()
     }
@@ -603,6 +615,18 @@ class UixManager(private val latinIME: LatinIME) {
     private val keyboardManagerForAction = UixActionKeyboardManager(this, latinIME)
 
     private var mainKeyboardHidden = mutableStateOf(false)
+    private val windowKeyboardCollapsed = mutableStateOf(false)
+
+    fun refreshWindowLayoutMode() {
+        mainKeyboardHidden.value = currWindowActionWindow.value?.onlyShowAboveKeyboard == false
+        windowKeyboardCollapsed.value = false
+        if(!mainKeyboardHidden.value) latinIME.onKeyboardShown()
+    }
+
+    fun setWindowKeyboardCollapsed(collapsed: Boolean) {
+        windowKeyboardCollapsed.value = collapsed
+        if(!collapsed) latinIME.onKeyboardShown()
+    }
 
     fun getCurrentLayoutName(): String =
         getPrimaryLayoutOverride(latinIME.currentInputEditorInfo)
@@ -750,6 +774,7 @@ class UixManager(private val latinIME: LatinIME) {
         assert(action.windowImpl != null)
 
         currWindowAction.value = action
+        MicKeyBlueWhenListening.onWindowChanged(latinIME, action)
 
         if (persistentStates[action] == null) {
             persistentStates[action] = action.persistentState?.let { it(keyboardManagerForAction) }
@@ -758,6 +783,7 @@ class UixManager(private val latinIME: LatinIME) {
         currWindowActionWindow.value = (action.windowImpl!!)(keyboardManagerForAction, persistentStates[action])
 
         mainKeyboardHidden.value = currWindowActionWindow.value?.onlyShowAboveKeyboard == false
+        windowKeyboardCollapsed.value = false
 
         if(action.keepScreenAwake) {
             latinIME.window.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -782,9 +808,11 @@ class UixManager(private val latinIME: LatinIME) {
         }
 
         currWindowAction.value = null
+        MicKeyBlueWhenListening.onWindowChanged(latinIME, null)
         currWindowActionWindow.value = null
 
         mainKeyboardHidden.value = false
+        windowKeyboardCollapsed.value = false
 
         latinIME.onKeyboardShown()
 
@@ -853,7 +881,9 @@ class UixManager(private val latinIME: LatinIME) {
                     null
                 }
 
-                if(!needToUseExpandableSuggestionUi) {
+                if(windowImpl.overridesSuggestionBar) {
+                    windowImpl.SuggestionBarOverride()
+                } else if(!needToUseExpandableSuggestionUi) {
                     CollapsibleSuggestionsBar(
                         onCollapse = { toggleExpandAction() },
                         onClose = { closeActionWindow() },
@@ -1285,6 +1315,7 @@ class UixManager(private val latinIME: LatinIME) {
                     val needToUseExpandableSuggestionUi =
                         expandableSuggestionCfg.value.useExpandableUi && suggestedWords.value?.size()?.equals(0) != true
                                 && mainKeyboardHidden.value == false
+                                && currWindowActionWindow.value?.overridesSuggestionBar != true
                                 && (quickClipState.value == null || inlineStuffHiddenByTyping.value)
                                 && currentNotice.value == null
                                 && (inlineSuggestions.value.isEmpty() || inlineStuffHiddenByTyping.value)
@@ -1341,7 +1372,13 @@ class UixManager(private val latinIME: LatinIME) {
                                 }
                             }
                             .absoluteOffset { IntOffset(0, keyboardViewOffset.intValue) },
-                            hidden = mainKeyboardHidden.value)
+                            hidden = mainKeyboardHidden.value || windowKeyboardCollapsed.value)
+
+                        currWindowActionWindow.value?.let { window ->
+                            if (window.overridesSuggestionBar) {
+                                Box(Modifier.matchParentSize()) { window.KeyboardOverlay() }
+                            }
+                        }
                     }
 
                     if(latinIME.size.value !is FloatingKeyboardSize) {
@@ -1497,6 +1534,11 @@ class UixManager(private val latinIME: LatinIME) {
         if(alt) {
             onActionAltActivatedInternal(action)
         } else {
+            if (currWindowActionWindow.value?.interceptActionKey(action) == true) return
+
+            if (currWindowAction.value == action && currWindowActionWindow.value?.onActionKeyPressedAgain() == true) {
+                return
+            }
             if (currWindowAction.value != null && action.windowImpl != null) {
                 closeActionWindow()
             }

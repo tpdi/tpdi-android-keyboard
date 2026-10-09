@@ -62,6 +62,7 @@ import org.futo.inputmethod.engine.general.WordLearner
 import org.futo.inputmethod.latin.SuggestedWords.SuggestedWordInfo
 import org.futo.inputmethod.latin.common.Constants
 import org.futo.inputmethod.latin.settings.Settings
+import org.futo.inputmethod.latin.uix.KeyHintsRedraw
 import org.futo.inputmethod.latin.uix.BasicThemeProvider
 import org.futo.inputmethod.latin.uix.DataStoreHelper
 import org.futo.inputmethod.latin.uix.DynamicThemeProvider
@@ -83,6 +84,12 @@ import org.futo.inputmethod.latin.uix.forceUnlockDatastore
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.inputlogic.SpecialKeyEvents
 import org.futo.inputmethod.latin.uix.SEND_KEY_CODES_RATHER_THAN_TEXT
+import org.futo.inputmethod.latin.inputlogic.StickyModifiers
+import org.futo.inputmethod.latin.uix.STICKY_MODIFIER_KEYS
+import org.futo.inputmethod.latin.inputlogic.CaseFormSuggestions
+import org.futo.inputmethod.latin.inputlogic.RecapitalizeTouchedWord
+import org.futo.inputmethod.latin.uix.CASE_FORM_SUGGESTIONS
+import org.futo.inputmethod.latin.uix.RECAPITALIZE_TOUCHED_WORD
 import org.futo.inputmethod.latin.uix.getSettingBlocking
 import org.futo.inputmethod.latin.uix.getSettingFlow
 import org.futo.inputmethod.latin.uix.isDirectBootUnlocked
@@ -416,6 +423,12 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
                 SpecialKeyEvents.onSettingChanged(it)
             }
         }
+        StickyModifiers.onSettingChanged(getSettingBlocking(STICKY_MODIFIER_KEYS))
+        launchJob { getSettingFlow(STICKY_MODIFIER_KEYS).collect { StickyModifiers.onSettingChanged(it) } }
+        CaseFormSuggestions.onSettingChanged(getSettingBlocking(CASE_FORM_SUGGESTIONS))
+        launchJob { getSettingFlow(CASE_FORM_SUGGESTIONS).collect { CaseFormSuggestions.onSettingChanged(it) } }
+        RecapitalizeTouchedWord.onSettingChanged(getSettingBlocking(RECAPITALIZE_TOUCHED_WORD))
+        launchJob { getSettingFlow(RECAPITALIZE_TOUCHED_WORD).collect { RecapitalizeTouchedWord.onSettingChanged(it) } }
 
         scheduleUpdateCheckingJob(this)
         launchJob { uixManager.showUpdateNoticeIfNeeded() }
@@ -479,6 +492,10 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
             dataStore.data.collect {
                 CrashLoggingApplication.logPreferences(it)
             }
+        }
+
+        launchJob {
+            KeyHintsRedraw.watch(this@LatinIME) { latinIMELegacy.mKeyboardSwitcher?.mainKeyboardView?.invalidateAllKeys() }
         }
 
         // Listen to size changes

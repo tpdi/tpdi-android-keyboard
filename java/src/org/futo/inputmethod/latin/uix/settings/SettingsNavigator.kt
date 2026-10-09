@@ -40,12 +40,14 @@ import org.futo.inputmethod.latin.uix.settings.pages.HelpMenu
 import org.futo.inputmethod.latin.uix.settings.pages.HomeScreen
 import org.futo.inputmethod.latin.uix.settings.pages.HomeScreenLite
 import org.futo.inputmethod.latin.uix.settings.pages.KASROZMenu
+import org.futo.inputmethod.latin.uix.settings.pages.KeyHintsScreen
 import org.futo.inputmethod.latin.uix.settings.pages.KeyboardAndTypingScreen
 import org.futo.inputmethod.latin.uix.settings.pages.KeyboardSettingsMenu
 import org.futo.inputmethod.latin.uix.settings.pages.LanguageSettingsLite
 import org.futo.inputmethod.latin.uix.settings.pages.LanguagesScreen
 import org.futo.inputmethod.latin.uix.settings.pages.LongPressMenu
 import org.futo.inputmethod.latin.uix.settings.pages.MiscMenu
+import org.futo.inputmethod.latin.uix.settings.pages.TpdiFeaturesMenu
 import org.futo.inputmethod.latin.uix.settings.pages.NumberRowSettingMenu
 import org.futo.inputmethod.latin.uix.settings.pages.PaymentScreen
 import org.futo.inputmethod.latin.uix.settings.pages.PaymentThankYouScreen
@@ -109,6 +111,7 @@ val SettingsMenus = listOf(
     ActionsScreen,
     HelpMenu,
     MiscMenu,
+    TpdiFeaturesMenu,
     CreditsScreenLite,
     IMESettingsMenu
 ) + AllActions.mapNotNull { it.settingsMenu } + SettingsByLanguage.values
@@ -171,6 +174,7 @@ fun SettingsNavigator(
             }
             composable("keyboardAndTyping") { KeyboardAndTypingScreen(navController) }
             composable("resize") { ResizeScreen(navController) }
+            composable("keyhints") { KeyHintsScreen() }
             composable("themes") { ThemeScreen(navController) }
             composable("developer") { DeveloperScreen(navController) }
             composable("devtextedit") { DevEditTextVariationsScreen(navController) }

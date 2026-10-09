@@ -40,6 +40,21 @@ interface ActionInputTransaction {
     fun updatePartial(text: String)
     fun commit(text: String)
     fun cancel()
+
+    /**
+     * Deletes [length] characters immediately before the cursor, directly via the
+     * InputConnection -- the same path [commit] used to insert them. Deliberately does NOT go
+     * through the legacy backspace/InputLogic pipeline (KeyboardManagerForAction.backspace()),
+     * since that pipeline keeps its own cached notion of the surrounding text which never
+     * learned about anything committed through this transaction, and so can't be trusted here.
+     */
+    fun deleteTextBeforeCursor(length: Int)
+
+    /** Reads the text currently before the cursor, live (unlike the [textContext] snapshot). */
+    fun liveTextBeforeCursor(length: Int): String?
+
+    /** Ends any composing region, leaving its text in place. */
+    fun finishComposingText()
 }
 
 data class DialogRequestItem(
@@ -57,6 +72,15 @@ interface KeyboardManagerForAction {
     fun getLifecycleScope(): LifecycleCoroutineScope
 
     fun createInputTransaction(): ActionInputTransaction
+
+    /** Collapses the keyboard to nothing, leaving the bar above it, or brings it back. Reset when the window closes. */
+    fun setKeyboardCollapsed(collapsed: Boolean) {}
+
+    /** The open window changed what it needs from the keyboard (onlyShowAboveKeyboard); re-apply it. */
+    fun onWindowLayoutModeChanged() {}
+
+    /** Like [createInputTransaction] but typing keeps working normally while it is open. */
+    fun createUnroutedInputTransaction(): ActionInputTransaction
 
     fun typeText(v: String)
     fun typeTextSurroundedByWhitespace(v: String)
@@ -132,6 +156,16 @@ abstract class ActionWindow {
     open val fixedWindowHeight: Dp?
         get() = null
 
+    /** If true, [SuggestionBarOverride] replaces the suggestion bar and [KeyboardOverlay] is drawn over the keys. */
+    open val overridesSuggestionBar: Boolean
+        get() = false
+
+    @Composable
+    open fun SuggestionBarOverride() {}
+
+    @Composable
+    open fun KeyboardOverlay() {}
+
     @Composable
     abstract fun windowName(): String
 
@@ -149,6 +183,18 @@ abstract class ActionWindow {
     open fun close(): CloseResult {
         return CloseResult.Default
     }
+
+    /**
+     * The key that opened this window was pressed again while it is open. Return true to handle it
+     * (for example by stopping a recording); false, the default, closes the window and opens it again.
+     */
+    open fun onActionKeyPressedAgain(): Boolean = false
+
+    /**
+     * A key for [action] was pressed while this window is open. Return true to handle it here
+     * (the key then does nothing else); false, the default, lets it act as usual.
+     */
+    open fun interceptActionKey(action: Action): Boolean = false
 }
 
 interface PersistentActionState {

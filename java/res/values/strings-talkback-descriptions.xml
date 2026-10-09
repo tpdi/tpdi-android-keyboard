@@ -82,6 +82,7 @@
     <string name="spoken_description_to_alt_0">Page 1</string>
     <string name="spoken_description_to_alt_1">Page 2</string>
     <string name="spoken_description_to_alt_2">Page 3</string>
+    <string name="spoken_description_to_alt_3">Page 4</string>
 
     <!-- Spoken feedback after turning "Shift" mode on. -->
     <string name="spoken_description_shiftmode_on">Shift enabled</string>

@@ -38,6 +38,7 @@ import org.futo.inputmethod.keyboard.internal.TimerProxy;
 import org.futo.inputmethod.keyboard.internal.TypingTimeRecorder;
 import org.futo.inputmethod.latin.R;
 import org.futo.inputmethod.latin.common.Constants;
+import org.futo.inputmethod.latin.inputlogic.StickyModifiers;
 import org.futo.inputmethod.latin.common.CoordinateUtils;
 import org.futo.inputmethod.latin.common.InputPointers;
 import org.futo.inputmethod.latin.define.DebugFlags;
@@ -1165,6 +1166,10 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
                 mMoreKeysPanel.onUpEvent(translatedX, translatedY, mPointerId, eventTime);
             }
             dismissMoreKeysPanel();
+            // The touch started recording a gesture stroke before the long press fired; the early
+            // return skips the normal end-of-gesture cleanup, leaving the shared batch state stale.
+            Log.d(TAG, "SwipeState: more-keys up, resetting batch input state");
+            mBatchInputArbiter.onCancelBatchInput();
             return;
         }
 
@@ -1232,6 +1237,11 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
             return;
         }
         final int code = key.getCode();
+        if (StickyModifiers.onLongPress(code)) {
+            cancelKeyTracking();
+            sListener.onReleaseKey(code, false /* withSliding */);
+            return;
+        }
         if (code == Constants.CODE_SPACE || code == Constants.CODE_LANGUAGE_SWITCH) {
             int spacebarMode = Settings.getInstance().getCurrent().mSpacebarHoldMode;
             if(spacebarMode == Settings.SPACEBAR_MODE_CURSOR) {
@@ -1341,7 +1351,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         sTimerProxy.cancelLongPressShiftKeyTimer();
         if (sInGesture) return;
         if (key == null) return;
-        if (!key.isLongPressEnabled()) return;
+        if (!key.isLongPressEnabled() && !StickyModifiers.isModifierKey(key.getCode())) return;
         // Caveat: Please note that isLongPressEnabled() can be true even if the current key
         // doesn't have its more keys. (e.g. spacebar, globe key) If we are in the dragging finger
         // mode, we will disable long press timer of such key.

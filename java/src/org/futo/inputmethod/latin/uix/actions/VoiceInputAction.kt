@@ -41,8 +41,18 @@ import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_MIC_KEY_TOGGLE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
+import androidx.compose.ui.unit.Dp
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_NO_CIRCLE_OVER_KEYS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_TRIM_TRAILING_SILENCE
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_UNDO_KEY
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
 import org.futo.inputmethod.latin.uix.settings.SettingsActivity
@@ -147,7 +157,9 @@ private class VoiceInputActionWindow(
         shouldPlaySounds = enableSound
 
         return RecognizerViewSettings(
-            shouldShowInlinePartialResult = true,
+            // Dictating over the keyboard puts the words straight into the text field, so the bubble
+            // doesn't repeat them.
+            shouldShowInlinePartialResult = !context.getSetting(VOICE_INPUT_OVER_KEYBOARD),
             shouldShowVerboseFeedback = verboseFeedback,
             shouldAnimateBubble = animateBubble,
             modelRunConfiguration = MultiModelRunConfiguration(
@@ -166,7 +178,9 @@ private class VoiceInputActionWindow(
                 useVADAutoStop = useVAD,
                 useSegmentedResults = useSegmentedResults,
                 segmentPauseMs = segmentPauseMs,
-                useNoiseGate = context.getSetting(VOICE_INPUT_NOISE_GATE)
+                useClickGestures = context.getSetting(VOICE_INPUT_CLICK_GESTURES),
+                useNoiseGate = context.getSetting(VOICE_INPUT_NOISE_GATE),
+                trimTrailingSilence = context.getSetting(VOICE_INPUT_TRIM_TRAILING_SILENCE)
             )
         )
     }
@@ -201,7 +215,42 @@ private class VoiceInputActionWindow(
         recognizerView.start()
     }
 
-    private var inputTransaction = manager.createInputTransaction()
+    private val session = VoiceOverKeyboardSession(manager, context.getSetting(VOICE_INPUT_OVER_KEYBOARD))
+    private val inlineMode: Boolean get() = session.inlineMode
+    private var inputTransaction by session::transaction
+    private val switchModeButtons = context.getSetting(VOICE_INPUT_SWITCH_MODE_BUTTONS)
+    private val hideKeyboardButton = context.getSetting(VOICE_INPUT_HIDE_KEYBOARD_BUTTON)
+    private val showActionButtons = context.getSetting(VOICE_INPUT_ACTION_BUTTONS)
+    private val circleOverKeys = !context.getSetting(VOICE_INPUT_NO_CIRCLE_OVER_KEYS)
+
+    override fun segmentStarted() = session.segmentStarted()
+
+    override val onlyShowAboveKeyboard: Boolean get() = inlineMode
+    override val fixedWindowHeight: Dp? get() = if (inlineMode) 0.dp else null
+    override val showCloseButton: Boolean get() = !inlineMode
+    override val overridesSuggestionBar: Boolean get() = inlineMode
+
+    @Composable
+    override fun SuggestionBarOverride() {
+        VoiceListeningBar(
+            circle = { recognizerView.value?.Content(circleOnly = true) },
+            onUndo = { session.undoLast() },
+            onStop = { recognizerView.value?.finish() ?: manager.closeActionWindow() },
+            onSwitchToWindow = if (switchModeButtons) ({ session.switchMode(false) }) else null,
+            keyboardCollapsed = if (hideKeyboardButton) session.keyboardCollapsed else null,
+            onToggleKeyboard = {
+                session.keyboardCollapsed = !session.keyboardCollapsed
+                manager.setKeyboardCollapsed(session.keyboardCollapsed)
+            }
+        )
+    }
+
+    @Composable
+    override fun KeyboardOverlay() {
+        if (circleOverKeys) {
+            VoiceVolumeCircleOverlay { recognizerView.value?.Content(circleOnly = true) }
+        }
+    }
 
     @Composable
     private fun ModelDownloader(modelException: ModelDoesNotExistException) {
@@ -215,6 +264,7 @@ private class VoiceInputActionWindow(
 
     @Composable
     override fun WindowContents(keyboardShown: Boolean) {
+        if (inlineMode) return
         Box(modifier = Modifier
             .fillMaxSize()
             .clickable(
@@ -233,15 +283,45 @@ private class VoiceInputActionWindow(
                     recognizerView.value != null -> recognizerView.value!!.Content()
                 }
             }
+
+            if (showActionButtons && recognizerView.value != null) {
+                VoiceActionButtons(
+                    onUndo = { session.undoLast() },
+                    onEnter = { session.pressEnter() },
+                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp)
+                )
+            }
+
+            if (switchModeButtons && recognizerView.value != null) {
+                VoiceSwitchToKeyboardButton(
+                    onClick = { session.switchMode(true) },
+                    modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)
+                )
+            }
         }
     }
 
     override fun close(): CloseResult {
+        session.close()
         inputTransaction.cancel()
         runBlocking { initJob.cancelAndJoin() }
         recognizerView.value?.cancel()
         state.modelManager.cancelAll()
         return CloseResult.Default
+    }
+
+    // With the setting on, the keyboard's Undo key undoes the last dictated segment, like the bar's Undo.
+    override fun interceptActionKey(action: Action): Boolean {
+        if (action !== UndoAction || !context.getSetting(VOICE_INPUT_UNDO_KEY)) return false
+        session.undoLast()
+        return true
+    }
+
+    // With the setting on, pressing the microphone key again stops the recording and transcribes it.
+    override fun onActionKeyPressedAgain(): Boolean {
+        if (!context.getSetting(VOICE_INPUT_MIC_KEY_TOGGLE)) return false
+        recognizerView.value?.finish() ?: return false
+        return true
     }
 
     private var wasFinished = false
@@ -284,13 +364,13 @@ private class VoiceInputActionWindow(
     override fun segmentResult(result: String) {
         manager.getLifecycleScope().launch(Dispatchers.Main) {
             val sanitized = ModelOutputSanitizer.sanitize(result, inputTransaction.textContext)
-            if (sanitized.isNotBlank()) {
-                // Committed for good, no later revision: start a fresh transaction so the
-                // next segment's partial/commit calls don't touch what's already locked in.
-                inputTransaction.commit(sanitized.trimEnd() + " ")
-                inputTransaction = manager.createInputTransaction()
-            }
+            if (sanitized.isNotBlank()) session.commitSegment(sanitized.trimEnd() + " ") else session.segmentEmpty()
         }
+    }
+
+    override fun clickGesture(clickCount: Int) {
+        // Any burst of two or more clicks is one Enter.
+        if (clickCount >= 2) session.pressEnter()
     }
 
     override fun partialResult(result: String) {

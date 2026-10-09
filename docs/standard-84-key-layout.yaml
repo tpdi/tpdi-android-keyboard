@@ -1,0 +1,99 @@
+# An 84-key style keyboard (75% layout with the navigation column on the right). Not bundled in
+# the app: load it as a custom layout (Load from file in the custom layout editor).
+# Top row: Esc, F1-F12, NmLk, ScrLk, Del (long press for Ins). It sits in the layout's "number row"
+# slot, which the loader requires first; the number keys are the row below it.
+# Ctrl, Win, Alt, the right Alt (AltGr), Fn, right Ctrl, Caps and NmLk/ScrLk are sticky modifiers
+# (turn on "Sticky modifier keys" in Typing: tap to latch for the next key, long press to lock).
+# Home, End, PgUp, PgDn and the right Ctrl share one width so they line up in a column.
+# Esc, F-keys, Home, End, PgUp, PgDn, Del, Ins need "Send key codes rather than
+# text" for the real key events.
+name: 84-key
+bottomRowWidthMode: Identical
+overrideWidths: {Custom1: 0.0667}
+rows:
+  - numbers:
+    - {type: base, spec: "Esc|!code/key_escape", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "F1|!code/key_f1", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "F2|!code/key_f2", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "F3|!code/key_f3", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "F4|!code/key_f4", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "F5|!code/key_f5", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "F6|!code/key_f6", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "F7|!code/key_f7", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "F8|!code/key_f8", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "F9|!code/key_f9", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "F10|!code/key_f10", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "F11|!code/key_f11", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "F12|!code/key_f12", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "NmLk|!code/key_numlock", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "ScrLk|!code/key_scrolllock", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "Del|!code/key_forward_delete", moreKeys: "Ins|!code/key_insert", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+  - letters:
+    - {type: case, normal: "`", shifted: "~"}
+    - {type: case, normal: "1", shifted: "!"}
+    - {type: case, normal: "2", shifted: "@"}
+    - {type: case, normal: "3", shifted: "#"}
+    - {type: case, normal: "4", shifted: "$"}
+    - {type: case, normal: "5", shifted: "%"}
+    - {type: case, normal: "6", shifted: "^"}
+    - {type: case, normal: "7", shifted: "&"}
+    - {type: case, normal: "8", shifted: "*"}
+    - {type: case, normal: "9", shifted: "("}
+    - {type: case, normal: "0", shifted: ")"}
+    - {type: case, normal: "-", shifted: "_"}
+    - {type: case, normal: "=", shifted: "+"}
+    - $delete
+    - {type: base, spec: "Home|!code/key_home", attributes: {style: Functional, moreKeyMode: OnlyExplicit, width: Custom1}}
+  - letters:
+    - {type: base, spec: "Tab|!code/key_tab", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - q
+    - w
+    - e
+    - r
+    - t
+    - y
+    - u
+    - i
+    - o
+    - p
+    - {type: case, normal: "[", shifted: "{"}
+    - {type: case, normal: "]", shifted: "}"}
+    - {type: case, normal: "\\", shifted: "|"}
+    - {type: base, spec: "PgUp|!code/key_page_up", attributes: {style: Functional, moreKeyMode: OnlyExplicit, width: Custom1}}
+  - letters:
+    - {type: base, spec: "Caps|!code/key_capslock", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - a
+    - s
+    - d
+    - f
+    - g
+    - h
+    - j
+    - k
+    - l
+    - {type: case, normal: ";", shifted: ":"}
+    - {type: case, normal: "'", shifted: "\""}
+    - $enter
+    - {type: base, spec: "PgDn|!code/key_page_down", attributes: {style: Functional, moreKeyMode: OnlyExplicit, width: Custom1}}
+  - letters:
+    - $shift
+    - z
+    - x
+    - c
+    - v
+    - b
+    - n
+    - m
+    - {type: case, normal: ",", shifted: "<"}
+    - {type: case, normal: ".", shifted: ">"}
+    - {type: case, normal: "/", shifted: "?"}
+    - $shift
+    - {type: base, spec: "End|!code/key_end", attributes: {style: Functional, moreKeyMode: OnlyExplicit, width: Custom1}}
+  - bottom:
+    - {type: base, spec: "Ctrl|!code/key_ctrl", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "Win|!code/key_meta", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "Alt|!code/key_alt", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - $space
+    - {type: base, spec: "Alt|!code/key_altgr", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "Fn|!code/key_fn", attributes: {style: Functional, moreKeyMode: OnlyExplicit}}
+    - {type: base, spec: "Ctrl|!code/key_ctrl_right", attributes: {style: Functional, moreKeyMode: OnlyExplicit, width: Custom1}}

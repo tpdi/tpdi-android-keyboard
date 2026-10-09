@@ -19,6 +19,7 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.Build
+import org.futo.inputmethod.latin.inputlogic.StickyModifiers
 import android.text.TextUtils
 import androidx.collection.MutableIntIntMap
 import androidx.collection.mutableIntIntMapOf
@@ -355,10 +356,14 @@ data class Key(
         }
     }
 
+    /** A latched or locked sticky modifier key is drawn as pressed. */
+    private val showPressed: Boolean
+        get() = mPressed || StickyModifiers.isLatched(code)
+
     fun selectTextColor(provider: DynamicThemeProvider, params: KeyDrawParams): Int {
         return provider.getKeyStyleDescriptor(visualStyle).let { style ->
             when {
-                mPressed -> style.foregroundColorPressed
+                showPressed -> style.foregroundColorPressed
                 else -> style.foregroundColor
             }
         }
@@ -371,7 +376,7 @@ data class Key(
                     style.backgroundDrawableFlicking?.get(mFlickDirection)
                 }
 
-                mPressed -> style.backgroundDrawablePressed
+                showPressed -> style.backgroundDrawablePressed
                 else -> style.backgroundDrawable
             }
         }

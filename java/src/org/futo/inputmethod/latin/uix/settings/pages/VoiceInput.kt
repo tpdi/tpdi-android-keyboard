@@ -9,6 +9,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.content.getSystemService
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.ANIMATE_BUBBLE
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_INLINE_PARTIAL_RESULT
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_MADE_UP_TEXT
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_STOCK_PHRASES
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_NO_CIRCLE_OVER_KEYS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
 import org.futo.inputmethod.latin.uix.AUDIO_FOCUS
 import org.futo.inputmethod.latin.uix.CAN_EXPAND_SPACE
 import org.futo.inputmethod.latin.uix.DISALLOW_SYMBOLS
@@ -19,12 +28,17 @@ import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_SYSTEM_VOICE_INPUT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_MIC_KEY_TOGGLE
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_MIC_KEY_BLUE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_UNDO_KEY
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_TRIM_TRAILING_SILENCE
 import org.futo.inputmethod.latin.uix.settings.DropDownPickerSettingItem
 import org.futo.inputmethod.latin.uix.settings.NavigationItemStyle
 import org.futo.inputmethod.latin.uix.settings.SettingSlider
 import org.futo.inputmethod.latin.uix.settings.Tip
+import org.futo.inputmethod.latin.uix.settings.SettingToggleDataStore
 import org.futo.inputmethod.latin.uix.settings.UserSetting
 import org.futo.inputmethod.latin.uix.settings.UserSettingsMenu
 import org.futo.inputmethod.latin.uix.settings.useDataStore
@@ -128,6 +142,12 @@ val VoiceInputMenu = UserSettingsMenu(
             setting = ENABLE_SOUND
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_filter_made_up_text,
+            subtitle = R.string.voice_input_settings_filter_made_up_text_subtitle,
+            setting = VOICE_INPUT_FILTER_MADE_UP_TEXT
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
         /*
         userSettingToggleDataStore(
             title = R.string.voice_input_settings_verbose_progress,
@@ -172,15 +192,99 @@ val VoiceInputMenu = UserSettingsMenu(
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(
+            title = R.string.voice_input_settings_filter_stock_phrases,
+            subtitle = R.string.voice_input_settings_filter_stock_phrases_subtitle,
+            setting = VOICE_INPUT_FILTER_STOCK_PHRASES
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_action_buttons,
+            subtitle = R.string.voice_input_settings_action_buttons_subtitle,
+            setting = VOICE_INPUT_ACTION_BUTTONS
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
             title = R.string.voice_input_settings_noise_gate,
             subtitle = R.string.voice_input_settings_noise_gate_subtitle,
             setting = VOICE_INPUT_NOISE_GATE
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(
+            title = R.string.voice_input_settings_trim_trailing_silence,
+            subtitle = R.string.voice_input_settings_trim_trailing_silence_subtitle,
+            setting = VOICE_INPUT_TRIM_TRAILING_SILENCE
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_undo_key,
+            subtitle = R.string.voice_input_settings_undo_key_subtitle,
+            setting = VOICE_INPUT_UNDO_KEY
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_mic_key_toggle,
+            subtitle = R.string.voice_input_settings_mic_key_toggle_subtitle,
+            setting = VOICE_INPUT_MIC_KEY_TOGGLE
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_mic_key_blue,
+            subtitle = R.string.voice_input_settings_mic_key_blue_subtitle,
+            setting = VOICE_INPUT_MIC_KEY_BLUE
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
             title = R.string.voice_input_settings_segmented_results,
             subtitle = R.string.voice_input_settings_segmented_results_subtitle,
             setting = VOICE_INPUT_SEGMENTED_RESULTS
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        UserSetting(
+            name = R.string.voice_input_settings_no_circle_over_keys,
+            subtitle = R.string.voice_input_settings_no_circle_over_keys_subtitle,
+            component = {
+                // Keeps its stored value but can't be changed while dictating over the keyboard
+                // is off; the original subtitle stays and a note is added underneath.
+                val overKeyboard = useDataStoreValue(VOICE_INPUT_OVER_KEYBOARD)
+                val base = stringResource(R.string.voice_input_settings_no_circle_over_keys_subtitle)
+                SettingToggleDataStore(
+                    title = stringResource(R.string.voice_input_settings_no_circle_over_keys),
+                    setting = VOICE_INPUT_NO_CIRCLE_OVER_KEYS,
+                    subtitle = if (overKeyboard) base else base + "\n" +
+                            stringResource(R.string.voice_input_settings_needs_over_keyboard_note),
+                    disabled = !overKeyboard
+                )
+            }
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_over_keyboard,
+            subtitle = R.string.voice_input_settings_over_keyboard_subtitle,
+            setting = VOICE_INPUT_OVER_KEYBOARD
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_switch_mode_buttons,
+            subtitle = R.string.voice_input_settings_switch_mode_buttons_subtitle,
+            setting = VOICE_INPUT_SWITCH_MODE_BUTTONS
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        UserSetting(
+            name = R.string.voice_input_settings_hide_keyboard_button,
+            subtitle = R.string.voice_input_settings_hide_keyboard_button_subtitle,
+            component = {
+                // Keeps its stored value but can't be changed while dictating over the keyboard
+                // is off; the original subtitle stays and a note is added underneath.
+                val overKeyboard = useDataStoreValue(VOICE_INPUT_OVER_KEYBOARD)
+                val base = stringResource(R.string.voice_input_settings_hide_keyboard_button_subtitle)
+                SettingToggleDataStore(
+                    title = stringResource(R.string.voice_input_settings_hide_keyboard_button),
+                    setting = VOICE_INPUT_HIDE_KEYBOARD_BUTTON,
+                    subtitle = if (overKeyboard) base else base + "\n" +
+                            stringResource(R.string.voice_input_settings_hide_button_needs_over_keyboard_note),
+                    disabled = !overKeyboard
+                )
+            }
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         UserSetting(
@@ -201,9 +305,21 @@ val VoiceInputMenu = UserSettingsMenu(
         }.copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(
+            title = R.string.voice_input_settings_click_gestures,
+            subtitle = R.string.voice_input_settings_click_gestures_subtitle,
+            setting = VOICE_INPUT_CLICK_GESTURES
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
             title = R.string.voice_input_settings_animate_bubble,
             subtitle = R.string.voice_input_settings_animate_bubble_subtitle,
             setting = ANIMATE_BUBBLE
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_inline_partial_result,
+            subtitle = R.string.voice_input_settings_inline_partial_result_subtitle,
+            setting = VOICE_INPUT_INLINE_PARTIAL_RESULT
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingNavigationItem(

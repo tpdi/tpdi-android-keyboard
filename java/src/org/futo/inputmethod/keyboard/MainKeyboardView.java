@@ -55,6 +55,7 @@ import org.futo.inputmethod.latin.AudioAndHapticFeedbackManager;
 import org.futo.inputmethod.latin.Subtypes;
 import org.futo.inputmethod.latin.uix.DynamicThemeProvider;
 import org.futo.inputmethod.latin.R;
+import org.futo.inputmethod.latin.inputlogic.StickyModifiers;
 import org.futo.inputmethod.latin.SuggestedWords;
 import org.futo.inputmethod.latin.common.Constants;
 import org.futo.inputmethod.latin.common.CoordinateUtils;
@@ -591,11 +592,20 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         installPreviewPlacerView();
+        // Redraw the key labels when a sticky modifier is latched or released.
+        StickyModifiers.setOnChanged(() -> post(() -> {
+            final Keyboard keyboard = getKeyboard();
+            if (keyboard != null) {
+                for (final Key key : keyboard.getSortedKeys()) key.getThemeCache().clear();
+            }
+            invalidateAllKeys();
+        }));
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        StickyModifiers.setOnChanged(null);
         mDrawingPreviewPlacerView.removeAllViews();
     }
 

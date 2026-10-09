@@ -64,6 +64,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterVertically
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -539,6 +541,19 @@ fun RowScope.SuggestionItems(words: SuggestedWords, onClick: (i: Int) -> Unit, o
     }
 }
 
+/** Where the voice input action's icon was last drawn in the action bar (window x, px). */
+object ActionBarMicPosition {
+    @Volatile
+    var centerX: Float? = null
+}
+
+private fun Modifier.trackVoiceIconPosition(action: Action): Modifier =
+    if (action === org.futo.inputmethod.latin.uix.actions.VoiceInputAction) {
+        this.onGloballyPositioned { c ->
+            ActionBarMicPosition.centerX = c.positionInRoot().x + c.size.width / 2f
+        }
+    } else this
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LazyItemScope.ActionItem(idx: Int, action: Action, onSelect: (Action) -> Unit, onLongSelect: (Action) -> Unit) {
@@ -551,6 +566,7 @@ fun LazyItemScope.ActionItem(idx: Int, action: Action, onSelect: (Action) -> Uni
     val contentCol = LocalKeyboardScheme.current.onBackground
 
     Box(modifier = modifier
+        .trackVoiceIconPosition(action)
         .clip(CircleShape)
         .combinedClickable(
             onLongClick = action.altPressImpl?.let { { onLongSelect(action) } },
@@ -577,6 +593,7 @@ fun ActionItemSmall(action: Action, onSelect: (Action) -> Unit, onLongSelect: (A
     Box(modifier = Modifier
         .width(42.dp)
         .fillMaxHeight()
+        .trackVoiceIconPosition(action)
         .drawBehind {
             drawCircle(
                 color = bgCol,

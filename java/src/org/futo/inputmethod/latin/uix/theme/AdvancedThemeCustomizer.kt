@@ -13,7 +13,12 @@ import org.futo.inputmethod.keyboard.Key
 import org.futo.inputmethod.keyboard.Keyboard
 import org.futo.inputmethod.keyboard.internal.KeyDrawParams
 import org.futo.inputmethod.latin.uix.DynamicThemeProvider
+import org.futo.inputmethod.latin.uix.KeyHintBrightness
 import org.futo.inputmethod.latin.uix.KeyboardColorScheme
+import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE
+import org.futo.inputmethod.latin.uix.getSetting
+import org.futo.inputmethod.latin.uix.MicKeyBlueWhenListening
+import org.futo.inputmethod.latin.uix.NORMALIZE_HINT_GLYPH_SIZE
 import kotlin.math.roundToInt
 
 data class KeyOutline(
@@ -37,6 +42,7 @@ data class KeyDrawingConfiguration(
     val hintTypeface: Typeface,
     val centeredHint: Boolean = false,
     val outline: KeyOutline? = null,
+    val hintOffsetY: Float = 0f,
 )
 
 data class CachedKeyedMatcher<T>(
@@ -63,6 +69,7 @@ class AdvancedThemeMatcher(
     val scheme: KeyboardColorScheme
 ) {
     val theme = scheme.extended.advancedThemeOptions
+    private val extraHintScale get() = context.getSetting(KEY_HINT_SCALE.key, KEY_HINT_SCALE.default)
 
     val backgroundList = theme.keyBackgrounds?.v ?: emptyList()
     val layers = (listOf(0) + backgroundList.map { getLayer(it.qualifiers) })
@@ -130,7 +137,7 @@ class AdvancedThemeMatcher(
             label = key.labelOverride ?: key.label,
             hintLabel = key.effectiveHintLabel,
             textColor = key.selectTextColor(drawableProvider, params),
-            hintColor = key.selectHintTextColor(drawableProvider, params),
+            hintColor = KeyHintBrightness.apply(context, key.selectHintTextColor(drawableProvider, params)),
             textSize = key.selectTextSize(params).toFloat(),
             hintSize = key.selectHintTextSize(drawableProvider, params).toFloat(),
             textTypeface = key.selectTypeface(params),
@@ -143,7 +150,8 @@ class AdvancedThemeMatcher(
         val backgroundPadding = foundBackground?.padding ?: identityRect
         val backgroundGap = foundBackground?.gap ?: identityGap
         val background = foundBackground?.background ?: key.selectBackground(drawableProvider)
-        val textColor = foundBackground?.foregroundColor ?: key.selectTextColor(drawableProvider, params)
+        val textColor = MicKeyBlueWhenListening.tint(context, key,
+            foundBackground?.foregroundColor ?: key.selectTextColor(drawableProvider, params))
 
         val outline = foundBackground?.outlineColor?.let {
             KeyOutline(it, TypedValue.applyDimension(
@@ -155,7 +163,7 @@ class AdvancedThemeMatcher(
 
         val hintColor = foundBackground?.foregroundColor?.let { fgCol ->
             Color(fgCol).let { it.copy(alpha = it.alpha*0.8f) }.toArgb()
-        } ?: key.selectHintTextColor(drawableProvider, params)
+        }.let { KeyHintBrightness.apply(context, it ?: key.selectHintTextColor(drawableProvider, params)) }
 
         val icon = findIcon(icons, keyboard, key)?.drawable ?: key.getIconOverride(keyboard.mIconsSet, params.mAnimAlpha)
         val hintIcon = findIcon(hintIcons, keyboard, key)?.drawable
@@ -164,7 +172,7 @@ class AdvancedThemeMatcher(
         var hintLabel: String? = if(hintIcon == null) key.effectiveHintLabel else null
 
         val textSize = key.selectTextSize(params).toFloat() * scheme.extended.advancedThemeOptions.textSizeMultiplier
-        val hintSize = key.selectHintTextSize(drawableProvider, params).toFloat() * scheme.extended.advancedThemeOptions.hintSizeMultiplier
+        var hintSize = key.selectHintTextSize(drawableProvider, params).toFloat() * scheme.extended.advancedThemeOptions.hintSizeMultiplier * extraHintScale
 
         var textTypeface = drawableProvider.selectKeyTypeface(key.selectTypeface(params))
         var hintTypeface = drawableProvider.selectKeyTypeface(key.selectHintTypeface(drawableProvider, params))
@@ -187,6 +195,15 @@ class AdvancedThemeMatcher(
             }
         }
 
+        var hintOffsetY = 0f
+        if (context.getSetting(NORMALIZE_HINT_GLYPH_SIZE.key, NORMALIZE_HINT_GLYPH_SIZE.default)) {
+            val glyph = HintGlyphScale.scaleFor(hintLabel, hintTypeface)
+            // Hints are anchored at the top of the font box, so scaling moves the glyph's center
+            // down; shift it back to where it was.
+            hintOffsetY = glyph.centerY * hintSize * (1f - glyph.scale)
+            hintSize *= glyph.scale
+        }
+
         return KeyDrawingConfiguration(
             background = background,
             backgroundPadding = backgroundPadding,
@@ -199,6 +216,7 @@ class AdvancedThemeMatcher(
             hintColor = hintColor,
             textSize = textSize,
             hintSize = hintSize,
+            hintOffsetY = hintOffsetY,
             textTypeface = textTypeface,
             hintTypeface = hintTypeface,
             centeredHint = scheme.extended.advancedThemeOptions.centerHints,

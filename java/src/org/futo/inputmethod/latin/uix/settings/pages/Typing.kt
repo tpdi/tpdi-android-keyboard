@@ -87,6 +87,12 @@ import org.futo.inputmethod.engine.IMESettingsMenu
 import org.futo.inputmethod.latin.HideKeyboardWhenHardKeyboardConnected
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.SEND_KEY_CODES_RATHER_THAN_TEXT
+import org.futo.inputmethod.latin.uix.SHOW_LOAD_LAYOUT_FROM_FILE
+import org.futo.inputmethod.latin.uix.STICKY_MODIFIER_KEYS
+import org.futo.inputmethod.latin.uix.KEY_HINT_BRIGHTNESS_PERCENT
+import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE
+import org.futo.inputmethod.latin.uix.CASE_FORM_SUGGESTIONS
+import org.futo.inputmethod.latin.uix.RECAPITALIZE_TOUCHED_WORD
 import org.futo.inputmethod.latin.settings.LongPressKey
 import org.futo.inputmethod.latin.settings.LongPressKeyLayoutSetting
 import org.futo.inputmethod.latin.settings.Settings
@@ -802,6 +808,11 @@ val KeyboardSettingsMenu = UserSettingsMenu(
             navigateTo = "resize",
             icon = R.drawable.maximize
         ),
+        userSettingToggleDataStore(
+            title = R.string.keyboard_settings_show_load_layout_from_file,
+            subtitle = R.string.keyboard_settings_show_load_layout_from_file_subtitle,
+            setting = SHOW_LOAD_LAYOUT_FROM_FILE
+        ),
         userSettingToggleSharedPrefs(
             title = R.string.keyboard_settings_show_number_row,
             subtitle = R.string.keyboard_settings_show_number_row_subtitle,
@@ -845,6 +856,22 @@ val KeyboardSettingsMenu = UserSettingsMenu(
             subtitle = R.string.keyboard_settings_period_key_subtitle2,
             key = Settings.PREF_ENABLE_ALT_PERIOD_KEY,
             default = {false},
+        ),
+        userSettingNavigationItem(
+            title = R.string.key_hints_title,
+            subtitle = R.string.key_hints_subtitle,
+            style = NavigationItemStyle.Misc,
+            navigateTo = "keyhints"
+        ),
+        userSettingToggleDataStore(
+            title = R.string.keyboard_settings_case_form_suggestions,
+            subtitle = R.string.keyboard_settings_case_form_suggestions_subtitle,
+            setting = CASE_FORM_SUGGESTIONS
+        ),
+        userSettingToggleDataStore(
+            title = R.string.keyboard_settings_recapitalize_touched_word,
+            subtitle = R.string.keyboard_settings_recapitalize_touched_word_subtitle,
+            setting = RECAPITALIZE_TOUCHED_WORD
         ),
         userSettingToggleDataStore(
             title = R.string.keyboard_settings_hide_when_hardware_keyboard_is_connected,

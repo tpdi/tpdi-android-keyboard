@@ -68,8 +68,14 @@ interface RecognizerViewListener {
 
     fun partialResult(result: String)
 
+    /** A segment was just handed off for transcription (speech ended); its result comes later. */
+    fun segmentStarted() {}
+
     /** A segment was finalized mid-recording (pause-triggered); recording continues. */
     fun segmentResult(result: String)
+
+    /** A burst of two or more clicks (2, or 3 for three or more) was detected in the raw audio. */
+    fun clickGesture(clickCount: Int) {}
 
     // Return true if a permission modal was shown, otherwise return false
     fun requestPermission(onGranted: () -> Unit, onRejected: () -> Unit): Boolean
@@ -104,7 +110,7 @@ class RecognizerView(
     ))
 
     @Composable
-    fun Content() {
+    fun Content(circleOnly: Boolean = false) {
         when (currentViewState.value) {
             CurrentView.LoadingCircle -> {
                 Column {
@@ -122,7 +128,8 @@ class RecognizerView(
                 InnerRecognize(
                     magnitude = magnitudeState,
                     state = statusState,
-                    device = currentDeviceState
+                    device = currentDeviceState,
+                    circleOnly = circleOnly
                 )
             }
 
@@ -171,10 +178,18 @@ class RecognizerView(
             listener.finished(result)
         }
 
+        override fun segmentStarted() {
+            listener.segmentStarted()
+        }
+
         override fun segmentResult(result: String) {
             listener.segmentResult(result)
             // A new segment is starting; clear the stale preview from the one just committed.
             partialDecodingText.value = ""
+        }
+
+        override fun clickGesture(clickCount: Int) {
+            listener.clickGesture(clickCount)
         }
 
         override fun languageDetected(language: Language) {

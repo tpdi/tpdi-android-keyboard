@@ -15,14 +15,19 @@ import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.utils.TextContext
 import org.futo.inputmethod.v2keyboard.KeyboardLayoutSetV2
 
-class ActionInputTransactionIME(val helper: IMEHelper) : IMEInterface, ActionInputTransaction {
+class ActionInputTransactionIME(
+    val helper: IMEHelper,
+    // Plain mode writes straight to the editor's input connection, with no composing wrapper
+    // that repositions the cursor; used when dictation runs alongside normal typing.
+    val plain: Boolean = false
+) : IMEInterface, ActionInputTransaction {
     val useComposingMode = run {
         val inputType = helper.getCurrentEditorInfo()?.inputType ?: 0
         val inputClass = inputType and EditorInfo.TYPE_MASK_CLASS
         inputClass == EditorInfo.TYPE_CLASS_TEXT
     }
 
-    val ic = if(helper.context.getSetting(VoiceInputAlternativeIC) && SupportsNonComposing && useComposingMode) {
+    val ic = if(!plain && helper.context.getSetting(VoiceInputAlternativeIC) && SupportsNonComposing && useComposingMode) {
         InputConnectionInternalComposingWrapper(
             helper.context.getSetting(VoiceInputAlternativeICComposing),
             true,
@@ -101,6 +106,20 @@ class ActionInputTransactionIME(val helper: IMEHelper) : IMEInterface, ActionInp
         helper.endInputTransaction(this)
         (ic as? InputConnectionInternalComposingWrapper)?.send()
     }
+
+    override fun deleteTextBeforeCursor(length: Int) {
+        if (length <= 0) return
+        helper.requestCursorUpdate()
+        ic?.deleteSurroundingText(length, 0)
+        (ic as? InputConnectionInternalComposingWrapper)?.send()
+    }
+
+    override fun finishComposingText() {
+        ic?.finishComposingText()
+    }
+
+    override fun liveTextBeforeCursor(length: Int): String? =
+        ic?.getTextBeforeCursor(length, 0)?.toString()
 
     override fun cancel() {
         helper.requestCursorUpdate()
