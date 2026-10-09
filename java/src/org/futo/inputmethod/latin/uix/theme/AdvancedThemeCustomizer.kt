@@ -18,6 +18,7 @@ import org.futo.inputmethod.latin.uix.KeyboardColorScheme
 import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.MicKeyBlueWhenListening
+import org.futo.inputmethod.latin.uix.NORMALIZE_HINT_GLYPH_SIZE
 import kotlin.math.roundToInt
 
 data class KeyOutline(
@@ -170,7 +171,7 @@ class AdvancedThemeMatcher(
         var hintLabel: String? = if(hintIcon == null) key.effectiveHintLabel else null
 
         val textSize = key.selectTextSize(params).toFloat() * scheme.extended.advancedThemeOptions.textSizeMultiplier
-        val hintSize = key.selectHintTextSize(drawableProvider, params).toFloat() * scheme.extended.advancedThemeOptions.hintSizeMultiplier * extraHintScale
+        var hintSize = key.selectHintTextSize(drawableProvider, params).toFloat() * scheme.extended.advancedThemeOptions.hintSizeMultiplier * extraHintScale
 
         var textTypeface = drawableProvider.selectKeyTypeface(key.selectTypeface(params))
         var hintTypeface = drawableProvider.selectKeyTypeface(key.selectHintTypeface(drawableProvider, params))
@@ -191,6 +192,10 @@ class AdvancedThemeMatcher(
                     false
                 )
             }
+        }
+
+        if (context.getSetting(NORMALIZE_HINT_GLYPH_SIZE.key, NORMALIZE_HINT_GLYPH_SIZE.default)) {
+            hintSize *= HintGlyphScale.multiplierFor(hintLabel, hintTypeface)
         }
 
         return KeyDrawingConfiguration(

@@ -4,6 +4,7 @@ import androidx.compose.ui.res.stringResource
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.KEY_HINT_BRIGHTNESS_PERCENT
 import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE
+import org.futo.inputmethod.latin.uix.NORMALIZE_HINT_GLYPH_SIZE
 import org.futo.inputmethod.latin.uix.SEND_KEY_CODES_RATHER_THAN_TEXT
 import org.futo.inputmethod.latin.uix.SHOW_LOAD_LAYOUT_FROM_FILE
 import org.futo.inputmethod.latin.uix.STICKY_MODIFIER_KEYS
@@ -49,6 +50,11 @@ val TpdiFeaturesMenu = UserSettingsMenu(
             title = R.string.keyboard_settings_send_key_codes_rather_than_text,
             subtitle = R.string.keyboard_settings_send_key_codes_rather_than_text_subtitle,
             setting = SEND_KEY_CODES_RATHER_THAN_TEXT
+        ),
+        userSettingToggleDataStore(
+            title = R.string.keyboard_settings_normalize_hint_glyph_size,
+            subtitle = R.string.keyboard_settings_normalize_hint_glyph_size_subtitle,
+            setting = NORMALIZE_HINT_GLYPH_SIZE
         ),
         userSettingToggleDataStore(
             title = R.string.keyboard_settings_sticky_modifier_keys,
