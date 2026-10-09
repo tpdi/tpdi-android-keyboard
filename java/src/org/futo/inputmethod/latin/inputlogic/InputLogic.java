@@ -928,6 +928,16 @@ public final class InputLogic {
                 inputTransaction.setDidAffectContents();
                 break;
             case Constants.CODE_SHIFT:
+                final SuggestedWords caseForms = CaseFormSuggestions.onShift(
+                        mWordComposer.isComposingWord() ? mWordComposer.getTypedWord() : null,
+                        mConnection.getExpectedSelectionStart(), mConnection.hasSelection(),
+                        inputTransaction.mSettingsValues.mLocale);
+                if (caseForms != null) {
+                    mSuggestionStripViewAccessor.showSuggestionStrip(caseForms);
+                    setSuggestedWords(caseForms);
+                    inputTransaction.requireShiftUpdate(InputTransaction.SHIFT_UPDATE_NOW);
+                    break;
+                }
                 if (RecapitalizeTouchedWord.selectWordIfTouching(mConnection,
                         inputTransaction.mSettingsValues, currentKeyboardScriptId)) {
                     // Right after typing, recapitalization is held off until the cursor moves;
