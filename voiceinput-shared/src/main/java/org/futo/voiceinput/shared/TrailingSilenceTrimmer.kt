@@ -18,6 +18,7 @@ object TrailingSilenceTrimmer {
     private const val MIN_SAMPLES = 3200
 
     fun trim(samples: FloatArray): FloatArray {
+        if (samples.size <= MIN_SAMPLES) return samples
         val windows = samples.size / WINDOW
         if (windows < 2) return samples
 
