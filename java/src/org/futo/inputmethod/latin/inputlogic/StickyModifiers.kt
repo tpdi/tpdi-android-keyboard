@@ -65,11 +65,6 @@ object StickyModifiers {
         return true
     }
 
-    /** A latched modifier key shows its label in brackets, for example "[Ctrl]". */
-    @JvmStatic
-    fun labelFor(layoutCode: Int, label: String?): String? =
-        if (label != null && isLatched(layoutCode)) "[$label]" else label
-
     /** Layout code to the meta state it sends. AltGr is what a hardware keyboard reports as right Alt. */
     private val metaFor = mapOf(
         Constants.CODE_CTRL to KeyEvent.META_CTRL_ON,
