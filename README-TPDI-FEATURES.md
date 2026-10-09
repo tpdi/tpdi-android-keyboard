@@ -143,8 +143,6 @@ Toggle: Bug fix, no setting. Issue [#26](https://github.com/tpdi/tpdi-android-ke
 
 The voice toggles on Settings > Voice input. Every toggle is off by default. The hide-circle, hide-keyboard and mode-switch options only do anything while Dictate over the keyboard is on.
 
-![Voice input settings](docs/screenshots/voice-settings.png)
-
 ### Show words while listening
 
 Shows the words recognized so far inside the voice bubble.
