@@ -42,6 +42,7 @@ import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
@@ -203,6 +204,27 @@ private class VoiceInputActionWindow(
 
     private var inputTransaction = manager.createInputTransaction()
 
+    // What this session has committed (and, with the UI PRs, typed), so Undo can take it back
+    // one unit at a time.
+    private val undoHistory = VoiceUndoHistory()
+
+    private val showActionButtons = context.getSetting(VOICE_INPUT_ACTION_BUTTONS)
+
+    private fun pressEnter() {
+        manager.getLifecycleScope().launch(Dispatchers.Main) {
+            inputTransaction.commit("\n")
+            inputTransaction = manager.createInputTransaction()
+            undoHistory.pushVoiceEntry("\n")
+        }
+    }
+
+    /** Removes the most recent entry of the undo history from the text before the cursor. */
+    internal fun undoLast() {
+        manager.getLifecycleScope().launch(Dispatchers.Main) {
+            undoHistory.undoLast(inputTransaction)
+        }
+    }
+
     @Composable
     private fun ModelDownloader(modelException: ModelDoesNotExistException) {
         NoModelInstalled(locales.firstOrNull() ?: Locale.ROOT)
@@ -232,6 +254,14 @@ private class VoiceInputActionWindow(
                     modelException.value != null -> ModelDownloader(modelException.value!!)
                     recognizerView.value != null -> recognizerView.value!!.Content()
                 }
+            }
+
+            if (showActionButtons && recognizerView.value != null) {
+                VoiceActionButtons(
+                    onUndo = { undoLast() },
+                    onEnter = { pressEnter() },
+                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp)
+                )
             }
         }
     }
@@ -287,8 +317,10 @@ private class VoiceInputActionWindow(
             if (sanitized.isNotBlank()) {
                 // Committed for good, no later revision: start a fresh transaction so the
                 // next segment's partial/commit calls don't touch what's already locked in.
-                inputTransaction.commit(sanitized.trimEnd() + " ")
+                val committedText = sanitized.trimEnd() + " "
+                inputTransaction.commit(committedText)
                 inputTransaction = manager.createInputTransaction()
+                undoHistory.pushVoiceEntry(committedText)
             }
         }
     }

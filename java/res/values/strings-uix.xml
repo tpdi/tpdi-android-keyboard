@@ -720,6 +720,10 @@ Default is %1$s</string>
     <string name="personal_dictionary_delete_additional_file">Delete extra dictionary file?</string>
     <!-- %1$s will be replaced with the custom dictionary name -->
     <string name="personal_dictionary_delete_additional_file_text">%1$s will be deleted</string>
+    <string name="action_voice_input_undo">Undo last</string>
+    <string name="action_voice_input_enter">Enter</string>
+    <string name="voice_input_settings_action_buttons">On-screen Undo/Enter buttons</string>
+    <string name="voice_input_settings_action_buttons_subtitle">Show a button strip next to the voice input bubble to undo the last thing it typed, or press Enter. Off by default.</string>
     <string name="keyboard_settings_send_key_codes_rather_than_text">Send key codes rather than text</string>
     <string name="keyboard_settings_send_key_codes_rather_than_text_subtitle">Send Tab, Enter, Escape, Home, End, Page Up/Down, Forward Delete, Insert and F1-F12 as real key events, like a hardware keyboard, instead of as text. Off by default.</string>
 </resources>
