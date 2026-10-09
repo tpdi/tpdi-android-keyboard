@@ -5,7 +5,7 @@ A fork of [FUTO Keyboard](https://github.com/futo-org/android-keyboard) with ext
 **Download:** the latest unstable debug build, with every feature below included, is on the [Releases page](https://github.com/tpdi/tpdi-android-keyboard/releases/latest). It installs next to the stock keyboard (it has its own application id).
 
 - The original project README is [READMEUpstream.md](READMEUpstream.md).
-- **What it adds, with screenshots: [README-TPDI-FEATURES.md](README-TPDI-FEATURES.md).**
+- **What it adds, with screenshots: [README-TPDI-FEATURES.md](README-TPDI-FEATURES.md).** It also ships two layouts: a modified KASROZ with long-press symbols on nearly every key, and an 84-key PC-style layout.
 - The combined build is tracked in the "Combined build" issue and PR; the Releases page links both.
 
 Built with Claude Code (Claude Sonnet) under the direction of TP Diffenbach, who reviews and decides what is merged. Each feature has one issue, one PR and one toggle. A few have also been proposed upstream (futo-org/android-keyboard #2338, #2340, #2341, #2344).

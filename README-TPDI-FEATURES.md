@@ -3,6 +3,23 @@
 Every feature below is behind its own toggle, off by default (layout keys are opt-in), so with all of them off the keyboard behaves like the Play Store build. In the combined build the toggles are also collected on Settings > TPDI Features.
 
 
+## Layouts
+
+### KASROZ (arrows)
+
+The KASROZ layout, modified by TP Diffenbach with numerous hints: almost every key carries a symbol or punctuation mark on long press (the small grey characters), the number row sits on top, the right-hand space key is a microphone key, and an arrow-key row with undo and redo sits under the space bar. Load it with the custom layout editor (Developer > Custom layouts > Load from file; turn on Settings > TPDI Features > Load layout from file first).
+
+![KASROZ layout](docs/kasroz-layout.png)
+
+Layout file: [docs/kasroz-arrows.yaml](docs/kasroz-arrows.yaml). Also docs/kasroz-arrows-multilingual.yaml (KASROZ with an added short arrow-key row at the very bottom).
+
+### Standard 84-key layout
+
+An 84-key style keyboard (a 75% layout with the navigation column on the right): a function-key row on top (Esc, F1 to F12, NmLk, ScrLk, Del), then the number row, the letters with Tab, Caps, Ctrl, Alt, Win and Fn keys, and Home, Page Up, Page Down and End in a column on the right. Wide keys are shortened to fit. Ctrl, Alt, Win, AltGr, Fn, Caps and NmLk/ScrLk are the sticky modifier keys below (tap to latch, long press to lock), so Ctrl+C works from the soft keyboard. Turn on Sticky modifier keys and Send key codes rather than text.
+
+Layout file: [docs/standard-84-key-layout.yaml](docs/standard-84-key-layout.yaml).
+
+
 ## Key hints
 
 ### Key hint size
@@ -101,7 +118,7 @@ Toggle: Bug fix, no setting. Issue [#26](https://github.com/tpdi/tpdi-android-ke
 
 ## Voice input
 
-The voice toggles on Settings > Voice input. Tap the circle to stop, Hide the volume circle and Mode-switch buttons are on by default but only do anything while Dictate over the keyboard (off by default) is on.
+The voice toggles on Settings > Voice input. Every toggle is off by default. The hide-circle, hide-keyboard and mode-switch options only do anything while Dictate over the keyboard is on.
 
 ![Voice input settings](docs/screenshots/voice-settings.png)
 
@@ -128,12 +145,6 @@ The keyboard stays visible while you dictate, with a Listening bar, Undo and a s
 ![Dictate over the keyboard](docs/screenshots/toggle-over-keyboard.png)
 
 Toggle: Settings > Voice input. Issue [#13](https://github.com/tpdi/tpdi-android-keyboard/issues/13), PR [#48](https://github.com/tpdi/tpdi-android-keyboard/pull/48).
-
-### Tap the circle to stop
-
-A tap on the middle of the volume circle ends the session.
-
-Toggle: Settings > Voice input. Issue [#14](https://github.com/tpdi/tpdi-android-keyboard/issues/14), PR [#49](https://github.com/tpdi/tpdi-android-keyboard/pull/49).
 
 ### Hide the volume circle over the keys
 

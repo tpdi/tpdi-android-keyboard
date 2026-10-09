@@ -1,0 +1,248 @@
+name: KASROZ (arrows)
+description: KASROZ with numerous hints. By TP Diffenbach.
+numberRowMode: UserConfigurable
+bottomRowHeightMode: Flexible
+bottomRowWidthMode: Identical
+layoutSetOverrides:
+  symbols: "clearflow_symbols"
+  symbolsShifted: "clearflow_symbols_shift"
+mirrorInOneHanded: true
+supportsSplit: false
+overrideWidths:
+  Custom1: 0.08
+attributes:
+  moreKeyMode: OnlyFromLetter
+rows:
+  - numbers:
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
+      - type: base
+        spec: "0"
+        moreKeys: "°,⁰,ⁿ,₀"
+        attributes: { moreKeyMode: OnlyExplicit, labelFlags: { followKeyLabelRatio: true } }
+    rowHeight: 0.8
+    attributes: { style: Functional, width: Grow, labelFlags: { followKeyLabelRatio: true } }
+  - letters:
+      - type: base
+        spec: "Esc|!code/key_escape"
+        moreKeys: "!icon/action_emoji|!code/action_emoji"
+        attributes: { shiftable: false, width: FunctionalKey, style: Functional, moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "! |!"
+        moreKeys: "¡"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "g |g"
+        moreKeys: "~,…,✓,ĝ,ģ,ğ"
+      - type: base
+        spec: "d |d"
+        moreKeys: ["/", "\\", "|", "ð", "ď", "đ"]
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "n |n"
+        moreKeys: "<,ñ,ń,ņ,ň"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "m |m"
+        moreKeys: ">,%|%,‰,°,∞"
+      - type: base
+        spec: "? |?"
+        moreKeys: "¿"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "Del|!code/key_forward_delete"
+        attributes: { shiftable: false, width: Grow, style: Functional, showPopup: false, repeatableEnabled: true, moreKeyMode: OnlyExplicit }
+  - letters:
+      - type: base
+        spec: "!icon/tab_key|!code/key_tab"
+        attributes: { style: Functional }
+      - type: base
+        spec: "k |k"
+        moreKeys: "-,–,—,_,ķ"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "a |a"
+        moreKeys: "+,±,ä,à,á,â,æ,ã,å,ā,ă,ą,ª"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "s |s"
+        moreKeys: "*,×,÷,ß,§,ś,ŝ,š,ş"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "r |r"
+        moreKeys: "=,≠,≈,√,π,^,ŕ,ř"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "o |o"
+        moreKeys: "{,ö,ó,ô,ò,œ,ø,ō,õ,ő"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "z |z"
+        moreKeys: "},ź,ż,ž"
+      - type: delete
+        attributes: { rowSpan: 2 }
+  - letters:
+      - type: actionKeySelect
+        enabled:
+          type: shift
+          attributes: { style: Functional, rowSpan: 2 }
+        none:
+          type: shift
+          attributes: { style: Functional, rowSpan: 2 }
+      - type: base
+        spec: "h |h"
+        moreKeys: "@,ĥ"
+      - type: base
+        spec: "e |e"
+        moreKeys: "#,é,è,ê,ë,ē,ė,ę,ě,ĕ,ə"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "t |t"
+        moreKeys: "$,¢,£,€,¥,₹,₩,₽,₺,₴,₫,₪,₦,₱,฿,þ,ť,ț,ţ"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "i |i"
+        moreKeys: "&,í,î,ï,ī,ì,į,ı"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "u |u"
+        moreKeys: "[,ü,ú,û,ù,ū,ŭ,ů,ű,ų"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "f |f"
+        moreKeys: "],^"
+      - type: gap
+        attributes: { width: Grow }
+  - letters:
+      - type: gap
+        attributes: { width: Grow }
+      - type: base
+        spec: "y |y"
+        moreKeys: "\",”,ÿ,ý,ỳ,ŷ"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "c |c"
+        moreKeys: "',’,ç,ć,ĉ,č"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "l |l"
+        moreKeys: ":,ĺ,ļ,ľ,ł"
+      - type: base
+        spec: "p |p"
+        moreKeys: ";"
+      - type: base
+        spec: "b |b"
+        moreKeys: "(,!text/qwertysyms_k"
+      - type: base
+        spec: "q |q"
+        moreKeys: "),!text/qwertysyms_l"
+      - type: base
+        spec: "!icon/action_voice_input|!code/action_voice_input"
+        attributes: { width: Grow, style: Functional, moreKeyMode: OnlyExplicit }
+  - attributes: { width: FunctionalKey, style: Normal }
+    letters:
+      - $symbols
+      - type: contextual
+        fallbackKey:
+          type: base
+          spec: ","
+          attributes: { moreKeyMode: OnlyExplicit }
+          moreKeys: "`,!icon/action_emoji|!code/action_emoji,α|!code/key_to_alt_0_layout,∑|!code/key_to_alt_1_layout,¶|!code/key_to_alt_2_layout,Fn|!code/key_to_alt_3_layout"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "w |w"
+        moreKeys: "!icon/action_copy|!code/action_copy,ŵ,ẁ,ẃ,ẅ"
+      - type: base
+        spec: "v |v"
+        moreKeys: "!icon/action_paste|!code/action_paste,!icon/action_clipboard_history|!code/action_clipboard_history"
+      - type: base
+        spec: "x |x"
+        moreKeys: "!icon/action_cut|!code/action_cut"
+      - type: base
+        spec: "j |j"
+        moreKeys: "!icon/action_select_all|!code/action_select_all,ĵ"
+      - type: base
+        spec: "."
+        attributes: { width: FunctionalKey, style: Normal, moreKeyMode: OnlyExplicit }
+        moreKeys: "!text/morekeys_period"
+      - $enter
+  - bottom:
+      - type: base
+        spec: "!icon/action_dismiss_keyboard|!code/action_dismiss_keyboard"
+        moreKeys: "!icon/action_settings|!code/action_settings"
+        attributes: { moreKeyMode: OnlyExplicit, longPressEnabled: true }
+      - type: base
+        spec: "!icon/action_undo|!code/action_undo"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - type: base
+        spec: "!icon/action_redo|!code/action_redo"
+        attributes: { moreKeyMode: OnlyExplicit }
+      - $space
+      - type: base
+        spec: "!icon/action_left|!code/action_left"
+        attributes: { width: Custom1, moreKeyMode: OnlyExplicit, labelFlags: { hasHintLabel: false } }
+      - type: base
+        spec: "!icon/action_up|!code/action_up"
+        attributes: { width: Custom1, moreKeyMode: OnlyExplicit, labelFlags: { hasHintLabel: false } }
+      - type: base
+        spec: "!icon/action_down|!code/action_down"
+        attributes: { width: Custom1, moreKeyMode: OnlyExplicit, labelFlags: { hasHintLabel: false } }
+      - type: base
+        spec: "!icon/action_right|!code/action_right"
+        attributes: { width: Custom1, moreKeyMode: OnlyExplicit, labelFlags: { hasHintLabel: false } }
+altPages:
+  - # alt0: Greek letters
+    - letters: ["α", "β", "γ", "δ", "ε", "ζ", "η", "θ", "ι", "κ"]
+    - letters: ["λ", "μ", "ν", "ξ", "ο", "π", "ρ", "σ", "τ", "υ"]
+    - letters: ["φ", "χ", "ψ", "ω"]
+    - bottom:
+        - $alphabet
+        - type: delete
+        - $space
+        - $enter
+  - # alt1: Math & set symbols
+    - letters: ["∑", "∫", "√", "∞", "≤", "≥", "≠", "≈", "±", "∓"]
+    - letters: ["∂", "∇", "∀", "∃", "∈", "∉", "⊂", "⊃", "∪", "∩"]
+    - letters: ["∧", "∨", "¬", "⊕", "⊗", "⟹", "⟺", "∴", "∵"]
+    - bottom:
+        - $alphabet
+        - type: delete
+        - $space
+        - $enter
+  - # alt2: Typography & misc
+    - letters: ["–", "—", "…", "•", "§", "¶", "©", "®", "™", "‰"]
+    - letters: ["‱", "‽", "′", "″", "‹", "›", "«", "»", "¦", "‖"]
+    - bottom:
+        - $alphabet
+        - type: delete
+        - $space
+        - $enter
+  - # alt3: Hacker's-keyboard style: function keys, Esc/Tab/navigation, Ctrl/Alt (needs the
+    # "Send key codes rather than text" and "Sticky Ctrl and Alt keys" settings in Tom's build)
+    - letters: ["F1|!code/key_f1", "F2|!code/key_f2", "F3|!code/key_f3", "F4|!code/key_f4", "F5|!code/key_f5", "F6|!code/key_f6", "F7|!code/key_f7", "F8|!code/key_f8", "F9|!code/key_f9", "F10|!code/key_f10"]
+    - letters: ["F11|!code/key_f11", "F12|!code/key_f12", "Esc|!code/key_escape", "Tab|!code/key_tab", "Home|!code/key_home", "End|!code/key_end", "PgUp|!code/key_page_up", "PgDn|!code/key_page_down", "Ins|!code/key_insert", {type: base, spec: "Del|!code/key_forward_delete", attributes: {repeatableEnabled: true}}]
+    - letters: ["Ctrl|!code/key_ctrl", "Alt|!code/key_alt", "~", "`", "[", "]", "{", "}", "<", ">"]
+    - bottom:
+        - $alphabet
+        - type: delete
+        - $space
+        - type: base
+          spec: "!icon/action_left|!code/action_left"
+          attributes: { width: Custom1, moreKeyMode: OnlyExplicit, labelFlags: { hasHintLabel: false } }
+        - type: base
+          spec: "!icon/action_up|!code/action_up"
+          attributes: { width: Custom1, moreKeyMode: OnlyExplicit, labelFlags: { hasHintLabel: false } }
+        - type: base
+          spec: "!icon/action_down|!code/action_down"
+          attributes: { width: Custom1, moreKeyMode: OnlyExplicit, labelFlags: { hasHintLabel: false } }
+        - type: base
+          spec: "!icon/action_right|!code/action_right"
+          attributes: { width: Custom1, moreKeyMode: OnlyExplicit, labelFlags: { hasHintLabel: false } }
+        - $enter
