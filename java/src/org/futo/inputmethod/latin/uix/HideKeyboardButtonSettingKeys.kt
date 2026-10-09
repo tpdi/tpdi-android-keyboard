@@ -6,5 +6,5 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 // (leaving only the bar) and brings it back. Has no effect unless "Dictate over the keyboard" is on.
 val VOICE_INPUT_HIDE_KEYBOARD_BUTTON = SettingsKey(
     key = booleanPreferencesKey("voice_input_hide_keyboard_button"),
-    default = true
+    default = false
 )
