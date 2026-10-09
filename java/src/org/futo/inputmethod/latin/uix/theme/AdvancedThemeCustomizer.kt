@@ -13,7 +13,9 @@ import org.futo.inputmethod.keyboard.Key
 import org.futo.inputmethod.keyboard.Keyboard
 import org.futo.inputmethod.keyboard.internal.KeyDrawParams
 import org.futo.inputmethod.latin.uix.DynamicThemeProvider
+import org.futo.inputmethod.latin.uix.KEY_LABEL_SCALE
 import org.futo.inputmethod.latin.uix.KeyboardColorScheme
+import org.futo.inputmethod.latin.uix.getSetting
 import kotlin.math.roundToInt
 
 data class KeyOutline(
@@ -63,6 +65,7 @@ class AdvancedThemeMatcher(
     val scheme: KeyboardColorScheme
 ) {
     val theme = scheme.extended.advancedThemeOptions
+    private val extraLabelScale get() = context.getSetting(KEY_LABEL_SCALE.key, KEY_LABEL_SCALE.default)
 
     val backgroundList = theme.keyBackgrounds?.v ?: emptyList()
     val layers = (listOf(0) + backgroundList.map { getLayer(it.qualifiers) })
@@ -131,7 +134,7 @@ class AdvancedThemeMatcher(
             hintLabel = key.effectiveHintLabel,
             textColor = key.selectTextColor(drawableProvider, params),
             hintColor = key.selectHintTextColor(drawableProvider, params),
-            textSize = key.selectTextSize(params).toFloat(),
+            textSize = key.selectTextSize(params).toFloat() * extraLabelScale,
             hintSize = key.selectHintTextSize(drawableProvider, params).toFloat(),
             textTypeface = key.selectTypeface(params),
             hintTypeface = key.selectHintTypeface(drawableProvider, params)
@@ -163,7 +166,7 @@ class AdvancedThemeMatcher(
         var label: String? = key.labelOverride ?: key.label
         var hintLabel: String? = if(hintIcon == null) key.effectiveHintLabel else null
 
-        val textSize = key.selectTextSize(params).toFloat() * scheme.extended.advancedThemeOptions.textSizeMultiplier
+        val textSize = key.selectTextSize(params).toFloat() * scheme.extended.advancedThemeOptions.textSizeMultiplier * extraLabelScale
         val hintSize = key.selectHintTextSize(drawableProvider, params).toFloat() * scheme.extended.advancedThemeOptions.hintSizeMultiplier
 
         var textTypeface = drawableProvider.selectKeyTypeface(key.selectTypeface(params))

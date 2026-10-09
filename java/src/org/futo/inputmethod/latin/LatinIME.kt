@@ -80,6 +80,7 @@ import org.futo.inputmethod.latin.uix.createInlineSuggestionsRequest
 import org.futo.inputmethod.latin.uix.dataStore
 import org.futo.inputmethod.latin.uix.differsFrom
 import org.futo.inputmethod.latin.uix.forceUnlockDatastore
+import org.futo.inputmethod.latin.uix.KeyLabelRedraw
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.getSettingBlocking
 import org.futo.inputmethod.latin.uix.getSettingFlow
@@ -470,6 +471,10 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
             dataStore.data.collect {
                 CrashLoggingApplication.logPreferences(it)
             }
+        }
+
+        launchJob {
+            KeyLabelRedraw.watch(this@LatinIME) { latinIMELegacy.mKeyboardSwitcher?.mainKeyboardView?.invalidateAllKeys() }
         }
 
         // Listen to size changes

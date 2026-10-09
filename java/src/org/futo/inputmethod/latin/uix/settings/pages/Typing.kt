@@ -86,6 +86,7 @@ import org.futo.inputmethod.accessibility.AccessibilityUtils
 import org.futo.inputmethod.engine.IMESettingsMenu
 import org.futo.inputmethod.latin.HideKeyboardWhenHardKeyboardConnected
 import org.futo.inputmethod.latin.R
+import org.futo.inputmethod.latin.uix.KEY_LABEL_SCALE
 import org.futo.inputmethod.latin.settings.LongPressKey
 import org.futo.inputmethod.latin.settings.LongPressKeyLayoutSetting
 import org.futo.inputmethod.latin.settings.Settings
@@ -845,6 +846,16 @@ val KeyboardSettingsMenu = UserSettingsMenu(
             key = Settings.PREF_ENABLE_ALT_PERIOD_KEY,
             default = {false},
         ),
+        userSettingDecorationOnly {
+            SettingSlider(
+                title = stringResource(R.string.keyboard_settings_key_label_size),
+                subtitle = stringResource(R.string.keyboard_settings_key_label_size_subtitle),
+                setting = KEY_LABEL_SCALE,
+                range = 0.5f .. 1.5f,
+                transform = { (it * 20f).roundToInt() / 20f },
+                indicator = { "${(it * 100f).roundToInt()}%" }
+            )
+        },
         userSettingToggleDataStore(
             title = R.string.keyboard_settings_hide_when_hardware_keyboard_is_connected,
             setting = HideKeyboardWhenHardKeyboardConnected
