@@ -7,5 +7,5 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 // session starts in.
 val VOICE_INPUT_SWITCH_MODE_BUTTONS = SettingsKey(
     key = booleanPreferencesKey("voice_input_switch_mode_buttons"),
-    default = true
+    default = false
 )
