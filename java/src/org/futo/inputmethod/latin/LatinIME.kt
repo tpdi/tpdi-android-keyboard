@@ -81,6 +81,8 @@ import org.futo.inputmethod.latin.uix.dataStore
 import org.futo.inputmethod.latin.uix.differsFrom
 import org.futo.inputmethod.latin.uix.forceUnlockDatastore
 import org.futo.inputmethod.latin.uix.getSetting
+import org.futo.inputmethod.latin.inputlogic.RecapitalizeTouchedWord
+import org.futo.inputmethod.latin.uix.RECAPITALIZE_TOUCHED_WORD
 import org.futo.inputmethod.latin.uix.getSettingBlocking
 import org.futo.inputmethod.latin.uix.getSettingFlow
 import org.futo.inputmethod.latin.uix.isDirectBootUnlocked
@@ -407,6 +409,9 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
 
         imeManager.onCreate()
         latinIMELegacy.onCreate()
+
+        RecapitalizeTouchedWord.onSettingChanged(getSettingBlocking(RECAPITALIZE_TOUCHED_WORD))
+        launchJob { getSettingFlow(RECAPITALIZE_TOUCHED_WORD).collect { RecapitalizeTouchedWord.onSettingChanged(it) } }
 
         scheduleUpdateCheckingJob(this)
         launchJob { uixManager.showUpdateNoticeIfNeeded() }
