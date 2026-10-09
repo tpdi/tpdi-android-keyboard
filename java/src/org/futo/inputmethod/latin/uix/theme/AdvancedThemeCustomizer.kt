@@ -45,6 +45,7 @@ data class KeyDrawingConfiguration(
     val centeredHint: Boolean = false,
     val outline: KeyOutline? = null,
     val hintOffsetY: Float = 0f,
+    val labelAnchor: Float = 0f,
 )
 
 data class CachedKeyedMatcher<T>(

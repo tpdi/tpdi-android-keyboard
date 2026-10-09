@@ -6,6 +6,9 @@ import org.futo.inputmethod.latin.uix.SEND_KEY_CODES_RATHER_THAN_TEXT
 import org.futo.inputmethod.latin.uix.SHOW_LOAD_LAYOUT_FROM_FILE
 import org.futo.inputmethod.latin.uix.CASE_FORM_SUGGESTIONS
 import org.futo.inputmethod.latin.uix.RECAPITALIZE_TOUCHED_WORD
+import org.futo.inputmethod.latin.uix.KEY_LABEL_ANCHOR
+import org.futo.inputmethod.latin.uix.KEY_LABEL_SCALE
+import org.futo.inputmethod.latin.uix.SPACE_SWIPE_VERTICAL
 import org.futo.inputmethod.latin.uix.STICKY_MODIFIER_KEYS
 import org.futo.inputmethod.latin.uix.settings.NavigationItemStyle
 import org.futo.inputmethod.latin.uix.settings.userSettingNavigationItem
@@ -56,6 +59,31 @@ val TpdiFeaturesMenu = UserSettingsMenu(
             title = R.string.keyboard_settings_sticky_modifier_keys,
             subtitle = R.string.keyboard_settings_sticky_modifier_keys_subtitle,
             setting = STICKY_MODIFIER_KEYS
+        ),
+        userSettingDecorationOnly {
+            SettingSlider(
+                title = stringResource(R.string.keyboard_settings_key_label_size),
+                subtitle = stringResource(R.string.keyboard_settings_key_label_size_subtitle),
+                setting = KEY_LABEL_SCALE,
+                range = 0.5f .. 1.5f,
+                transform = { (it * 20f).roundToInt() / 20f },
+                indicator = { "${(it * 100f).roundToInt()}%" }
+            )
+        },
+        userSettingDecorationOnly {
+            SettingSlider(
+                title = stringResource(R.string.keyboard_settings_key_label_position),
+                subtitle = stringResource(R.string.keyboard_settings_key_label_position_subtitle),
+                setting = KEY_LABEL_ANCHOR,
+                range = 0.0f .. 1.0f,
+                transform = { (it * 20f).roundToInt() / 20f },
+                indicator = { "${(it * 100f).roundToInt()}%" }
+            )
+        },
+        userSettingToggleDataStore(
+            title = R.string.keyboard_settings_space_swipe_vertical,
+            subtitle = R.string.keyboard_settings_space_swipe_vertical_subtitle,
+            setting = SPACE_SWIPE_VERTICAL
         ),
         userSettingToggleDataStore(
             title = R.string.keyboard_settings_case_form_suggestions,
