@@ -780,4 +780,6 @@ Default is %1$s</string>
     <string name="keyboard_settings_key_label_size_subtitle">Scale the letters on the keys. 100% is unchanged.</string>
     <string name="keyboard_settings_key_label_position">Key label position</string>
     <string name="keyboard_settings_key_label_position_subtitle">Move the letters from the centre of each key toward its left edge. 0% (centred) is unchanged.</string>
+    <string name="keyboard_settings_space_swipe_vertical">Space bar moves the cursor up and down</string>
+    <string name="keyboard_settings_space_swipe_vertical_subtitle">Drag up or down on the space bar to move the cursor between lines, like the Up and Down arrow keys, as well as left and right. Off by default.</string>
 </resources>

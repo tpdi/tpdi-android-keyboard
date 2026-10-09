@@ -92,6 +92,9 @@ import org.futo.inputmethod.latin.uix.CASE_FORM_SUGGESTIONS
 import org.futo.inputmethod.latin.uix.RECAPITALIZE_TOUCHED_WORD
 import org.futo.inputmethod.latin.uix.KeyLabelRedraw
 import org.futo.inputmethod.latin.uix.KeyLabelPositionRedraw
+import org.futo.inputmethod.event.Event
+import org.futo.inputmethod.latin.inputlogic.VerticalSpaceSwipe
+import org.futo.inputmethod.latin.uix.SPACE_SWIPE_VERTICAL
 import org.futo.inputmethod.latin.uix.getSettingBlocking
 import org.futo.inputmethod.latin.uix.getSettingFlow
 import org.futo.inputmethod.latin.uix.isDirectBootUnlocked
@@ -431,6 +434,13 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
         launchJob { getSettingFlow(CASE_FORM_SUGGESTIONS).collect { CaseFormSuggestions.onSettingChanged(it) } }
         RecapitalizeTouchedWord.onSettingChanged(getSettingBlocking(RECAPITALIZE_TOUCHED_WORD))
         launchJob { getSettingFlow(RECAPITALIZE_TOUCHED_WORD).collect { RecapitalizeTouchedWord.onSettingChanged(it) } }
+
+        VerticalSpaceSwipe.sender = { keyCode ->
+            imeManager.getActiveIME(Settings.getInstance().current)
+                .onEvent(Event.createDownUpKeyEvent(keyCode, 0))
+        }
+        VerticalSpaceSwipe.onSettingChanged(getSettingBlocking(SPACE_SWIPE_VERTICAL))
+        launchJob { getSettingFlow(SPACE_SWIPE_VERTICAL).collect { VerticalSpaceSwipe.onSettingChanged(it) } }
 
         scheduleUpdateCheckingJob(this)
         launchJob { uixManager.showUpdateNoticeIfNeeded() }

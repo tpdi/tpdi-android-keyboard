@@ -95,6 +95,7 @@ import org.futo.inputmethod.latin.uix.CASE_FORM_SUGGESTIONS
 import org.futo.inputmethod.latin.uix.RECAPITALIZE_TOUCHED_WORD
 import org.futo.inputmethod.latin.uix.KEY_LABEL_SCALE
 import org.futo.inputmethod.latin.uix.KEY_LABEL_ANCHOR
+import org.futo.inputmethod.latin.uix.SPACE_SWIPE_VERTICAL
 import org.futo.inputmethod.latin.settings.LongPressKey
 import org.futo.inputmethod.latin.settings.LongPressKeyLayoutSetting
 import org.futo.inputmethod.latin.settings.Settings
@@ -895,6 +896,11 @@ val KeyboardSettingsMenu = UserSettingsMenu(
                 indicator = { "${(it * 100f).roundToInt()}%" }
             )
         },
+        userSettingToggleDataStore(
+            title = R.string.keyboard_settings_space_swipe_vertical,
+            subtitle = R.string.keyboard_settings_space_swipe_vertical_subtitle,
+            setting = SPACE_SWIPE_VERTICAL
+        ),
         userSettingToggleDataStore(
             title = R.string.keyboard_settings_hide_when_hardware_keyboard_is_connected,
             setting = HideKeyboardWhenHardKeyboardConnected
