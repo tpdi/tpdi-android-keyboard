@@ -1,0 +1,25 @@
+# Test layout for the "Sticky modifier keys" setting. Not bundled in the app.
+# Turn the setting on (Settings > Typing > Sticky modifier keys), load this file as a custom
+# layout, then tap a modifier key followed by a letter. Each modifier latches until the next key.
+# What the app receives can be checked in a key-event viewer (for example a "key tester" app).
+name: Sticky modifiers test
+rows:
+  - letters: q w e r t y u i o p
+  - letters: a s d f g h j k l
+  - letters: $shift z x c v b n m $delete
+  - letters:
+    - {type: base, spec: "Ctrl|!code/key_ctrl", attributes: {style: Functional}}
+    - {type: base, spec: "Alt|!code/key_alt", attributes: {style: Functional}}
+    - {type: base, spec: "Meta|!code/key_meta", attributes: {style: Functional}}
+    - {type: base, spec: "AltGr|!code/key_altgr", attributes: {style: Functional}}
+    - {type: base, spec: "Fn|!code/key_fn", attributes: {style: Functional}}
+    - {type: base, spec: "Sym|!code/key_sym", attributes: {style: Functional}}
+  - letters:
+    - {type: base, spec: "Shift|!code/key_sticky_shift", attributes: {style: Functional}}
+    - {type: base, spec: "RCtrl|!code/key_ctrl_right", attributes: {style: Functional}}
+    - {type: base, spec: "RShift|!code/key_shift_right", attributes: {style: Functional}}
+    - {type: base, spec: "RMeta|!code/key_meta_right", attributes: {style: Functional}}
+    - {type: base, spec: "Caps|!code/key_caps_lock_mod", attributes: {style: Functional}}
+    - {type: base, spec: "Num|!code/key_numlock", attributes: {style: Functional}}
+    - {type: base, spec: "Scr|!code/key_scrolllock", attributes: {style: Functional}}
+  - bottom: $symbols $space $enter

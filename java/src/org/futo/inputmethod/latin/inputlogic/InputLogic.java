@@ -232,6 +232,7 @@ public final class InputLogic {
      * @param settingsValues the current settings values
      */
     public void startInput(final String combiningSpec, final SettingsValues settingsValues) {
+        StickyModifiers.clear();
         mEnteredText = null;
         mWordBeingCorrectedByCursor = null;
         numCursorUpdatesSinceInputStarted = 0;
@@ -921,6 +922,10 @@ public final class InputLogic {
             return;
         }
 
+        if (StickyModifiers.handleKey(this, event, inputTransaction)) {
+            return;
+        }
+
         if (SpecialKeyEvents.handle(this, event, inputTransaction)) {
             return;
         }
@@ -1010,6 +1015,9 @@ public final class InputLogic {
     private void handleNonFunctionalEvent(final Event event,
             final InputTransaction inputTransaction) {
         inputTransaction.setDidAffectContents();
+        if (StickyModifiers.handleCharacter(this, event, inputTransaction)) {
+            return;
+        }
         switch (event.mCodePoint) {
             case Constants.CODE_TAB:
                 if (!SpecialKeyEvents.handleTab(this, inputTransaction)) {

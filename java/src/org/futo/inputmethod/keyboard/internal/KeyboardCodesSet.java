@@ -71,6 +71,8 @@ public final class KeyboardCodesSet {
         "key_to_alpha_2_layout",
         "key_to_alpha_3_layout",
         "key_unspecified",
+        "key_ctrl",
+        "key_alt",
         "key_escape",
         "key_home",
         "key_end",
@@ -90,6 +92,17 @@ public final class KeyboardCodesSet {
         "key_f10",
         "key_f11",
         "key_f12",
+        "key_meta",
+        "key_altgr",
+        "key_fn",
+        "key_sym",
+        "key_sticky_shift",
+        "key_caps_lock_mod",
+        "key_numlock",
+        "key_scrolllock",
+        "key_ctrl_right",
+        "key_shift_right",
+        "key_meta_right",
     };
 
     private static final int[] DEFAULT = {
@@ -118,6 +131,8 @@ public final class KeyboardCodesSet {
         Constants.CODE_TO_ALPHA_2_LAYOUT,
         Constants.CODE_TO_ALPHA_3_LAYOUT,
         Constants.CODE_UNSPECIFIED,
+        Constants.CODE_CTRL,
+        Constants.CODE_ALT,
         Constants.CODE_ESCAPE,
         Constants.CODE_HOME,
         Constants.CODE_END,
@@ -137,6 +152,17 @@ public final class KeyboardCodesSet {
         Constants.CODE_F10,
         Constants.CODE_F11,
         Constants.CODE_F12,
+        Constants.CODE_META,
+        Constants.CODE_ALTGR,
+        Constants.CODE_FN,
+        Constants.CODE_SYM,
+        Constants.CODE_STICKY_SHIFT,
+        Constants.CODE_CAPS_LOCK_MOD,
+        Constants.CODE_NUMLOCK,
+        Constants.CODE_SCROLLLOCK,
+        Constants.CODE_CTRL_RIGHT,
+        Constants.CODE_SHIFT_RIGHT,
+        Constants.CODE_META_RIGHT,
     };
 
     static {
