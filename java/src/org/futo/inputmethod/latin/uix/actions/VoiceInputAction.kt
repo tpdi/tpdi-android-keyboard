@@ -42,6 +42,7 @@ import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
@@ -166,6 +167,7 @@ private class VoiceInputActionWindow(
                 useVADAutoStop = useVAD,
                 useSegmentedResults = useSegmentedResults,
                 segmentPauseMs = segmentPauseMs,
+                useClickGestures = context.getSetting(VOICE_INPUT_CLICK_GESTURES),
                 useNoiseGate = context.getSetting(VOICE_INPUT_NOISE_GATE)
             )
         )
@@ -290,6 +292,15 @@ private class VoiceInputActionWindow(
                 inputTransaction.commit(sanitized.trimEnd() + " ")
                 inputTransaction = manager.createInputTransaction()
             }
+        }
+    }
+
+    override fun clickGesture(clickCount: Int) {
+        // Any burst of two or more clicks is one Enter.
+        if (clickCount < 2) return
+        manager.getLifecycleScope().launch(Dispatchers.Main) {
+            inputTransaction.commit("\n")
+            inputTransaction = manager.createInputTransaction()
         }
     }
 

@@ -71,6 +71,9 @@ interface RecognizerViewListener {
     /** A segment was finalized mid-recording (pause-triggered); recording continues. */
     fun segmentResult(result: String)
 
+    /** A burst of two or more clicks (2, or 3 for three or more) was detected in the raw audio. */
+    fun clickGesture(clickCount: Int) {}
+
     // Return true if a permission modal was shown, otherwise return false
     fun requestPermission(onGranted: () -> Unit, onRejected: () -> Unit): Boolean
 
@@ -175,6 +178,10 @@ class RecognizerView(
             listener.segmentResult(result)
             // A new segment is starting; clear the stale preview from the one just committed.
             partialDecodingText.value = ""
+        }
+
+        override fun clickGesture(clickCount: Int) {
+            listener.clickGesture(clickCount)
         }
 
         override fun languageDetected(language: Language) {

@@ -14,6 +14,8 @@ interface AudioRecognizerListener {
 
     /** A segment was finalized mid-recording (pause-triggered); recording continues. */
     fun segmentResult(result: String)
+    /** A burst of two or more clicks (2, or 3 for three or more) was detected in the raw audio. */
+    fun clickGesture(clickCount: Int) {}
     fun decodingStatus(status: InferenceState)
     fun modelLoadingFailed()
 

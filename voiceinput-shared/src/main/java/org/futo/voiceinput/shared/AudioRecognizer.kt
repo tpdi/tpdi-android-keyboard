@@ -84,6 +84,7 @@ data class RecordingSettings(
     val useVADAutoStop: Boolean,
     val useSegmentedResults: Boolean = false,
     val segmentPauseMs: Int = 600,
+    val useClickGestures: Boolean = false,
     val useNoiseGate: Boolean = false
 )
 
@@ -112,6 +113,9 @@ class AudioRecognizer(
     private val useSegmentedResults = settings.recordingConfiguration.useSegmentedResults
     // VAD runs in 480-sample (30ms @ 16kHz) frames; convert the configured ms to a frame count.
     private val segmentPauseFrames = (settings.recordingConfiguration.segmentPauseMs / 30).coerceAtLeast(1)
+
+    // Set per recording when click gestures (tongue clicks into the microphone) are on; null otherwise.
+    private var clicks: ClickGestureDetector? = null
 
     private var floatSamples: FloatBuffer = FloatBuffer.allocate(16000 * 30)
     private var recorderJob: Job? = null
@@ -233,6 +237,7 @@ class AudioRecognizer(
         modelJob?.cancel()
         segmentJob?.cancel()
         isSegmentProcessing = false
+        clicks?.cancelPending()
         isRecording = false
 
         modelRunner.cancelAll()
@@ -358,6 +363,9 @@ class AudioRecognizer(
         var numConsecutiveNonSpeech = 0
         var numConsecutiveSpeech = 0
 
+        val clicks = if (settings.recordingConfiguration.useClickGestures) ClickGestureDetector() else null
+        this.clicks = clicks
+
         val noiseGate = if (settings.recordingConfiguration.useNoiseGate) AdaptiveNoiseGate() else null
         val samples = ShortArray(1600)
 
@@ -385,9 +393,13 @@ class AudioRecognizer(
                 numConsecutiveNonSpeech = 0
                 numConsecutiveSpeech = 0
                 hasTalked = false
-                yield()
-                withContext(Dispatchers.Main) {
-                    finishSegment()
+                if (clicks?.segmentEnded() == true) {
+                    floatSamples.clear()
+                } else {
+                    yield()
+                    withContext(Dispatchers.Main) {
+                        finishSegment()
+                    }
                 }
             }
 
@@ -407,6 +419,7 @@ class AudioRecognizer(
                         } else {
                             numConsecutiveNonSpeech = 0
                             numConsecutiveSpeech++
+                            clicks?.onVadSpeechFrame()
                         }
                     }
 
@@ -425,7 +438,8 @@ class AudioRecognizer(
 
             // Don't set hasTalked if the start sound may still be playing, otherwise on some
             // devices the rms just explodes and `hasTalked` is always true
-            val startSoundPassed = (floatSamples.position() > 16000 * 0.6)
+            clicks?.onSamplesRead(nRead)
+            val startSoundPassed = clicks?.startSoundPassed() ?: (floatSamples.position() > 16000 * 0.6)
             if (!startSoundPassed) {
                 numConsecutiveSpeech = 0
                 numConsecutiveNonSpeech = 0
@@ -433,8 +447,32 @@ class AudioRecognizer(
 
             val rms = sqrt(samples.sumOf { (it.toFloat() / Short.MAX_VALUE.toFloat()).pow(2).toDouble() } / samples.size).toFloat()
 
-            if (startSoundPassed && ((rms > 0.01) || (numConsecutiveSpeech > 8))) {
+            // Evaluate click-ness first so a click's brief energy can't flip hasTalked.
+            val clickAnalysis = clicks?.analyze(samples, nRead, rms, startSoundPassed)
+            if (clickAnalysis?.isClickCandidate == true) numConsecutiveSpeech = 0
+            val loudEnough = if (clickAnalysis != null) clicks!!.isSustainedLoud(startSoundPassed, clickAnalysis, rms) else rms > 0.01
+            if (startSoundPassed && (loudEnough || (numConsecutiveSpeech > 8))) {
                 hasTalked = true
+            }
+
+            if (clickAnalysis != null && startSoundPassed) {
+                val r = clicks!!.onChunk(clickAnalysis, rms, hasTalked, isSegmentProcessing)
+                if (r.clearBuffer) floatSamples.clear()
+                if (r.finishSpeech) {
+                    hasTalked = false
+                    numConsecutiveSpeech = 0
+                    numConsecutiveNonSpeech = 0
+                    yield()
+                    withContext(Dispatchers.Main) {
+                        finishSegment()
+                    }
+                }
+                if (r.fireGesture > 0) {
+                    yield()
+                    withContext(Dispatchers.Main) {
+                        listener.clickGesture(r.fireGesture)
+                    }
+                }
             }
 
             if (rms > 0.0001) {
@@ -606,19 +644,23 @@ class AudioRecognizer(
             return
         }
 
-        isSegmentProcessing = false
+        // With click gestures on, stays true until the result has been handed to the listener,
+        // so a pending click gesture can't be posted ahead of the text it follows.
+        val holdUntilDelivered = clicks != null
+        if (!holdUntilDelivered) isSegmentProcessing = false
 
         val text = when {
             isBlankResult(outputText) -> ""
             else -> outputText
         }
 
-        if (text.isNotEmpty()) {
+        if (text.isNotEmpty() || holdUntilDelivered) {
             yield()
             lifecycleScope.launch {
                 withContext(Dispatchers.Main) {
                     yield()
-                    listener.segmentResult(text)
+                    if (text.isNotEmpty()) listener.segmentResult(text)
+                    if (holdUntilDelivered) isSegmentProcessing = false
                 }
             }
         }
