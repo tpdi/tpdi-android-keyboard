@@ -7,5 +7,5 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 // while "Dictate over the keyboard" is off.
 val VOICE_INPUT_TAP_CIRCLE_TO_STOP = SettingsKey(
     key = booleanPreferencesKey("voice_input_tap_circle_to_stop"),
-    default = true
+    default = false
 )
