@@ -71,6 +71,8 @@ Toggle: Settings > TPDI Features > Sticky modifier keys (Settings > Typing in th
 
 Tab, Enter, Escape, Home, End, Page Up/Down, Forward Delete, Insert and F1 to F12 as real key events, like a hardware keyboard.
 
+![Send key codes rather than text](docs/screenshots/toggle-key-codes.png)
+
 Toggle: Settings > Typing > Send key codes rather than text. Issue [#9](https://github.com/tpdi/tpdi-android-keyboard/issues/9), PR [#41](https://github.com/tpdi/tpdi-android-keyboard/pull/41).
 
 ### Shift cycles the case of the word the cursor is on
@@ -78,6 +80,8 @@ Toggle: Settings > Typing > Send key codes rather than text. Issue [#9](https://
 With the cursor in or next to a word, Shift selects it and cycles lower / Capitalized / UPPER in place (stock only did this for a selection).
 
 ![Shift cycles the case of the word the cursor is on](docs/screenshots/case-cycle.png)
+
+![Shift cycles the case of the word the cursor is on](docs/screenshots/toggle-case-cycle.png)
 
 Toggle: Settings > Typing > Shift cycles the case of the word the cursor is on. Issue [#37](https://github.com/tpdi/tpdi-android-keyboard/issues/37), PR [#77](https://github.com/tpdi/tpdi-android-keyboard/pull/77).
 
@@ -87,11 +91,15 @@ Like Samsung's keyboard: Shift puts the Capitalized form of the touched word in 
 
 ![Shift suggests other cases of the word](docs/screenshots/case-suggestions.png)
 
+![Shift suggests other cases of the word](docs/screenshots/toggle-case-suggestions.png)
+
 Toggle: Settings > Typing > Shift suggests other cases of the word the cursor is on. Issue [#38](https://github.com/tpdi/tpdi-android-keyboard/issues/38), PR [#78](https://github.com/tpdi/tpdi-android-keyboard/pull/78).
 
 ### Load layout from file
 
 A Load from file button in the custom layout editor.
+
+![Load layout from file](docs/screenshots/toggle-load-from-file.png)
 
 Toggle: Settings > Typing > Load layout from file. Issue [#7](https://github.com/tpdi/tpdi-android-keyboard/issues/7), PR [#70](https://github.com/tpdi/tpdi-android-keyboard/pull/70).
 
@@ -129,6 +137,8 @@ The voice toggles on Settings > Voice input. Every toggle is off by default. The
 ### Show words while listening
 
 Shows the words recognized so far inside the voice bubble.
+
+![Show words while listening](docs/screenshots/toggle-partial.png)
 
 Toggle: Settings > Voice input > Show words while listening. Issue [#4](https://github.com/tpdi/tpdi-android-keyboard/issues/4), PR [#71](https://github.com/tpdi/tpdi-android-keyboard/pull/71).
 
@@ -211,6 +221,8 @@ Toggle: Settings > Voice input. Issue [#34](https://github.com/tpdi/tpdi-android
 ### Click gestures
 
 Click your tongue twice (the sound, not a finger tap) while dictating and the keyboard presses Enter.
+
+![Click gestures](docs/screenshots/toggle-clicks.png)
 
 Toggle: Settings > Voice input. Issue [#15](https://github.com/tpdi/tpdi-android-keyboard/issues/15), PR [#45](https://github.com/tpdi/tpdi-android-keyboard/pull/45).
 
