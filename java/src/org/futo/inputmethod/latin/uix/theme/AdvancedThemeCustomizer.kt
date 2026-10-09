@@ -198,7 +198,8 @@ class AdvancedThemeMatcher(
         var hintOffsetY = 0f
         if (context.getSetting(NORMALIZE_HINT_GLYPH_SIZE.key, NORMALIZE_HINT_GLYPH_SIZE.default)) {
             val glyph = HintGlyphScale.scaleFor(hintLabel, hintTypeface)
-            // Scaling about the baseline moves the glyph's center; shift it back to where it was.
+            // Hints are anchored at the top of the font box, so scaling moves the glyph's center
+            // down; shift it back to where it was.
             hintOffsetY = glyph.centerY * hintSize * (1f - glyph.scale)
             hintSize *= glyph.scale
         }
