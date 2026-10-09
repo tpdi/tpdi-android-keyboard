@@ -4,7 +4,7 @@
 # slot, which the loader requires first; the number keys are the row below it.
 # Ctrl, Win, Alt, the right Alt (AltGr), Fn, right Ctrl, Caps and NmLk/ScrLk are sticky modifiers
 # (turn on "Sticky modifier keys" in Typing: tap to latch for the next key, long press to lock).
-# Esc, F-keys, Home, End, PgUp, PgDn, Del, Ins and the arrows need "Send key codes rather than
+# Esc, F-keys, Home, End, PgUp, PgDn, Del, Ins need "Send key codes rather than
 # text" for the real key events.
 name: 84-key
 rows:
@@ -85,7 +85,6 @@ rows:
     - {type: case, normal: ".", shifted: ">"}
     - {type: case, normal: "/", shifted: "?"}
     - $shift
-    - {type: base, spec: "↑|!code/action_up", attributes: {style: Functional}}
     - {type: base, spec: "End|!code/key_end", attributes: {style: Functional}}
   - bottom:
     - {type: base, spec: "Ctrl|!code/key_ctrl", attributes: {style: Functional}}
@@ -95,6 +94,3 @@ rows:
     - {type: base, spec: "Alt|!code/key_altgr", attributes: {style: Functional}}
     - {type: base, spec: "Fn|!code/key_fn", attributes: {style: Functional}}
     - {type: base, spec: "Ctrl|!code/key_ctrl_right", attributes: {style: Functional}}
-    - {type: base, spec: "←|!code/action_left", attributes: {style: Functional}}
-    - {type: base, spec: "↓|!code/action_down", attributes: {style: Functional}}
-    - {type: base, spec: "→|!code/action_right", attributes: {style: Functional}}
