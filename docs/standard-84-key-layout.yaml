@@ -1,12 +1,12 @@
-# A standard 84-key keyboard as far as a phone allows. Not bundled in the app: load it as a custom
-# layout (Load from file in the custom layout editor).
-# Top row: Esc, F1-F10, Home, End, PgUp, PgDn (it is the layout's "number row" slot, which the
-# loader requires first). Then the number row with Backspace and Del, and the Tab, Caps and Shift
-# rows. Bottom: Ctrl, Super, Alt, Space, AltGr (right Alt), right Ctrl and the arrows.
-# Ctrl, Super, Alt, AltGr and Caps are sticky modifiers (turn on "Sticky modifier keys" in Typing:
-# tap to latch for the next key, long press to lock). Esc, F-keys, Home, End, PgUp, PgDn, Del and
-# the arrows need "Send key codes rather than text" for the real key events.
-name: Standard 84-key
+# An 84-key style keyboard (75% layout with the navigation column on the right). Not bundled in
+# the app: load it as a custom layout (Load from file in the custom layout editor).
+# Top row: Esc, F1-F12, NmLk, ScrLk, Del (long press for Ins). It sits in the layout's "number row"
+# slot, which the loader requires first; the number keys are the row below it.
+# Ctrl, Win, Alt, the right Alt (AltGr), Fn, right Ctrl, Caps and NmLk/ScrLk are sticky modifiers
+# (turn on "Sticky modifier keys" in Typing: tap to latch for the next key, long press to lock).
+# Esc, F-keys, Home, End, PgUp, PgDn, Del, Ins and the arrows need "Send key codes rather than
+# text" for the real key events.
+name: 84-key
 rows:
   - numbers:
     - {type: base, spec: "Esc|!code/key_escape", attributes: {style: Functional}}
@@ -20,10 +20,11 @@ rows:
     - {type: base, spec: "F8|!code/key_f8", attributes: {style: Functional}}
     - {type: base, spec: "F9|!code/key_f9", attributes: {style: Functional}}
     - {type: base, spec: "F10|!code/key_f10", attributes: {style: Functional}}
-    - {type: base, spec: "Home|!code/key_home", attributes: {style: Functional}}
-    - {type: base, spec: "End|!code/key_end", attributes: {style: Functional}}
-    - {type: base, spec: "PgUp|!code/key_page_up", attributes: {style: Functional}}
-    - {type: base, spec: "PgDn|!code/key_page_down", attributes: {style: Functional}}
+    - {type: base, spec: "F11|!code/key_f11", attributes: {style: Functional}}
+    - {type: base, spec: "F12|!code/key_f12", attributes: {style: Functional}}
+    - {type: base, spec: "NmLk|!code/key_numlock", attributes: {style: Functional}}
+    - {type: base, spec: "ScrLk|!code/key_scrolllock", attributes: {style: Functional}}
+    - {type: base, spec: "Del|!code/key_forward_delete", moreKeys: "Ins|!code/key_insert", attributes: {style: Functional}}
   - letters:
     - {type: case, normal: "`", shifted: "~"}
     - {type: case, normal: "1", shifted: "!"}
@@ -39,7 +40,7 @@ rows:
     - {type: case, normal: "-", shifted: "_"}
     - {type: case, normal: "=", shifted: "+"}
     - $delete
-    - {type: base, spec: "Del|!code/key_forward_delete", attributes: {style: Functional}}
+    - {type: base, spec: "Home|!code/key_home", attributes: {style: Functional}}
   - letters:
     - {type: base, spec: "Tab|!code/key_tab", attributes: {style: Functional}}
     - q
@@ -55,6 +56,7 @@ rows:
     - {type: case, normal: "[", shifted: "{"}
     - {type: case, normal: "]", shifted: "}"}
     - {type: case, normal: "\\", shifted: "|"}
+    - {type: base, spec: "PgUp|!code/key_page_up", attributes: {style: Functional}}
   - letters:
     - {type: base, spec: "Caps|!code/key_capslock", attributes: {style: Functional}}
     - a
@@ -69,6 +71,7 @@ rows:
     - {type: case, normal: ";", shifted: ":"}
     - {type: case, normal: "'", shifted: "\""}
     - $enter
+    - {type: base, spec: "PgDn|!code/key_page_down", attributes: {style: Functional}}
   - letters:
     - $shift
     - z
@@ -82,14 +85,16 @@ rows:
     - {type: case, normal: ".", shifted: ">"}
     - {type: case, normal: "/", shifted: "?"}
     - $shift
+    - {type: base, spec: "↑|!code/action_up", attributes: {style: Functional}}
+    - {type: base, spec: "End|!code/key_end", attributes: {style: Functional}}
   - bottom:
     - {type: base, spec: "Ctrl|!code/key_ctrl", attributes: {style: Functional}}
-    - {type: base, spec: "Super|!code/key_meta", attributes: {style: Functional}}
+    - {type: base, spec: "Win|!code/key_meta", attributes: {style: Functional}}
     - {type: base, spec: "Alt|!code/key_alt", attributes: {style: Functional}}
     - $space
-    - {type: base, spec: "AltGr|!code/key_altgr", attributes: {style: Functional}}
+    - {type: base, spec: "Alt|!code/key_altgr", attributes: {style: Functional}}
+    - {type: base, spec: "Fn|!code/key_fn", attributes: {style: Functional}}
     - {type: base, spec: "Ctrl|!code/key_ctrl_right", attributes: {style: Functional}}
     - {type: base, spec: "←|!code/action_left", attributes: {style: Functional}}
     - {type: base, spec: "↓|!code/action_down", attributes: {style: Functional}}
-    - {type: base, spec: "↑|!code/action_up", attributes: {style: Functional}}
     - {type: base, spec: "→|!code/action_right", attributes: {style: Functional}}
