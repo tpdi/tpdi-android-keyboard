@@ -68,6 +68,9 @@ interface RecognizerViewListener {
 
     fun partialResult(result: String)
 
+    /** A segment was finalized mid-recording (pause-triggered); recording continues. */
+    fun segmentResult(result: String)
+
     // Return true if a permission modal was shown, otherwise return false
     fun requestPermission(onGranted: () -> Unit, onRejected: () -> Unit): Boolean
 
@@ -166,6 +169,12 @@ class RecognizerView(
 
         override fun finished(result: String) {
             listener.finished(result)
+        }
+
+        override fun segmentResult(result: String) {
+            listener.segmentResult(result)
+            // A new segment is starting; clear the stale preview from the one just committed.
+            partialDecodingText.value = ""
         }
 
         override fun languageDetected(language: Language) {

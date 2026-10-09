@@ -18,8 +18,11 @@ import org.futo.inputmethod.latin.uix.SYSTEM_VOICE_INPUT_PACKAGE
 import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_SYSTEM_VOICE_INPUT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import org.futo.inputmethod.latin.uix.settings.DropDownPickerSettingItem
 import org.futo.inputmethod.latin.uix.settings.NavigationItemStyle
+import org.futo.inputmethod.latin.uix.settings.SettingSlider
 import org.futo.inputmethod.latin.uix.settings.Tip
 import org.futo.inputmethod.latin.uix.settings.UserSetting
 import org.futo.inputmethod.latin.uix.settings.UserSettingsMenu
@@ -27,6 +30,7 @@ import org.futo.inputmethod.latin.uix.settings.useDataStore
 import org.futo.inputmethod.latin.uix.settings.useDataStoreValue
 import org.futo.inputmethod.latin.uix.settings.userSettingNavigationItem
 import org.futo.inputmethod.latin.uix.settings.userSettingToggleDataStore
+import kotlin.math.roundToInt
 
 private val visibilityCheckNotSystemVoiceInput = @Composable {
     useDataStoreValue(USE_SYSTEM_VOICE_INPUT) == false
@@ -165,6 +169,29 @@ val VoiceInputMenu = UserSettingsMenu(
             subtitle = R.string.voice_input_settings_autostop_vad_subtitle,
             setting = USE_VAD_AUTOSTOP
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_segmented_results,
+            subtitle = R.string.voice_input_settings_segmented_results_subtitle,
+            setting = VOICE_INPUT_SEGMENTED_RESULTS
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        UserSetting(
+            name = R.string.voice_input_settings_segment_pause,
+            subtitle = R.string.voice_input_settings_segment_pause_subtitle,
+        ) {
+            val resources = LocalResources.current
+            SettingSlider(
+                title = stringResource(R.string.voice_input_settings_segment_pause),
+                subtitle = stringResource(R.string.voice_input_settings_segment_pause_subtitle),
+                setting = VOICE_INPUT_SEGMENT_PAUSE_MS,
+                range = 200.0f..1500.0f,
+                hardRange = 100.0f..3000.0f,
+                transform = { it.roundToInt() },
+                indicator = { resources.getString(R.string.abbreviation_unit_milliseconds, "$it") },
+                steps = 12
+            )
+        }.copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(
             title = R.string.voice_input_settings_animate_bubble,

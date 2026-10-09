@@ -81,7 +81,9 @@ data class RecordingSettings(
     val preferBluetoothMic: Boolean,
     val requestAudioFocus: Boolean,
     val canExpandSpace: Boolean,
-    val useVADAutoStop: Boolean
+    val useVADAutoStop: Boolean,
+    val useSegmentedResults: Boolean = false,
+    val segmentPauseMs: Int = 600
 )
 
 data class AudioRecognizerSettings(
@@ -106,11 +108,16 @@ class AudioRecognizer(
 
     private val canExpandSpace = settings.recordingConfiguration.canExpandSpace
     private val useVAD = settings.recordingConfiguration.useVADAutoStop
+    private val useSegmentedResults = settings.recordingConfiguration.useSegmentedResults
+    // VAD runs in 480-sample (30ms @ 16kHz) frames; convert the configured ms to a frame count.
+    private val segmentPauseFrames = (settings.recordingConfiguration.segmentPauseMs / 30).coerceAtLeast(1)
 
     private var floatSamples: FloatBuffer = FloatBuffer.allocate(16000 * 30)
     private var recorderJob: Job? = null
     private var modelJob: Job? = null
     private var loadModelJob: Job? = null
+    private var segmentJob: Job? = null
+    private var isSegmentProcessing = false
 
     private var focusRequest: AudioFocusRequest? = null
 
@@ -223,6 +230,8 @@ class AudioRecognizer(
         recorder = null
 
         modelJob?.cancel()
+        segmentJob?.cancel()
+        isSegmentProcessing = false
         isRecording = false
 
         modelRunner.cancelAll()
@@ -235,6 +244,29 @@ class AudioRecognizer(
     fun finish() {
         if(!isRecording) return
         onFinishRecording()
+    }
+
+    /**
+     * Finalizes whatever audio has been captured since the last segment (or
+     * the start of recording) as its own independent decode, without
+     * stopping the recorder. Unlike [finish]/[onFinishRecording], recording
+     * continues immediately; this only snapshots-and-clears the sample
+     * buffer so the next segment starts clean.
+     */
+    private fun finishSegment() {
+        if (!isRecording || isSegmentProcessing) return
+
+        val segmentSamples = floatSamples.array().sliceArray(0 until floatSamples.position())
+        floatSamples.clear()
+
+        if (segmentSamples.isEmpty()) return
+
+        isSegmentProcessing = true
+        segmentJob = lifecycleScope.launch {
+            withContext(Dispatchers.Default) {
+                runSegmentModel(segmentSamples)
+            }
+        }
     }
 
     fun cancel() {
@@ -342,6 +374,18 @@ class AudioRecognizer(
                     finish()
                 }
                 return
+            }
+
+            val shouldFinalizeSegment = useSegmentedResults && useVAD && hasTalked &&
+                    (numConsecutiveNonSpeech > segmentPauseFrames) && !isSegmentProcessing
+            if (shouldFinalizeSegment) {
+                numConsecutiveNonSpeech = 0
+                numConsecutiveSpeech = 0
+                hasTalked = false
+                yield()
+                withContext(Dispatchers.Main) {
+                    finishSegment()
+                }
             }
 
             // Run VAD
@@ -540,12 +584,53 @@ class AudioRecognizer(
         }
     }
 
+    private suspend fun runSegmentModel(segmentSamples: FloatArray) {
+        loadModelJob?.let {
+            if (it.isActive) it.join()
+        }
+
+        yield()
+        val outputText = try {
+            modelRunner.run(
+                segmentSamples,
+                settings.modelRunConfiguration,
+                settings.decodingConfiguration,
+                runnerCallback
+            ).trim()
+        } catch (e: InferenceCancelledException) {
+            isSegmentProcessing = false
+            return
+        }
+
+        isSegmentProcessing = false
+
+        val text = when {
+            isBlankResult(outputText) -> ""
+            else -> outputText
+        }
+
+        if (text.isNotEmpty()) {
+            yield()
+            lifecycleScope.launch {
+                withContext(Dispatchers.Main) {
+                    yield()
+                    listener.segmentResult(text)
+                }
+            }
+        }
+    }
+
     private suspend fun runModel() {
         loadModelJob?.let {
             if (it.isActive) {
                 println("Model was not finished loading...")
                 it.join()
             }
+        }
+
+        // Don't let the final decode race a still-in-flight segment decode on the same model.
+        segmentJob?.let {
+            if (it.isActive) it.join()
         }
 
         val floatArray = floatSamples.array().sliceArray(0 until floatSamples.position())
