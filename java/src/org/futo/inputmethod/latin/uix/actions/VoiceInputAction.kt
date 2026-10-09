@@ -44,6 +44,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import androidx.compose.ui.unit.Dp
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_UNDO_KEY
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
 import org.futo.inputmethod.latin.uix.settings.SettingsActivity
@@ -269,6 +270,13 @@ private class VoiceInputActionWindow(
         recognizerView.value?.cancel()
         state.modelManager.cancelAll()
         return CloseResult.Default
+    }
+
+    // With the setting on, the keyboard's Undo key undoes the last dictated segment, like the bar's Undo.
+    override fun interceptActionKey(action: Action): Boolean {
+        if (action !== UndoAction || !context.getSetting(VOICE_INPUT_UNDO_KEY)) return false
+        session.undoLast()
+        return true
     }
 
     private var wasFinished = false
