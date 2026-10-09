@@ -18,7 +18,7 @@ Every toggle this fork adds is listed on one page, Settings > TPDI Features, so 
 
 The KASROZ layout, modified by TP Diffenbach with numerous hints: almost every key carries a symbol or punctuation mark on long press (the small grey characters), the number row sits on top, the right-hand space key is a microphone key, and an arrow-key row with undo and redo sits under the space bar. Load it with the custom layout editor (Developer > Custom layouts > Load from file; turn on Settings > TPDI Features > Load layout from file first).
 
-![KASROZ layout](docs/kasroz-layout.png)
+![KASROZ (arrows)](docs/screenshots/kasroz.png)
 
 Layout file: [docs/kasroz-arrows.yaml](docs/kasroz-arrows.yaml). Also docs/kasroz-arrows-multilingual.yaml (KASROZ with an added short arrow-key row at the very bottom).
 
@@ -98,7 +98,7 @@ Toggle: Settings > Typing > Shift cycles the case of the word the cursor is on. 
 
 ### Shift suggests other cases of the word
 
-Like Samsung's keyboard: Shift puts the Capitalized form of the touched word in the suggestion bar, the next tap UPPER.
+Like Samsung's keyboard: Shift puts the Capitalized form of the word the cursor is on in the suggestion bar, the next tap UPPER.
 
 ![Shift suggests other cases of the word](docs/screenshots/case-suggestions.png)
 
@@ -118,11 +118,15 @@ Toggle: Settings > Typing > Load layout from file. Issue [#7](https://github.com
 
 A layout key (key_to_alt_3_layout) that reaches a fourth alternate page.
 
+![Fourth alternate page](docs/screenshots/alt-page-4.png)
+
 Toggle: Layout opt-in: nothing changes unless a layout uses the key. Issue [#24](https://github.com/tpdi/tpdi-android-keyboard/issues/24), PR [#55](https://github.com/tpdi/tpdi-android-keyboard/pull/55).
 
 ### Dismiss-keyboard key
 
 A layout action that hides the keyboard, like the chevron key on Samsung's keyboard.
+
+![Dismiss-keyboard key](docs/screenshots/kasroz.png)
 
 Toggle: Layout opt-in: nothing changes unless a layout uses the key. Issue [#27](https://github.com/tpdi/tpdi-android-keyboard/issues/27), PR [#59](https://github.com/tpdi/tpdi-android-keyboard/pull/59).
 
@@ -130,11 +134,15 @@ Toggle: Layout opt-in: nothing changes unless a layout uses the key. Issue [#27]
 
 Shows the quick-copy chip's text even when the app that copied it marked it sensitive.
 
+![Show sensitive quick clips](docs/screenshots/state-quick-clips.png)
+
 Toggle: Settings > Clipboard. Issue [#29](https://github.com/tpdi/tpdi-android-keyboard/issues/29), PR [#62](https://github.com/tpdi/tpdi-android-keyboard/pull/62).
 
 ### Swipe typing after a long press (bug fix)
 
 Swipe typing stopped working after using a long-press popup until the keyboard was reloaded.
+
+![Swipe typing after a long press (bug fix)](docs/screenshots/swipe-fix.png)
 
 Toggle: Bug fix, no setting. Issue [#26](https://github.com/tpdi/tpdi-android-keyboard/issues/26), PR [#57](https://github.com/tpdi/tpdi-android-keyboard/pull/57).
 

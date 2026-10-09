@@ -773,7 +773,7 @@ Default is %1$s</string>
     <string name="keyboard_settings_normalize_hint_glyph_size">Even out hint sizes</string>
     <string name="keyboard_settings_normalize_hint_glyph_size_subtitle">Scales hints according to the character size.</string>
     <string name="keyboard_settings_recapitalize_touched_word">Shift cycles the case of the word the cursor is on</string>
-    <string name="keyboard_settings_recapitalize_touched_word_subtitle">With nothing selected and the cursor touching a word, Shift selects the word and cycles it through lower case, Capitalized and UPPER, like it does for selected text. Off by default.</string>
+    <string name="keyboard_settings_recapitalize_touched_word_subtitle">With nothing selected and the cursor in or next to a word, Shift selects the word and cycles it through lower case, Capitalized and UPPER, like it does for selected text. Off by default.</string>
     <string name="keyboard_settings_case_form_suggestions">Shift suggests other cases of the word the cursor is on</string>
-    <string name="keyboard_settings_case_form_suggestions_subtitle">With the cursor touching a word, tapping Shift shows its Capitalized form in the suggestion bar, and each further tap another form (UPPER, lower). Tap a suggestion to replace the word. Takes precedence over cycling in place. Off by default.</string>
+    <string name="keyboard_settings_case_form_suggestions_subtitle">With the cursor in or next to a word, tapping Shift shows its Capitalized form in the suggestion bar, and each further tap another form (UPPER, lower). Tap a suggestion to replace the word. Takes precedence over cycling in place. Off by default.</string>
 </resources>
