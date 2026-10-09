@@ -509,7 +509,7 @@ public class KeyboardView extends View {
                     paint.setStrokeWidth(0);
                 }
 
-                paint.setColor(StickyModifiers.colorFor(key.getCode(), kdc.getTextColor()));
+                paint.setColor(kdc.getTextColor());
                 // Set a drop shadow for the text if the shadow radius is positive value.
                 if (mKeyTextShadowRadius > 0.0f) {
                     paint.setShadowLayer(mKeyTextShadowRadius, 0.0f, 0.0f, params.mTextShadowColor);

@@ -2,7 +2,6 @@ package org.futo.inputmethod.latin.inputlogic
 
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
-import androidx.core.graphics.ColorUtils
 import org.futo.inputmethod.event.Event
 import org.futo.inputmethod.event.InputTransaction
 import org.futo.inputmethod.latin.common.Constants
@@ -20,7 +19,7 @@ object StickyModifiers {
     @JvmStatic
     fun onSettingChanged(enabled: Boolean) {
         this.enabled = enabled
-        if (!enabled) clear()
+        if (!enabled) clearAll()
     }
 
     /**
@@ -71,14 +70,6 @@ object StickyModifiers {
     fun labelFor(layoutCode: Int, label: String?): String? =
         if (label != null && isLatched(layoutCode)) "[$label]" else label
 
-    /** A latched modifier key's label is drawn in amber: light on a dark theme, dark on a light one. */
-    @JvmStatic
-    fun colorFor(layoutCode: Int, textColor: Int): Int = when {
-        !isLatched(layoutCode) -> textColor
-        ColorUtils.calculateLuminance(textColor) > 0.5 -> 0xFFFFC107.toInt()
-        else -> 0xFFE65100.toInt()
-    }
-
     /** Layout code to the meta state it sends. AltGr is what a hardware keyboard reports as right Alt. */
     private val metaFor = mapOf(
         Constants.CODE_CTRL to KeyEvent.META_CTRL_ON,
@@ -96,10 +87,30 @@ object StickyModifiers {
         Constants.CODE_META_RIGHT to (KeyEvent.META_META_ON or KeyEvent.META_META_RIGHT_ON),
     )
 
+    /** Latched for the next key only (tap). */
     @Volatile private var latched = emptySet<Int>()
 
+    /** Held until the key is tapped again (long press). */
+    @Volatile private var locked = emptySet<Int>()
+
     @JvmStatic
-    val active: Boolean get() = latched.isNotEmpty()
+    val active: Boolean get() = latched.isNotEmpty() || locked.isNotEmpty()
+
+    @JvmStatic
+    fun isModifierKey(layoutCode: Int): Boolean = enabled && layoutCode in metaFor
+
+    /**
+     * A long press locks the key until it is tapped again. Returns whether it was handled, in
+     * which case the key press is consumed.
+     */
+    @JvmStatic
+    fun onLongPress(layoutCode: Int): Boolean {
+        if (!isModifierKey(layoutCode)) return false
+        latched = latched - layoutCode
+        locked = locked + layoutCode
+        onChanged?.run()
+        return true
+    }
 
     /** Called after the latched state changes, so the keyboard can redraw the key labels. */
     @Volatile
@@ -108,26 +119,40 @@ object StickyModifiers {
 
     /** Whether the key with this layout code is currently latched. */
     @JvmStatic
-    fun isLatched(layoutCode: Int): Boolean = layoutCode in latched
+    fun isLatched(layoutCode: Int): Boolean = layoutCode in latched || layoutCode in locked
 
     @JvmStatic
     fun toggle(layoutCode: Int) {
         if (layoutCode !in metaFor) return
-        latched = if (layoutCode in latched) latched - layoutCode else latched + layoutCode
+        if (layoutCode in locked) {
+            locked = locked - layoutCode
+        } else {
+            latched = if (layoutCode in latched) latched - layoutCode else latched + layoutCode
+        }
         onChanged?.run()
     }
 
+    /** Releases the keys latched for the next key; locked keys stay. */
     @JvmStatic
     fun clear() {
+        if (latched.isEmpty()) return
+        latched = emptySet()
+        onChanged?.run()
+    }
+
+    /** Releases everything, including locked keys. */
+    @JvmStatic
+    fun clearAll() {
         val changed = active
         latched = emptySet()
+        locked = emptySet()
         if (changed) onChanged?.run()
     }
 
     /** The meta state of the latched modifiers; clears them. */
     @JvmStatic
     fun take(): Int {
-        val state = latched.fold(0) { acc, code -> acc or (metaFor[code] ?: 0) }
+        val state = (latched + locked).fold(0) { acc, code -> acc or (metaFor[code] ?: 0) }
         clear()
         return state
     }

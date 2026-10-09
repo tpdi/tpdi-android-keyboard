@@ -593,7 +593,13 @@ public final class MainKeyboardView extends KeyboardView implements DrawingProxy
         super.onAttachedToWindow();
         installPreviewPlacerView();
         // Redraw the key labels when a sticky modifier is latched or released.
-        StickyModifiers.setOnChanged(() -> post(this::invalidateAllKeys));
+        StickyModifiers.setOnChanged(() -> post(() -> {
+            final Keyboard keyboard = getKeyboard();
+            if (keyboard != null) {
+                for (final Key key : keyboard.getSortedKeys()) key.getThemeCache().clear();
+            }
+            invalidateAllKeys();
+        }));
     }
 
     @Override
