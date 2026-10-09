@@ -13,7 +13,10 @@ import org.futo.inputmethod.keyboard.Key
 import org.futo.inputmethod.keyboard.Keyboard
 import org.futo.inputmethod.keyboard.internal.KeyDrawParams
 import org.futo.inputmethod.latin.uix.DynamicThemeProvider
+import org.futo.inputmethod.latin.uix.KeyHintBrightness
 import org.futo.inputmethod.latin.uix.KeyboardColorScheme
+import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE
+import org.futo.inputmethod.latin.uix.getSetting
 import kotlin.math.roundToInt
 
 data class KeyOutline(
@@ -63,6 +66,7 @@ class AdvancedThemeMatcher(
     val scheme: KeyboardColorScheme
 ) {
     val theme = scheme.extended.advancedThemeOptions
+    private val extraHintScale get() = context.getSetting(KEY_HINT_SCALE.key, KEY_HINT_SCALE.default)
 
     val backgroundList = theme.keyBackgrounds?.v ?: emptyList()
     val layers = (listOf(0) + backgroundList.map { getLayer(it.qualifiers) })
@@ -130,7 +134,7 @@ class AdvancedThemeMatcher(
             label = key.labelOverride ?: key.label,
             hintLabel = key.effectiveHintLabel,
             textColor = key.selectTextColor(drawableProvider, params),
-            hintColor = key.selectHintTextColor(drawableProvider, params),
+            hintColor = KeyHintBrightness.apply(context, key.selectHintTextColor(drawableProvider, params)),
             textSize = key.selectTextSize(params).toFloat(),
             hintSize = key.selectHintTextSize(drawableProvider, params).toFloat(),
             textTypeface = key.selectTypeface(params),
@@ -155,7 +159,7 @@ class AdvancedThemeMatcher(
 
         val hintColor = foundBackground?.foregroundColor?.let { fgCol ->
             Color(fgCol).let { it.copy(alpha = it.alpha*0.8f) }.toArgb()
-        } ?: key.selectHintTextColor(drawableProvider, params)
+        }.let { KeyHintBrightness.apply(context, it ?: key.selectHintTextColor(drawableProvider, params)) }
 
         val icon = findIcon(icons, keyboard, key)?.drawable ?: key.getIconOverride(keyboard.mIconsSet, params.mAnimAlpha)
         val hintIcon = findIcon(hintIcons, keyboard, key)?.drawable
@@ -164,7 +168,7 @@ class AdvancedThemeMatcher(
         var hintLabel: String? = if(hintIcon == null) key.effectiveHintLabel else null
 
         val textSize = key.selectTextSize(params).toFloat() * scheme.extended.advancedThemeOptions.textSizeMultiplier
-        val hintSize = key.selectHintTextSize(drawableProvider, params).toFloat() * scheme.extended.advancedThemeOptions.hintSizeMultiplier
+        val hintSize = key.selectHintTextSize(drawableProvider, params).toFloat() * scheme.extended.advancedThemeOptions.hintSizeMultiplier * extraHintScale
 
         var textTypeface = drawableProvider.selectKeyTypeface(key.selectTypeface(params))
         var hintTypeface = drawableProvider.selectKeyTypeface(key.selectHintTypeface(drawableProvider, params))

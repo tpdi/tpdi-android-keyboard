@@ -845,6 +845,12 @@ val KeyboardSettingsMenu = UserSettingsMenu(
             key = Settings.PREF_ENABLE_ALT_PERIOD_KEY,
             default = {false},
         ),
+        userSettingNavigationItem(
+            title = R.string.key_hints_title,
+            subtitle = R.string.key_hints_subtitle,
+            style = NavigationItemStyle.Misc,
+            navigateTo = "keyhints"
+        ),
         userSettingToggleDataStore(
             title = R.string.keyboard_settings_hide_when_hardware_keyboard_is_connected,
             setting = HideKeyboardWhenHardKeyboardConnected
