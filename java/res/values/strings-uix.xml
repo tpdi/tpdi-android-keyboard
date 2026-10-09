@@ -778,4 +778,6 @@ Default is %1$s</string>
     <string name="keyboard_settings_case_form_suggestions_subtitle">With the cursor in or next to a word, tapping Shift shows its Capitalized form in the suggestion bar, and each further tap another form (UPPER, lower). Tap a suggestion to replace the word. Takes precedence over cycling in place. Off by default.</string>
     <string name="keyboard_settings_key_label_size">Key label size</string>
     <string name="keyboard_settings_key_label_size_subtitle">Scale the letters on the keys. 100% is unchanged.</string>
+    <string name="keyboard_settings_key_label_position">Key label position</string>
+    <string name="keyboard_settings_key_label_position_subtitle">Move the letters from the centre of each key toward its left edge. 0% (centred) is unchanged.</string>
 </resources>

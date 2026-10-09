@@ -15,6 +15,7 @@ import org.futo.inputmethod.keyboard.internal.KeyDrawParams
 import org.futo.inputmethod.latin.uix.DynamicThemeProvider
 import org.futo.inputmethod.latin.uix.KeyHintBrightness
 import org.futo.inputmethod.latin.uix.KEY_LABEL_SCALE
+import org.futo.inputmethod.latin.uix.KEY_LABEL_ANCHOR
 import org.futo.inputmethod.latin.uix.KeyboardColorScheme
 import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE
 import org.futo.inputmethod.latin.uix.getSetting
@@ -70,6 +71,7 @@ class AdvancedThemeMatcher(
     val scheme: KeyboardColorScheme
 ) {
     val theme = scheme.extended.advancedThemeOptions
+    private val labelAnchor get() = context.getSetting(KEY_LABEL_ANCHOR.key, KEY_LABEL_ANCHOR.default)
     private val extraLabelScale get() = context.getSetting(KEY_LABEL_SCALE.key, KEY_LABEL_SCALE.default)
     private val extraHintScale get() = context.getSetting(KEY_HINT_SCALE.key, KEY_HINT_SCALE.default)
 
@@ -222,7 +224,8 @@ class AdvancedThemeMatcher(
             textTypeface = textTypeface,
             hintTypeface = hintTypeface,
             centeredHint = scheme.extended.advancedThemeOptions.centerHints,
-            outline = outline
+            outline = outline,
+            labelAnchor = labelAnchor
         )
     }
 }
