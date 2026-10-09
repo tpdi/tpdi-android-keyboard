@@ -44,6 +44,9 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
+import androidx.compose.ui.unit.Dp
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_UNDO_KEY
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
 import org.futo.inputmethod.latin.uix.settings.SettingsActivity
@@ -148,7 +151,9 @@ private class VoiceInputActionWindow(
         shouldPlaySounds = enableSound
 
         return RecognizerViewSettings(
-            shouldShowInlinePartialResult = true,
+            // Dictating over the keyboard puts the words straight into the text field, so the bubble
+            // doesn't repeat them.
+            shouldShowInlinePartialResult = !context.getSetting(VOICE_INPUT_OVER_KEYBOARD),
             shouldShowVerboseFeedback = verboseFeedback,
             shouldAnimateBubble = animateBubble,
             modelRunConfiguration = MultiModelRunConfiguration(
@@ -202,27 +207,31 @@ private class VoiceInputActionWindow(
         recognizerView.start()
     }
 
-    private var inputTransaction = manager.createInputTransaction()
+    private val session = VoiceOverKeyboardSession(manager, context.getSetting(VOICE_INPUT_OVER_KEYBOARD))
+    private val inlineMode: Boolean get() = session.inlineMode
+    private var inputTransaction by session::transaction
 
-    // What this session has committed (and, with the UI PRs, typed), so Undo can take it back
-    // one unit at a time.
-    private val undoHistory = VoiceUndoHistory()
+    override fun segmentStarted() = session.segmentStarted()
 
     private val showActionButtons = context.getSetting(VOICE_INPUT_ACTION_BUTTONS)
 
-    private fun pressEnter() {
-        manager.getLifecycleScope().launch(Dispatchers.Main) {
-            inputTransaction.commit("\n")
-            inputTransaction = manager.createInputTransaction()
-            undoHistory.pushVoiceEntry("\n")
-        }
+    override val onlyShowAboveKeyboard: Boolean get() = inlineMode
+    override val fixedWindowHeight: Dp? get() = if (inlineMode) 0.dp else null
+    override val showCloseButton: Boolean get() = !inlineMode
+    override val overridesSuggestionBar: Boolean get() = inlineMode
+
+    @Composable
+    override fun SuggestionBarOverride() {
+        VoiceListeningBar(
+            circle = { recognizerView.value?.Content(circleOnly = true) },
+            onUndo = { session.undoLast() },
+            onStop = { recognizerView.value?.finish() ?: manager.closeActionWindow() }
+        )
     }
 
-    /** Removes the most recent entry of the undo history from the text before the cursor. */
-    internal fun undoLast() {
-        manager.getLifecycleScope().launch(Dispatchers.Main) {
-            undoHistory.undoLast(inputTransaction)
-        }
+    @Composable
+    override fun KeyboardOverlay() {
+        VoiceVolumeCircleOverlay { recognizerView.value?.Content(circleOnly = true) }
     }
 
     @Composable
@@ -237,6 +246,7 @@ private class VoiceInputActionWindow(
 
     @Composable
     override fun WindowContents(keyboardShown: Boolean) {
+        if (inlineMode) return
         Box(modifier = Modifier
             .fillMaxSize()
             .clickable(
@@ -258,8 +268,8 @@ private class VoiceInputActionWindow(
 
             if (showActionButtons && recognizerView.value != null) {
                 VoiceActionButtons(
-                    onUndo = { undoLast() },
-                    onEnter = { pressEnter() },
+                    onUndo = { session.undoLast() },
+                    onEnter = { session.pressEnter() },
                     modifier = Modifier.align(Alignment.CenterEnd).padding(end = 16.dp)
                 )
             }
@@ -267,11 +277,19 @@ private class VoiceInputActionWindow(
     }
 
     override fun close(): CloseResult {
+        session.close()
         inputTransaction.cancel()
         runBlocking { initJob.cancelAndJoin() }
         recognizerView.value?.cancel()
         state.modelManager.cancelAll()
         return CloseResult.Default
+    }
+
+    // With the setting on, the keyboard's Undo key undoes the last dictated segment, like the bar's Undo.
+    override fun interceptActionKey(action: Action): Boolean {
+        if (action !== UndoAction || !context.getSetting(VOICE_INPUT_UNDO_KEY)) return false
+        session.undoLast()
+        return true
     }
 
     private var wasFinished = false
@@ -314,14 +332,7 @@ private class VoiceInputActionWindow(
     override fun segmentResult(result: String) {
         manager.getLifecycleScope().launch(Dispatchers.Main) {
             val sanitized = ModelOutputSanitizer.sanitize(result, inputTransaction.textContext)
-            if (sanitized.isNotBlank()) {
-                // Committed for good, no later revision: start a fresh transaction so the
-                // next segment's partial/commit calls don't touch what's already locked in.
-                val committedText = sanitized.trimEnd() + " "
-                inputTransaction.commit(committedText)
-                inputTransaction = manager.createInputTransaction()
-                undoHistory.pushVoiceEntry(committedText)
-            }
+            if (sanitized.isNotBlank()) session.commitSegment(sanitized.trimEnd() + " ") else session.segmentEmpty()
         }
     }
 

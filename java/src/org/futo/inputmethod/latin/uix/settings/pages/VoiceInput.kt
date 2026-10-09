@@ -9,6 +9,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.content.getSystemService
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.ANIMATE_BUBBLE
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.AUDIO_FOCUS
 import org.futo.inputmethod.latin.uix.CAN_EXPAND_SPACE
@@ -21,6 +22,7 @@ import org.futo.inputmethod.latin.uix.USE_SYSTEM_VOICE_INPUT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_UNDO_KEY
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import org.futo.inputmethod.latin.uix.settings.DropDownPickerSettingItem
 import org.futo.inputmethod.latin.uix.settings.NavigationItemStyle
@@ -173,6 +175,12 @@ val VoiceInputMenu = UserSettingsMenu(
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(
+            title = R.string.voice_input_settings_undo_key,
+            subtitle = R.string.voice_input_settings_undo_key_subtitle,
+            setting = VOICE_INPUT_UNDO_KEY
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
             title = R.string.voice_input_settings_action_buttons,
             subtitle = R.string.voice_input_settings_action_buttons_subtitle,
             setting = VOICE_INPUT_ACTION_BUTTONS
@@ -188,6 +196,12 @@ val VoiceInputMenu = UserSettingsMenu(
             title = R.string.voice_input_settings_segmented_results,
             subtitle = R.string.voice_input_settings_segmented_results_subtitle,
             setting = VOICE_INPUT_SEGMENTED_RESULTS
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_over_keyboard,
+            subtitle = R.string.voice_input_settings_over_keyboard_subtitle,
+            setting = VOICE_INPUT_OVER_KEYBOARD
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         UserSetting(

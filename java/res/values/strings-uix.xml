@@ -599,6 +599,8 @@
     <string name="voice_input_settings_long_form_subtitle">If disabled, voice input will auto-stop after 30 seconds.</string>
     <string name="voice_input_settings_autostop_vad">Auto-stop on silence</string>
     <string name="voice_input_settings_autostop_vad_subtitle">Automatically stop when silence is detected. You may need to manually stop regardless if there\'s too much background noise.</string>
+    <string name="voice_input_settings_undo_key">Undo key undoes dictation</string>
+    <string name="voice_input_settings_undo_key_subtitle">While dictating, the keyboard\'s Undo key removes the last dictated segment, like the Undo button on the bar, instead of sending Ctrl+Z to the app. Off by default.</string>
     <string name="voice_input_settings_noise_gate">Automatic noise gate</string>
     <string name="voice_input_settings_noise_gate_subtitle">Learns the background noise level and turns audio near it down, so only your voice reaches the model. Off by default; may clip the very start of quiet words.</string>
     <string name="voice_input_settings_segmented_results">Incremental results</string>
@@ -721,6 +723,8 @@ Default is %1$s</string>
     <!-- %1$s will be replaced with the custom dictionary name -->
     <string name="personal_dictionary_delete_additional_file_text">%1$s will be deleted</string>
     <string name="action_voice_input_undo">Undo last</string>
+    <string name="voice_input_settings_over_keyboard">Dictate over the keyboard</string>
+    <string name="voice_input_settings_over_keyboard_subtitle">Keep the keyboard visible while dictating: shows Listening… and Undo in the suggestion bar and the volume circle over the keys. Tap the blue microphone to stop. Typed text goes into the same Undo history as dictated text. Off by default.</string>
     <string name="action_voice_input_enter">Enter</string>
     <string name="voice_input_settings_action_buttons">On-screen Undo/Enter buttons</string>
     <string name="voice_input_settings_action_buttons_subtitle">Show a button strip next to the voice input bubble to undo the last thing it typed, or press Enter. Off by default.</string>

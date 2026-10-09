@@ -263,6 +263,7 @@ class AudioRecognizer(
         if (segmentSamples.isEmpty()) return
 
         isSegmentProcessing = true
+        listener.segmentStarted()
         segmentJob = lifecycleScope.launch {
             withContext(Dispatchers.Default) {
                 runSegmentModel(segmentSamples)
