@@ -28,6 +28,14 @@ object StickyModifiers {
      */
     @JvmStatic
     fun handleKey(logic: InputLogic, event: Event, transaction: InputTransaction): Boolean {
+        // Escape, Home, End, Page Up/Down, Forward Delete, Insert, F1-F12: sent with the modifiers.
+        val special = SpecialKeyEvents.androidKeyCodeFor(event.mKeyCode)
+        if (special != -1 && active) {
+            logic.commitTyped(transaction.mSettingsValues, "")
+            logic.sendDownUpKeyEvent(special, take())
+            transaction.setDidAffectContents()
+            return true
+        }
         when (event.mKeyCode) {
             in metaFor -> {
                 if (enabled) toggle(event.mKeyCode)
