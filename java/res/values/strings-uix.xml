@@ -720,8 +720,8 @@ Default is %1$s</string>
     <string name="personal_dictionary_delete_additional_file">Delete extra dictionary file?</string>
     <!-- %1$s will be replaced with the custom dictionary name -->
     <string name="personal_dictionary_delete_additional_file_text">%1$s will be deleted</string>
-    <string name="keyboard_settings_sticky_modifier_keys">Sticky Ctrl and Alt keys</string>
-    <string name="keyboard_settings_sticky_modifier_keys_subtitle">Make the Ctrl and Alt keys of a custom layout work: tap one, then the next key is sent as a real key event with it held (Ctrl+C, Alt+Tab, ...). Off by default; with it off those keys do nothing.</string>
     <string name="keyboard_settings_send_key_codes_rather_than_text">Send key codes rather than text</string>
     <string name="keyboard_settings_send_key_codes_rather_than_text_subtitle">Send Tab, Enter, Escape, Home, End, Page Up/Down, Forward Delete, Insert and F1-F12 as real key events, like a hardware keyboard, instead of as text. Off by default.</string>
+    <string name="keyboard_settings_sticky_modifier_keys">Sticky modifier keys</string>
+    <string name="keyboard_settings_sticky_modifier_keys_subtitle">Make the Ctrl, Alt, Meta and AltGr keys of a custom layout work: tap one, then the next key is sent as a real key event with it held (Ctrl+C, Alt+Tab, ...). Off by default; with it off those keys do nothing.</string>
 </resources>

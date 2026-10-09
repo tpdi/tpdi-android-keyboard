@@ -7,12 +7,12 @@ import org.futo.inputmethod.event.InputTransaction
 import org.futo.inputmethod.latin.common.Constants
 
 /**
- * Ctrl and Alt as sticky keys. Tapping a modifier key latches it; the next key is sent as a real
+ * Ctrl, Alt, Meta and AltGr as sticky keys. Tapping a modifier key latches it; the next key is sent as a real
  * key event with the modifier set, and the latch then clears. Latching again before that key
  * unlatches it.
  */
 object StickyModifiers {
-    /** The "Sticky Ctrl and Alt keys" setting; set by [onSettingChanged], not read per key press. */
+    /** The "Sticky modifier keys" setting; set by [onSettingChanged], not read per key press. */
     @Volatile private var enabled = false
 
     /** Called at startup and whenever the setting changes. Turning it off releases any latch. */
@@ -23,13 +23,13 @@ object StickyModifiers {
     }
 
     /**
-     * Handles the Ctrl and Alt keys (they only latch when the setting is on; with it off they do
+     * Handles the modifier keys (they only latch when the setting is on; with it off they do
      * nothing), and Backspace while a modifier is latched. Returns whether it handled the event.
      */
     @JvmStatic
     fun handleKey(logic: InputLogic, event: Event, transaction: InputTransaction): Boolean {
         when (event.mKeyCode) {
-            Constants.CODE_CTRL, Constants.CODE_ALT -> {
+            in metaFor -> {
                 if (enabled) toggle(event.mKeyCode)
                 return true
             }
@@ -62,11 +62,27 @@ object StickyModifiers {
     fun labelFor(layoutCode: Int, label: String?): String? =
         if (label != null && isLatched(layoutCode)) label.uppercase() else label
 
-    @Volatile private var ctrl = false
-    @Volatile private var alt = false
+    /** Layout code to the meta state it sends. AltGr is what a hardware keyboard reports as right Alt. */
+    private val metaFor = mapOf(
+        Constants.CODE_CTRL to KeyEvent.META_CTRL_ON,
+        Constants.CODE_ALT to KeyEvent.META_ALT_ON,
+        Constants.CODE_META to KeyEvent.META_META_ON,
+        Constants.CODE_ALTGR to (KeyEvent.META_ALT_ON or KeyEvent.META_ALT_RIGHT_ON),
+        Constants.CODE_FN to KeyEvent.META_FUNCTION_ON,
+        Constants.CODE_SYM to KeyEvent.META_SYM_ON,
+        Constants.CODE_STICKY_SHIFT to KeyEvent.META_SHIFT_ON,
+        Constants.CODE_CAPS_LOCK_MOD to KeyEvent.META_CAPS_LOCK_ON,
+        Constants.CODE_NUMLOCK to KeyEvent.META_NUM_LOCK_ON,
+        Constants.CODE_SCROLLLOCK to KeyEvent.META_SCROLL_LOCK_ON,
+        Constants.CODE_CTRL_RIGHT to (KeyEvent.META_CTRL_ON or KeyEvent.META_CTRL_RIGHT_ON),
+        Constants.CODE_SHIFT_RIGHT to (KeyEvent.META_SHIFT_ON or KeyEvent.META_SHIFT_RIGHT_ON),
+        Constants.CODE_META_RIGHT to (KeyEvent.META_META_ON or KeyEvent.META_META_RIGHT_ON),
+    )
+
+    @Volatile private var latched = emptySet<Int>()
 
     @JvmStatic
-    val active: Boolean get() = ctrl || alt
+    val active: Boolean get() = latched.isNotEmpty()
 
     /** Called after the latched state changes, so the keyboard can redraw the key labels. */
     @Volatile
@@ -75,35 +91,28 @@ object StickyModifiers {
 
     /** Whether the key with this layout code is currently latched. */
     @JvmStatic
-    fun isLatched(layoutCode: Int): Boolean = when (layoutCode) {
-        Constants.CODE_CTRL -> ctrl
-        Constants.CODE_ALT -> alt
-        else -> false
-    }
+    fun isLatched(layoutCode: Int): Boolean = layoutCode in latched
 
     @JvmStatic
     fun toggle(layoutCode: Int) {
-        when (layoutCode) {
-            Constants.CODE_CTRL -> ctrl = !ctrl
-            Constants.CODE_ALT -> alt = !alt
-        }
+        if (layoutCode !in metaFor) return
+        latched = if (layoutCode in latched) latched - layoutCode else latched + layoutCode
         onChanged?.run()
     }
 
     @JvmStatic
     fun clear() {
-        val changed = ctrl || alt
-        ctrl = false
-        alt = false
+        val changed = active
+        latched = emptySet()
         if (changed) onChanged?.run()
     }
 
     /** The meta state of the latched modifiers; clears them. */
     @JvmStatic
     fun take(): Int {
-        val meta = (if (ctrl) KeyEvent.META_CTRL_ON else 0) or (if (alt) KeyEvent.META_ALT_ON else 0)
+        val state = latched.fold(0) { acc, code -> acc or (metaFor[code] ?: 0) }
         clear()
-        return meta
+        return state
     }
 
     /**
