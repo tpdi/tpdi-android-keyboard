@@ -257,6 +257,9 @@ public final class Constants {
     // Code value representing the code is not specified.
     public static final int CODE_UNSPECIFIED = -24;
 
+    // Jumps to a layout's fourth alternate page. Outside the contiguous alt_0..alt_2 codes, which
+    // are decoded by arithmetic.
+    public static final int CODE_TO_ALT_3_LAYOUT = -3080;
     // Keys that can be sent as real key events (see SpecialKeyEvents). Their own block so they
     // never collide with the action ranges below.
     public static final int CODE_ESCAPE = -3050;
