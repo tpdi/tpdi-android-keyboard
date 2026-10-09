@@ -39,6 +39,7 @@ data class KeyDrawingConfiguration(
     val hintTypeface: Typeface,
     val centeredHint: Boolean = false,
     val outline: KeyOutline? = null,
+    val hintOffsetY: Float = 0f,
 )
 
 data class CachedKeyedMatcher<T>(
@@ -189,8 +190,12 @@ class AdvancedThemeMatcher(
             }
         }
 
+        var hintOffsetY = 0f
         if (context.getSetting(NORMALIZE_HINT_GLYPH_SIZE.key, NORMALIZE_HINT_GLYPH_SIZE.default)) {
-            hintSize *= HintGlyphScale.multiplierFor(hintLabel, hintTypeface)
+            val glyph = HintGlyphScale.scaleFor(hintLabel, hintTypeface)
+            // Scaling about the baseline moves the glyph's center; shift it back to where it was.
+            hintOffsetY = glyph.centerY * hintSize * (1f - glyph.scale)
+            hintSize *= glyph.scale
         }
 
         return KeyDrawingConfiguration(
@@ -205,6 +210,7 @@ class AdvancedThemeMatcher(
             hintColor = hintColor,
             textSize = textSize,
             hintSize = hintSize,
+            hintOffsetY = hintOffsetY,
             textTypeface = textTypeface,
             hintTypeface = hintTypeface,
             centeredHint = scheme.extended.advancedThemeOptions.centerHints,
