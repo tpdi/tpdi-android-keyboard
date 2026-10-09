@@ -47,6 +47,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import androidx.compose.ui.unit.Dp
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_UNDO_KEY
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
@@ -211,6 +212,7 @@ private class VoiceInputActionWindow(
     private val session = VoiceOverKeyboardSession(manager, context.getSetting(VOICE_INPUT_OVER_KEYBOARD))
     private val inlineMode: Boolean get() = session.inlineMode
     private var inputTransaction by session::transaction
+    private val switchModeButtons = context.getSetting(VOICE_INPUT_SWITCH_MODE_BUTTONS)
     private val hideKeyboardButton = context.getSetting(VOICE_INPUT_HIDE_KEYBOARD_BUTTON)
 
     override fun segmentStarted() = session.segmentStarted()
@@ -228,6 +230,7 @@ private class VoiceInputActionWindow(
             circle = { recognizerView.value?.Content(circleOnly = true) },
             onUndo = { session.undoLast() },
             onStop = { recognizerView.value?.finish() ?: manager.closeActionWindow() },
+            onSwitchToWindow = if (switchModeButtons) ({ session.switchMode(false) }) else null,
             keyboardCollapsed = if (hideKeyboardButton) session.keyboardCollapsed else null,
             onToggleKeyboard = {
                 session.keyboardCollapsed = !session.keyboardCollapsed
@@ -271,6 +274,13 @@ private class VoiceInputActionWindow(
                     modelException.value != null -> ModelDownloader(modelException.value!!)
                     recognizerView.value != null -> recognizerView.value!!.Content()
                 }
+            }
+
+            if (switchModeButtons && recognizerView.value != null) {
+                VoiceSwitchToKeyboardButton(
+                    onClick = { session.switchMode(true) },
+                    modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)
+                )
             }
 
             if (showActionButtons && recognizerView.value != null) {

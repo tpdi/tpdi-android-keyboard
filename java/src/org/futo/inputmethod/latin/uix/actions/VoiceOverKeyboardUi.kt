@@ -52,7 +52,9 @@ fun VoiceListeningBar(
     onStop: () -> Unit,
     // null: no button. Otherwise whether the keyboard is currently collapsed.
     keyboardCollapsed: Boolean? = null,
-    onToggleKeyboard: () -> Unit = {}
+    onToggleKeyboard: () -> Unit = {},
+    // null: no button. Otherwise switches to the full voice input window.
+    onSwitchToWindow: (() -> Unit)? = null
 ) {
     val density = LocalDensity.current
     var barLeft by remember { mutableStateOf(0f) }
@@ -66,7 +68,11 @@ fun VoiceListeningBar(
     val micCenter = barWidth / 2f
     val micLeft = (micCenter - micWidthPx / 2f)
         .coerceIn(0f, (barWidth - micWidthPx).coerceAtLeast(0f))
-    val undoLeft = (micLeft - gapPx - undoWidthPx).coerceAtLeast(0f)
+    // To the right of the microphone, from the middle outward: hide/show keyboard, switch to the
+    // full window, and Undo at the far right.
+    val hideLeft = micLeft + micWidthPx + gapPx
+    val undoLeft = (barWidth - undoWidthPx - gapPx / 2f).coerceAtLeast(hideLeft)
+    val switchLeft = (hideLeft + undoLeft) / 2f
 
     Box(
         modifier = Modifier
@@ -112,7 +118,7 @@ fun VoiceListeningBar(
                 onClick = onToggleKeyboard,
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .offset { IntOffset((micLeft + micWidthPx + gapPx).toInt(), 0) }
+                    .offset { IntOffset(hideLeft.toInt(), 0) }
             ) {
                 Icon(
                     painter = painterResource(
@@ -122,6 +128,20 @@ fun VoiceListeningBar(
                         if (keyboardCollapsed) R.string.voice_input_show_keyboard
                         else R.string.voice_input_hide_keyboard
                     ),
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+        if (onSwitchToWindow != null) {
+            IconButton(
+                onClick = onSwitchToWindow,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset { IntOffset(switchLeft.toInt(), 0) }
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.chevron_right),
+                    contentDescription = stringResource(R.string.voice_input_switch_to_window),
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -171,5 +191,17 @@ fun VoiceVolumeCircleOverlay(circle: @Composable () -> Unit) {
         ) {
             circle()
         }
+    }
+}
+
+/** In the full voice input window: switch to dictating over the keyboard. */
+@Composable
+fun VoiceSwitchToKeyboardButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    IconButton(onClick = onClick, modifier = modifier) {
+        Icon(
+            painter = painterResource(R.drawable.keyboard_icon),
+            contentDescription = stringResource(R.string.voice_input_switch_to_keyboard),
+            tint = MaterialTheme.colorScheme.onSurface
+        )
     }
 }

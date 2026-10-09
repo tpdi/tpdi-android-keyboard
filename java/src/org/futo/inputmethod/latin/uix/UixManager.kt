@@ -274,6 +274,10 @@ class UixActionKeyboardManager(val uixManager: UixManager, val latinIME: LatinIM
         return latinIME.lifecycleScope
     }
 
+    override fun onWindowLayoutModeChanged() {
+        uixManager.refreshWindowLayoutMode()
+    }
+
     override fun setKeyboardCollapsed(collapsed: Boolean) {
         uixManager.setWindowKeyboardCollapsed(collapsed)
     }
@@ -612,6 +616,12 @@ class UixManager(private val latinIME: LatinIME) {
 
     private var mainKeyboardHidden = mutableStateOf(false)
     private val windowKeyboardCollapsed = mutableStateOf(false)
+
+    fun refreshWindowLayoutMode() {
+        mainKeyboardHidden.value = currWindowActionWindow.value?.onlyShowAboveKeyboard == false
+        windowKeyboardCollapsed.value = false
+        if(!mainKeyboardHidden.value) latinIME.onKeyboardShown()
+    }
 
     fun setWindowKeyboardCollapsed(collapsed: Boolean) {
         windowKeyboardCollapsed.value = collapsed
