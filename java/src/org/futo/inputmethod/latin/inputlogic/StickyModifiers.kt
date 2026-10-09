@@ -2,6 +2,7 @@ package org.futo.inputmethod.latin.inputlogic
 
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
+import androidx.core.graphics.ColorUtils
 import org.futo.inputmethod.event.Event
 import org.futo.inputmethod.event.InputTransaction
 import org.futo.inputmethod.latin.common.Constants
@@ -65,10 +66,18 @@ object StickyModifiers {
         return true
     }
 
-    /** A latched modifier key shows its label in capitals. */
+    /** A latched modifier key shows its label in brackets, for example "[Ctrl]". */
     @JvmStatic
     fun labelFor(layoutCode: Int, label: String?): String? =
-        if (label != null && isLatched(layoutCode)) label.uppercase() else label
+        if (label != null && isLatched(layoutCode)) "[$label]" else label
+
+    /** A latched modifier key's label is drawn in amber: light on a dark theme, dark on a light one. */
+    @JvmStatic
+    fun colorFor(layoutCode: Int, textColor: Int): Int = when {
+        !isLatched(layoutCode) -> textColor
+        ColorUtils.calculateLuminance(textColor) > 0.5 -> 0xFFFFC107.toInt()
+        else -> 0xFFE65100.toInt()
+    }
 
     /** Layout code to the meta state it sends. AltGr is what a hardware keyboard reports as right Alt. */
     private val metaFor = mapOf(
