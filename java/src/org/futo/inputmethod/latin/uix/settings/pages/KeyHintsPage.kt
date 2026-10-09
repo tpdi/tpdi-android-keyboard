@@ -19,9 +19,11 @@ import kotlinx.coroutines.delay
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.KEY_HINT_BRIGHTNESS_PERCENT
 import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE
+import org.futo.inputmethod.latin.uix.NORMALIZE_HINT_GLYPH_SIZE
 import org.futo.inputmethod.latin.uix.settings.ScreenTitle
 import org.futo.inputmethod.latin.uix.settings.ScrollableList
 import org.futo.inputmethod.latin.uix.settings.SettingSlider
+import org.futo.inputmethod.latin.uix.settings.SettingToggleDataStore
 import kotlin.math.roundToInt
 
 // Key hint size and brightness, with the real keyboard shown below so changes are visible as you drag.
@@ -65,6 +67,11 @@ fun KeyHintsScreen() {
             range = 0.0f .. 200.0f,
             transform = { (it / 5f).roundToInt() * 5 },
             indicator = { "$it%" }
+        )
+        SettingToggleDataStore(
+            title = stringResource(R.string.keyboard_settings_normalize_hint_glyph_size),
+            subtitle = stringResource(R.string.keyboard_settings_normalize_hint_glyph_size_subtitle),
+            setting = NORMALIZE_HINT_GLYPH_SIZE
         )
     }
 }

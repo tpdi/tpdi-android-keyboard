@@ -2,12 +2,11 @@ package org.futo.inputmethod.latin.uix.settings.pages
 
 import androidx.compose.ui.res.stringResource
 import org.futo.inputmethod.latin.R
-import org.futo.inputmethod.latin.uix.KEY_HINT_BRIGHTNESS_PERCENT
-import org.futo.inputmethod.latin.uix.KEY_HINT_SCALE
-import org.futo.inputmethod.latin.uix.NORMALIZE_HINT_GLYPH_SIZE
 import org.futo.inputmethod.latin.uix.SEND_KEY_CODES_RATHER_THAN_TEXT
 import org.futo.inputmethod.latin.uix.SHOW_LOAD_LAYOUT_FROM_FILE
 import org.futo.inputmethod.latin.uix.STICKY_MODIFIER_KEYS
+import org.futo.inputmethod.latin.uix.settings.NavigationItemStyle
+import org.futo.inputmethod.latin.uix.settings.userSettingNavigationItem
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_MIC_KEY_BLUE
@@ -52,11 +51,6 @@ val TpdiFeaturesMenu = UserSettingsMenu(
             setting = SEND_KEY_CODES_RATHER_THAN_TEXT
         ),
         userSettingToggleDataStore(
-            title = R.string.keyboard_settings_normalize_hint_glyph_size,
-            subtitle = R.string.keyboard_settings_normalize_hint_glyph_size_subtitle,
-            setting = NORMALIZE_HINT_GLYPH_SIZE
-        ),
-        userSettingToggleDataStore(
             title = R.string.keyboard_settings_sticky_modifier_keys,
             subtitle = R.string.keyboard_settings_sticky_modifier_keys_subtitle,
             setting = STICKY_MODIFIER_KEYS
@@ -66,31 +60,11 @@ val TpdiFeaturesMenu = UserSettingsMenu(
             subtitle = R.string.keyboard_settings_show_load_layout_from_file_subtitle,
             setting = SHOW_LOAD_LAYOUT_FROM_FILE
         ),
-        UserSetting(
-            name = R.string.keyboard_settings_key_hint_size,
-            component = {
-                SettingSlider(
-                    title = stringResource(R.string.keyboard_settings_key_hint_size),
-                    subtitle = stringResource(R.string.keyboard_settings_key_hint_size_subtitle),
-                    setting = KEY_HINT_SCALE,
-                    range = 0.0f .. 2.0f,
-                    transform = { (it * 100f).roundToInt() / 100f },
-                    indicator = { "${(it * 100f).roundToInt()}%" }
-                )
-            }
-        ),
-        UserSetting(
-            name = R.string.keyboard_settings_key_hint_brightness,
-            component = {
-                SettingSlider(
-                    title = stringResource(R.string.keyboard_settings_key_hint_brightness),
-                    subtitle = stringResource(R.string.keyboard_settings_key_hint_brightness_subtitle),
-                    setting = KEY_HINT_BRIGHTNESS_PERCENT,
-                    range = 0.0f .. 200.0f,
-                    transform = { (it / 5f).roundToInt() * 5 },
-                    indicator = { "$it%" }
-                )
-            }
+        userSettingNavigationItem(
+            title = R.string.key_hints_title,
+            subtitle = R.string.key_hints_subtitle,
+            style = NavigationItemStyle.Misc,
+            navigateTo = "keyhints"
         ),
         userSettingToggleDataStore(
             title = R.string.voice_input_settings_inline_partial_result,
