@@ -771,5 +771,5 @@ Default is %1$s</string>
     <string name="keyboard_settings_sticky_modifier_keys">Sticky modifier keys</string>
     <string name="keyboard_settings_sticky_modifier_keys_subtitle">Make the Ctrl, Alt, Meta and AltGr keys of a custom layout work: tap one, then the next key is sent as a real key event with it held (Ctrl+C, Alt+Tab, ...). Off by default; with it off those keys do nothing.</string>
     <string name="keyboard_settings_normalize_hint_glyph_size">Even out hint sizes</string>
-    <string name="keyboard_settings_normalize_hint_glyph_size_subtitle">Scale each hint character so small ones like quotes and large ones like braces look about the same size.</string>
+    <string name="keyboard_settings_normalize_hint_glyph_size_subtitle">Scales hints according to the character size.</string>
 </resources>
