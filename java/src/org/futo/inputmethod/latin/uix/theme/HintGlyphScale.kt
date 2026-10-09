@@ -5,13 +5,16 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import java.util.concurrent.ConcurrentHashMap
 
-/** [scale] multiplies the hint size; [centerY] is where the glyph's vertical center sits above the baseline, as a fraction of the size (negative is up). */
+/**
+ * [scale] multiplies the hint size. [centerY] is where the glyph's vertical center sits below the top
+ * of the font box (which is where hints are anchored), as a fraction of the size.
+ */
 data class GlyphScale(val scale: Float, val centerY: Float)
 
 /**
  * A per-glyph size multiplier for key hints, so a quote mark and a brace come out about the same
  * size. Glyphs are only ever scaled up (the other hint controls scale everything down): a glyph
- * whose bounding box is already large enough, 85% of the font's cap height in its larger side,
+ * whose bounding box is already large enough, 60% of the font's cap height in its larger side,
  * is left at 1; a smaller one is scaled up to that size, at most [MAX_SCALE].
  *
  * The glyph's vertical center is kept where it is unscaled (see [KeyDrawingConfiguration.hintOffsetY]),
@@ -23,7 +26,7 @@ data class GlyphScale(val scale: Float, val centerY: Float)
 object HintGlyphScale {
     private const val MEASURE_SIZE = 100f
     /** A glyph whose larger side is at least this fraction of the cap height is left alone. */
-    private const val TARGET_FRACTION = 0.85f
+    private const val TARGET_FRACTION = 0.6f
     private const val MAX_SCALE = 1.8f
 
     private val table = ConcurrentHashMap<Long, GlyphScale>()
@@ -52,7 +55,7 @@ object HintGlyphScale {
         val glyph = maxOf(bounds.width(), bounds.height()).toFloat()
 
         if (capHeight <= 0f || glyph <= 0f) return unchanged
-        val centerY = (bounds.top + bounds.bottom) / 2f / MEASURE_SIZE
+        val centerY = (-paint.ascent() + (bounds.top + bounds.bottom) / 2f) / MEASURE_SIZE
         return GlyphScale((capHeight * TARGET_FRACTION / glyph).coerceIn(1.0f, MAX_SCALE), centerY)
     }
 }
