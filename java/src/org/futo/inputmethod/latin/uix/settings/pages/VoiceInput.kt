@@ -9,6 +9,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.content.getSystemService
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.ANIMATE_BUBBLE
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_INLINE_PARTIAL_RESULT
 import org.futo.inputmethod.latin.uix.AUDIO_FOCUS
 import org.futo.inputmethod.latin.uix.CAN_EXPAND_SPACE
 import org.futo.inputmethod.latin.uix.DISALLOW_SYMBOLS
@@ -170,6 +171,12 @@ val VoiceInputMenu = UserSettingsMenu(
             title = R.string.voice_input_settings_animate_bubble,
             subtitle = R.string.voice_input_settings_animate_bubble_subtitle,
             setting = ANIMATE_BUBBLE
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_inline_partial_result,
+            subtitle = R.string.voice_input_settings_inline_partial_result_subtitle,
+            setting = VOICE_INPUT_INLINE_PARTIAL_RESULT
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingNavigationItem(
