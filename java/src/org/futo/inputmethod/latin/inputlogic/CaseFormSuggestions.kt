@@ -7,7 +7,7 @@ import org.futo.inputmethod.latin.common.StringUtils
 import java.util.Locale
 
 /**
- * Builds the suggestion strip shown when Shift is tapped while the cursor touches a word: the word
+ * Builds the suggestion strip shown when Shift is tapped while the cursor is in or next to a word: the word
  * as it is, followed by its other case forms (Capitalized, UPPER, lower), one more form per tap
  * on the same word, newest first. Picking one replaces the word through the normal suggestion
  * pick. Does nothing while the flag is off.

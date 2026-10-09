@@ -4,7 +4,7 @@ import org.futo.inputmethod.latin.RichInputConnection
 import org.futo.inputmethod.latin.settings.SettingsValues
 
 /**
- * Lets Shift recapitalize the word the cursor is touching when nothing is selected, by selecting
+ * Lets Shift recapitalize the word the cursor is on when nothing is selected, by selecting
  * that word first. The stock recapitalization ([InputLogic.performRecapitalization]) then runs
  * unchanged on the selection. Does nothing while the flag is off or when text is selected.
  * Returns true when it selected a word.
