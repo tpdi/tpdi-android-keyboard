@@ -9,11 +9,15 @@ Every feature below is behind its own toggle, off by default (layout keys are op
 
 A slider scales the small hint characters (the long-press symbols) printed on keys, as a percent of the theme's size.
 
+![Key hint size](docs/screenshots/key-hints-page.png)
+
 Toggle: Settings > Typing > Key hints. Issue [#1](https://github.com/tpdi/tpdi-android-keyboard/issues/1), PR [#73](https://github.com/tpdi/tpdi-android-keyboard/pull/73).
 
 ### Key hint brightness
 
 A slider dims or brightens the hint characters, 0% to 100%.
+
+![Key hint brightness](docs/screenshots/key-hints-page.png)
 
 Toggle: Settings > Typing > Key hints. Issue [#2](https://github.com/tpdi/tpdi-android-keyboard/issues/2), PR [#74](https://github.com/tpdi/tpdi-android-keyboard/pull/74).
 
@@ -21,11 +25,15 @@ Toggle: Settings > Typing > Key hints. Issue [#2](https://github.com/tpdi/tpdi-a
 
 Dashes, quotes and commas are tiny next to braces and slashes. This scales the small glyphs up (never down) so hints read at a similar size, keeping each glyph's centre line.
 
+![Even out hint sizes](docs/screenshots/hint-glyph.png)
+
 Toggle: Settings > Typing > Key hints. Issue [#3](https://github.com/tpdi/tpdi-android-keyboard/issues/3), PR [#76](https://github.com/tpdi/tpdi-android-keyboard/pull/76).
 
 ### Key hints page with a live preview
 
 Size, brightness and evening-out sit together under a live keyboard preview, so you see the change as you drag.
+
+![Key hints page with a live preview](docs/screenshots/key-hints-page.png)
 
 Toggle: Settings > Typing > Key hints. Issue [#36](https://github.com/tpdi/tpdi-android-keyboard/issues/36), PR [#75](https://github.com/tpdi/tpdi-android-keyboard/pull/75).
 
@@ -48,11 +56,15 @@ Toggle: Settings > Typing > Send key codes rather than text. Issue [#9](https://
 
 With the cursor in or next to a word, Shift selects it and cycles lower / Capitalized / UPPER in place (stock only did this for a selection).
 
+![Shift cycles the case of the word the cursor is on](docs/screenshots/case-cycle.png)
+
 Toggle: Settings > Typing > Shift cycles the case of the word the cursor is on. Issue [#37](https://github.com/tpdi/tpdi-android-keyboard/issues/37), PR [#77](https://github.com/tpdi/tpdi-android-keyboard/pull/77).
 
 ### Shift suggests other cases of the word
 
 Like Samsung's keyboard: Shift puts the Capitalized form of the touched word in the suggestion bar, the next tap UPPER.
+
+![Shift suggests other cases of the word](docs/screenshots/case-suggestions.png)
 
 Toggle: Settings > Typing > Shift suggests other cases of the word the cursor is on. Issue [#38](https://github.com/tpdi/tpdi-android-keyboard/issues/38), PR [#78](https://github.com/tpdi/tpdi-android-keyboard/pull/78).
 
@@ -88,6 +100,10 @@ Toggle: Bug fix, no setting. Issue [#26](https://github.com/tpdi/tpdi-android-ke
 
 
 ## Voice input
+
+The voice toggles on Settings > Voice input. Tap the circle to stop, Hide the volume circle and Mode-switch buttons are on by default but only do anything while Dictate over the keyboard (off by default) is on.
+
+![Voice input settings](docs/screenshots/voice-settings.png)
 
 ### Show words while listening
 
