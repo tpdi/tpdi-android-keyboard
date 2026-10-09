@@ -13,6 +13,7 @@ import org.futo.inputmethod.keyboard.Key
 import org.futo.inputmethod.keyboard.Keyboard
 import org.futo.inputmethod.keyboard.internal.KeyDrawParams
 import org.futo.inputmethod.latin.uix.DynamicThemeProvider
+import org.futo.inputmethod.latin.uix.KeyHintBrightness
 import org.futo.inputmethod.latin.uix.KeyboardColorScheme
 import kotlin.math.roundToInt
 
@@ -130,7 +131,7 @@ class AdvancedThemeMatcher(
             label = key.labelOverride ?: key.label,
             hintLabel = key.effectiveHintLabel,
             textColor = key.selectTextColor(drawableProvider, params),
-            hintColor = key.selectHintTextColor(drawableProvider, params),
+            hintColor = KeyHintBrightness.apply(context, key.selectHintTextColor(drawableProvider, params)),
             textSize = key.selectTextSize(params).toFloat(),
             hintSize = key.selectHintTextSize(drawableProvider, params).toFloat(),
             textTypeface = key.selectTypeface(params),
@@ -155,7 +156,7 @@ class AdvancedThemeMatcher(
 
         val hintColor = foundBackground?.foregroundColor?.let { fgCol ->
             Color(fgCol).let { it.copy(alpha = it.alpha*0.8f) }.toArgb()
-        } ?: key.selectHintTextColor(drawableProvider, params)
+        }.let { KeyHintBrightness.apply(context, it ?: key.selectHintTextColor(drawableProvider, params)) }
 
         val icon = findIcon(icons, keyboard, key)?.drawable ?: key.getIconOverride(keyboard.mIconsSet, params.mAnimAlpha)
         val hintIcon = findIcon(hintIcons, keyboard, key)?.drawable
