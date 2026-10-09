@@ -17,6 +17,8 @@ Layout file: [docs/kasroz-arrows.yaml](docs/kasroz-arrows.yaml). Also docs/kasro
 
 An 84-key style keyboard (a 75% layout with the navigation column on the right): a function-key row on top (Esc, F1 to F12, NmLk, ScrLk, Del), then the number row, the letters with Tab, Caps, Ctrl, Alt, Win and Fn keys, and Home, Page Up, Page Down and End in a column on the right. Wide keys are shortened to fit. Ctrl, Alt, Win, AltGr, Fn, Caps and NmLk/ScrLk are the sticky modifier keys below (tap to latch, long press to lock), so Ctrl+C works from the soft keyboard. Turn on Sticky modifier keys and Send key codes rather than text.
 
+![Standard 84-key layout](docs/screenshots/84key.png)
+
 Layout file: [docs/standard-84-key-layout.yaml](docs/standard-84-key-layout.yaml).
 
 
@@ -60,6 +62,8 @@ Toggle: Settings > Typing > Key hints. Issue [#36](https://github.com/tpdi/tpdi-
 ### Sticky modifier keys
 
 Ctrl, Alt, Meta, AltGr, Fn, Sym, Shift and lock keys for custom layouts. Tap to latch for the next key (sent as a real key event, so Ctrl+C and Alt+Tab work); long press to lock. A latched key is drawn pressed. Includes an 84-key layout (docs/standard-84-key-layout.yaml).
+
+![Sticky modifier keys](docs/screenshots/sticky-modifiers.png)
 
 Toggle: Settings > TPDI Features > Sticky modifier keys (Settings > Typing in the feature PR). Issue [#25](https://github.com/tpdi/tpdi-android-keyboard/issues/25), PR [#56](https://github.com/tpdi/tpdi-android-keyboard/pull/56).
 
