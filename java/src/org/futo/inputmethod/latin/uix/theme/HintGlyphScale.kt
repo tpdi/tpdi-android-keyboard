@@ -10,8 +10,9 @@ data class GlyphScale(val scale: Float, val centerY: Float)
 
 /**
  * A per-glyph size multiplier for key hints, so a quote mark and a brace come out about the same
- * size. The glyph's tight bounding box is scaled until its larger side equals the cap height of
- * the font, within [MIN_SCALE]..[MAX_SCALE].
+ * size. Glyphs are only ever scaled up (the other hint controls scale everything down): a glyph
+ * whose bounding box is already large enough, 85% of the font's cap height in its larger side,
+ * is left at 1; a smaller one is scaled up to that size, at most [MAX_SCALE].
  *
  * The glyph's vertical center is kept where it is unscaled (see [KeyDrawingConfiguration.hintOffsetY]),
  * so a dash stays on its line and a comma does not sink.
@@ -21,7 +22,8 @@ data class GlyphScale(val scale: Float, val centerY: Float)
  */
 object HintGlyphScale {
     private const val MEASURE_SIZE = 100f
-    private const val MIN_SCALE = 0.6f
+    /** A glyph whose larger side is at least this fraction of the cap height is left alone. */
+    private const val TARGET_FRACTION = 0.85f
     private const val MAX_SCALE = 1.8f
 
     private val table = ConcurrentHashMap<Long, GlyphScale>()
@@ -51,6 +53,6 @@ object HintGlyphScale {
 
         if (capHeight <= 0f || glyph <= 0f) return unchanged
         val centerY = (bounds.top + bounds.bottom) / 2f / MEASURE_SIZE
-        return GlyphScale((capHeight / glyph).coerceIn(MIN_SCALE, MAX_SCALE), centerY)
+        return GlyphScale((capHeight * TARGET_FRACTION / glyph).coerceIn(1.0f, MAX_SCALE), centerY)
     }
 }
