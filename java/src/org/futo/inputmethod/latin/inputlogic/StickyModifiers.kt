@@ -65,15 +65,18 @@ object StickyModifiers {
         return true
     }
 
-    /** Layout code to the meta state it sends. AltGr is what a hardware keyboard reports as right Alt. */
+    /**
+     * Layout code to the meta state it sends, as a hardware keyboard would: the generic flag plus
+     * the left or right one. AltGr is what a hardware keyboard reports as right Alt.
+     */
     private val metaFor = mapOf(
-        Constants.CODE_CTRL to KeyEvent.META_CTRL_ON,
-        Constants.CODE_ALT to KeyEvent.META_ALT_ON,
-        Constants.CODE_META to KeyEvent.META_META_ON,
+        Constants.CODE_CTRL to (KeyEvent.META_CTRL_ON or KeyEvent.META_CTRL_LEFT_ON),
+        Constants.CODE_ALT to (KeyEvent.META_ALT_ON or KeyEvent.META_ALT_LEFT_ON),
+        Constants.CODE_META to (KeyEvent.META_META_ON or KeyEvent.META_META_LEFT_ON),
         Constants.CODE_ALTGR to (KeyEvent.META_ALT_ON or KeyEvent.META_ALT_RIGHT_ON),
         Constants.CODE_FN to KeyEvent.META_FUNCTION_ON,
         Constants.CODE_SYM to KeyEvent.META_SYM_ON,
-        Constants.CODE_STICKY_SHIFT to KeyEvent.META_SHIFT_ON,
+        Constants.CODE_STICKY_SHIFT to (KeyEvent.META_SHIFT_ON or KeyEvent.META_SHIFT_LEFT_ON),
         Constants.CODE_CAPS_LOCK_MOD to KeyEvent.META_CAPS_LOCK_ON,
         Constants.CODE_NUMLOCK to KeyEvent.META_NUM_LOCK_ON,
         Constants.CODE_SCROLLLOCK to KeyEvent.META_SCROLL_LOCK_ON,
