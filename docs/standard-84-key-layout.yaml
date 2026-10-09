@@ -1,24 +1,13 @@
-# A standard IBM PC/AT 84-key keyboard. Not bundled in the app: load it as a custom layout
-# (Settings > Typing > custom layouts > Load from file).
-# Rows: Esc and F1-F10; the main block (number row, Tab, Ctrl, Shift rows); the bottom row (Alt,
-# NumLk, ScrLk, Space, Ins, Del); then the keypad with the navigation keys it shares. The wide keys
-# are shortened to labels. Ctrl, Alt and the lock keys are sticky modifiers: turn on "Sticky
-# modifier keys" in Typing; tap to latch for the next key, long press to lock.
+# A standard IBM PC/AT 84-key keyboard, folded to fit a phone. Not bundled in the app: load it as
+# a custom layout (Load from file in the custom layout editor).
+# Rows: number row with Backspace; Esc and F1-F10; Tab row; Ctrl row; Shift row; two keypad rows;
+# navigation row; bottom row (Alt, NumLk, ScrLk, Space). Wide keys are shortened to labels.
+# Ctrl, Alt and the lock keys are sticky modifiers (turn on "Sticky modifier keys" in Typing: tap
+# to latch for the next key, long press to lock). Esc, Home, End, PgUp, PgDn, Ins and Del need
+# "Send key codes rather than text".
 name: Standard 84-key
 rows:
-  - letters:
-    - {type: base, spec: "Esc|!code/key_escape", attributes: {style: Functional}}
-    - {type: base, spec: "F1|!code/key_f1", attributes: {style: Functional}}
-    - {type: base, spec: "F2|!code/key_f2", attributes: {style: Functional}}
-    - {type: base, spec: "F3|!code/key_f3", attributes: {style: Functional}}
-    - {type: base, spec: "F4|!code/key_f4", attributes: {style: Functional}}
-    - {type: base, spec: "F5|!code/key_f5", attributes: {style: Functional}}
-    - {type: base, spec: "F6|!code/key_f6", attributes: {style: Functional}}
-    - {type: base, spec: "F7|!code/key_f7", attributes: {style: Functional}}
-    - {type: base, spec: "F8|!code/key_f8", attributes: {style: Functional}}
-    - {type: base, spec: "F9|!code/key_f9", attributes: {style: Functional}}
-    - {type: base, spec: "F10|!code/key_f10", attributes: {style: Functional}}
-  - letters:
+  - numbers:
     - {type: case, normal: "`", shifted: "~"}
     - {type: case, normal: "1", shifted: "!"}
     - {type: case, normal: "2", shifted: "@"}
@@ -33,6 +22,18 @@ rows:
     - {type: case, normal: "-", shifted: "_"}
     - {type: case, normal: "=", shifted: "+"}
     - $delete
+  - letters:
+    - {type: base, spec: "Esc|!code/key_escape", attributes: {style: Functional}}
+    - {type: base, spec: "F1|!code/key_f1", attributes: {style: Functional}}
+    - {type: base, spec: "F2|!code/key_f2", attributes: {style: Functional}}
+    - {type: base, spec: "F3|!code/key_f3", attributes: {style: Functional}}
+    - {type: base, spec: "F4|!code/key_f4", attributes: {style: Functional}}
+    - {type: base, spec: "F5|!code/key_f5", attributes: {style: Functional}}
+    - {type: base, spec: "F6|!code/key_f6", attributes: {style: Functional}}
+    - {type: base, spec: "F7|!code/key_f7", attributes: {style: Functional}}
+    - {type: base, spec: "F8|!code/key_f8", attributes: {style: Functional}}
+    - {type: base, spec: "F9|!code/key_f9", attributes: {style: Functional}}
+    - {type: base, spec: "F10|!code/key_f10", attributes: {style: Functional}}
   - letters:
     - {type: base, spec: "Tab|!code/key_tab", attributes: {style: Functional}}
     - q
@@ -76,34 +77,53 @@ rows:
     - {type: case, normal: "/", shifted: "?"}
     - {type: base, spec: "Caps|!code/key_capslock", attributes: {style: Functional}}
   - letters:
+    - "
+    - 7
+    - "
+    - "
+    - 8
+    - "
+    - "
+    - 9
+    - "
+    - {type: case, normal: "-", shifted: "-"}
+    - "
+    - 4
+    - "
+    - "
+    - 5
+    - "
+    - "
+    - 6
+    - "
+    - {type: case, normal: "+", shifted: "+"}
+  - letters:
+    - "
+    - 1
+    - "
+    - "
+    - 2
+    - "
+    - "
+    - 3
+    - "
+    - "
+    - 0
+    - "
+    - {type: case, normal: ".", shifted: "."}
+    - {type: base, spec: "Home|!code/key_home", attributes: {style: Functional}}
+    - {type: base, spec: "End|!code/key_end", attributes: {style: Functional}}
+    - {type: base, spec: "PgUp|!code/key_page_up", attributes: {style: Functional}}
+    - {type: base, spec: "PgDn|!code/key_page_down", attributes: {style: Functional}}
+  - letters:
+    - {type: base, spec: "←|!code/action_left", attributes: {style: Functional}}
+    - {type: base, spec: "↑|!code/action_up", attributes: {style: Functional}}
+    - {type: base, spec: "↓|!code/action_down", attributes: {style: Functional}}
+    - {type: base, spec: "→|!code/action_right", attributes: {style: Functional}}
+    - {type: base, spec: "Ins|!code/key_insert", attributes: {style: Functional}}
+    - {type: base, spec: "Del|!code/key_forward_delete", attributes: {style: Functional}}
+  - bottom:
     - {type: base, spec: "Alt|!code/key_alt", attributes: {style: Functional}}
     - {type: base, spec: "NumLk|!code/key_numlock", attributes: {style: Functional}}
     - {type: base, spec: "ScrLk|!code/key_scrolllock", attributes: {style: Functional}}
     - $space
-    - {type: base, spec: "Ins|!code/key_insert", attributes: {style: Functional}}
-    - {type: base, spec: "Del|!code/key_forward_delete", attributes: {style: Functional}}
-  - letters:
-    - {type: base, spec: "Home|!code/key_home", attributes: {style: Functional}}
-    - "7"
-    - "8"
-    - "9"
-    - {type: case, normal: "-", shifted: "-"}
-    - {type: base, spec: "PgUp|!code/key_page_up", attributes: {style: Functional}}
-  - letters:
-    - {type: base, spec: "←|!code/action_left", attributes: {style: Functional}}
-    - "4"
-    - "5"
-    - "6"
-    - {type: case, normal: "+", shifted: "+"}
-    - {type: base, spec: "→|!code/action_right", attributes: {style: Functional}}
-  - letters:
-    - {type: base, spec: "End|!code/key_end", attributes: {style: Functional}}
-    - "1"
-    - "2"
-    - "3"
-    - {type: case, normal: ".", shifted: "."}
-    - {type: base, spec: "PgDn|!code/key_page_down", attributes: {style: Functional}}
-  - letters:
-    - {type: base, spec: "↑|!code/action_up", attributes: {style: Functional}}
-    - "0"
-    - {type: base, spec: "↓|!code/action_down", attributes: {style: Functional}}
