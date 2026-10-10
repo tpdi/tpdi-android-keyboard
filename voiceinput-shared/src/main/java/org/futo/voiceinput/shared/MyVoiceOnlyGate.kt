@@ -9,7 +9,8 @@ import kotlin.math.sqrt
  * Prototype "my voice only" gate. Reads 16 kHz stereo from [AudioRecord], mixes it down to mono
  * and turns down everything except sound that is both louder than the learned background and
  * louder on the second microphone than on the first, which is what the user's own voice looks
- * like when the phone is held in the hand. A TV across the room reaches both microphones about
+ * like when the phone is held in the hand, and within about 12 dB of the recent peak, so the
+ * quieter TV is shut out between phrases. A TV across the room reaches both microphones about
  * equally.
  *
  * The thresholds were measured on one phone (Galaxy S23 Ultra, held in the hand, TV in the same
@@ -29,6 +30,8 @@ class MyVoiceOnlyGate {
         const val CLOSED_GAIN = 0.05f          // -26 dB
         const val DIFF_OPEN_DB = -3.5f         // channel 0 minus channel 1, smoothed
         const val DIFF_SMOOTH = 0.2f
+        const val PEAK_DECAY = 0.99885f         // ~1 dB per second
+        const val PEAK_RATIO = 0.25f            // must be within ~12 dB of the recent peak
     }
 
     private var raw = ShortArray(0)
@@ -38,6 +41,7 @@ class MyVoiceOnlyGate {
     private var gain = CLOSED_GAIN
     private var diffDb = 0f
     private var frameCount = 0
+    private var peak = 0f
 
     /** Same contract as [AudioRecord.read] into [out] (mono): returns mono samples read. */
     fun read(recorder: AudioRecord, out: ShortArray, count: Int, mode: Int): Int {
@@ -77,6 +81,7 @@ class MyVoiceOnlyGate {
             diffDb += (d - diffDb) * DIFF_SMOOTH
         }
 
+        peak = maxOf(level, peak * PEAK_DECAY)
         if (floor < 0f) {
             floor = level.coerceAtLeast(MIN_FLOOR)
             return
@@ -84,7 +89,7 @@ class MyVoiceOnlyGate {
         if (level < floor) floor += (level - floor) * FLOOR_FALL else if (!open) floor *= FLOOR_RISE
         if (floor < MIN_FLOOR) floor = MIN_FLOOR
 
-        val fromUser = diffDb < DIFF_OPEN_DB
+        val fromUser = diffDb < DIFF_OPEN_DB && level > peak * PEAK_RATIO
         if (++frameCount % 10 == 0) {
             Log.d("MYVOICE", "lvl=%.1f floor=%.1f diff=%.1f open=%b".format(
                 20 * log10(level.toDouble() + 1e-9), 20 * log10(floor.toDouble() + 1e-9), diffDb, open))
