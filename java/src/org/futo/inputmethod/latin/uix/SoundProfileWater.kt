@@ -10,16 +10,16 @@ import org.futo.inputmethod.keyboard.Key
 
 /**
  * Draws the selected sound profile on the microphone key as bluish water: empty for no masking
- * (Quiet room), a third full for TV on, half full for Outside / noisy. Does nothing while sound
+ * (Quiet room), a third full for TV on, two thirds full for Outside / noisy. Does nothing while sound
  * profiles are off.
  */
 object SoundProfileWater {
     @Volatile
     private var level = 0f
 
-    private val water = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0x883B82F6.toInt() }
+    private val water = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0x66B8D4FF.toInt() }
     private val surface = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = 0xCC9CC4FF.toInt()
+        color = 0xAAD8E8FF.toInt()
         style = Paint.Style.STROKE
         strokeWidth = 3f
     }

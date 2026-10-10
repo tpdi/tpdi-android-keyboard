@@ -114,7 +114,7 @@ object SoundProfiles {
     /** How full the water on the microphone key is: empty for no masking, higher for more. */
     fun waterLevel(profile: SoundProfile?): Float = when {
         profile == null -> 0f
-        profile.values[nameOf(VOICE_INPUT_NOISE_GATE)] == true -> 0.5f
+        profile.values[nameOf(VOICE_INPUT_NOISE_GATE)] == true -> 0.65f
         profile.values[nameOf(VOICE_INPUT_MY_VOICE_ONLY)] == true -> 1f / 3f
         else -> 0f
     }
