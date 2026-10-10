@@ -17,21 +17,21 @@ object SoundProfileMenu {
     fun open(ime: LatinIME) {
         val active = ime.getSetting(SOUND_PROFILE_ACTIVE)
         val items = mutableListOf(
-            DialogRequestItem("Listen and choose") { listenAndChoose(ime) }
+            DialogRequestItem("Listen and choose") { listenAndChoose(ime) },
+            DialogRequestItem("Save current as new") {
+                val custom = SoundProfiles.parseCustom(ime.getSetting(SOUND_PROFILES_CUSTOM))
+                val saved = SoundProfiles.snapshot(ime, "My profile ${custom.size + 1}")
+                scope.launch {
+                    ime.setSetting(SOUND_PROFILES_CUSTOM, SoundProfiles.toJson(custom + saved))
+                    ime.setSetting(SOUND_PROFILE_ACTIVE, saved.name)
+                }
+            }
         )
         SoundProfiles.all(ime).forEach { profile ->
-            items.add(DialogRequestItem(if (profile.name == active) "✓ ${profile.name}" else profile.name) {
+            items.add(DialogRequestItem(if (profile.name == active) "\u2713 ${profile.name}" else profile.name) {
                 SoundProfiles.apply(ime, profile)
             })
         }
-        items.add(DialogRequestItem("Save current as new") {
-            val custom = SoundProfiles.parseCustom(ime.getSetting(SOUND_PROFILES_CUSTOM))
-            val saved = SoundProfiles.snapshot(ime, "My profile ${custom.size + 1}")
-            scope.launch {
-                ime.setSetting(SOUND_PROFILES_CUSTOM, SoundProfiles.toJson(custom + saved))
-                ime.setSetting(SOUND_PROFILE_ACTIVE, saved.name)
-            }
-        })
         show(ime, "Sound profile", items)
     }
 
