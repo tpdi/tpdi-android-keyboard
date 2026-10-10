@@ -614,6 +614,7 @@ public class KeyboardView extends View {
                 iconWidth = (int)size;
             }
 
+            iconWidth = SoundProfileWater.iconSize(key.getCode(), iconWidth, Math.min(keyWidth, keyHeight));
             iconHeight = iconWidth;
 
             final int iconY;

@@ -20,6 +20,9 @@ object SoundProfileWater {
     @Volatile
     private var level = 0f
 
+    @Volatile
+    private var active = false
+
     private val water = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xB08DBBFF.toInt() }
     private val surface = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = 0xFFDCEBFF.toInt()
@@ -65,6 +68,11 @@ object SoundProfileWater {
         canvas.restore()
     }
 
+    /** The microphone is drawn nearly as tall as its key while profiles are on, so it shows over the water. */
+    @JvmStatic
+    fun iconSize(code: Int, normalSize: Int, keySize: Int): Int =
+        if (active && SoundProfiles.isMicKey(code)) maxOf(normalSize, (keySize * 0.9f).toInt()) else normalSize
+
     /** Recomputes the water level and calls [redraw] when it changed. */
     suspend fun watch(context: Context, redraw: () -> Unit) {
         combine(
@@ -75,6 +83,7 @@ object SoundProfileWater {
             if (!on) 0f else SoundProfiles.waterLevel(SoundProfiles.all(context).firstOrNull { it.name == active })
         }.distinctUntilChanged().collect {
             level = it
+            active = context.getSetting(SOUND_PROFILES)
             redraw()
         }
     }
