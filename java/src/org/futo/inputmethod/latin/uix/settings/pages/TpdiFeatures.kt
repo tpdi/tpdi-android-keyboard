@@ -33,6 +33,7 @@ import org.futo.inputmethod.latin.uix.settings.ScreenTitle
 import org.futo.inputmethod.latin.uix.settings.SettingSlider
 import org.futo.inputmethod.latin.uix.settings.SettingToggleDataStore
 import org.futo.inputmethod.latin.uix.settings.UserSetting
+import org.futo.inputmethod.latin.uix.settings.SoundProfilesEditor
 import org.futo.inputmethod.latin.uix.settings.UserSettingsMenu
 import org.futo.inputmethod.latin.uix.settings.useDataStoreValue
 import org.futo.inputmethod.latin.uix.settings.userSettingDecorationOnly
@@ -138,6 +139,7 @@ val TpdiFeaturesMenu = UserSettingsMenu(
             subtitle = R.string.voice_input_settings_sound_profiles_subtitle,
             setting = SOUND_PROFILES
         ),
+        userSettingDecorationOnly { SoundProfilesEditor() },
         userSettingToggleDataStore(
             title = R.string.voice_input_settings_my_voice_only,
             subtitle = R.string.voice_input_settings_my_voice_only_subtitle,

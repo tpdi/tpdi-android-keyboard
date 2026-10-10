@@ -42,7 +42,9 @@ import org.futo.inputmethod.latin.uix.settings.SettingSlider
 import org.futo.inputmethod.latin.uix.settings.Tip
 import org.futo.inputmethod.latin.uix.settings.SettingToggleDataStore
 import org.futo.inputmethod.latin.uix.settings.UserSetting
+import org.futo.inputmethod.latin.uix.settings.SoundProfilesEditor
 import org.futo.inputmethod.latin.uix.settings.UserSettingsMenu
+import org.futo.inputmethod.latin.uix.settings.userSettingDecorationOnly
 import org.futo.inputmethod.latin.uix.settings.useDataStore
 import org.futo.inputmethod.latin.uix.settings.useDataStoreValue
 import org.futo.inputmethod.latin.uix.settings.userSettingNavigationItem
@@ -240,6 +242,7 @@ val VoiceInputMenu = UserSettingsMenu(
             subtitle = R.string.voice_input_settings_sound_profiles_subtitle,
             setting = SOUND_PROFILES
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+        userSettingDecorationOnly { SoundProfilesEditor() },
 
         userSettingToggleDataStore(
             title = R.string.voice_input_settings_my_voice_only,

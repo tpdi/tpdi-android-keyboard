@@ -612,6 +612,9 @@
     <string name="voice_input_settings_sound_profiles">Sound profiles</string>
     <string name="voice_input_settings_sound_profiles_subtitle">Long-press the keyboard\'s microphone key to pick a set of voice settings for the room you are in: Quiet room, TV on, Outside / noisy, or your own. Off by default.</string>
     <string name="sound_profiles_menu_title">Sound profile</string>
+    <string name="sound_profiles_editor_title">Your sound profiles</string>
+    <string name="sound_profiles_editor_none">None saved yet. Long-press the microphone key and choose "Save current as new", or use the button below.</string>
+    <string name="sound_profiles_editor_delete">Delete</string>
     <string name="sound_profiles_save_current">Save current voice settings as a new profile</string>
     <string name="voice_input_settings_my_voice_only">My voice only (prototype)</string>
     <string name="voice_input_settings_my_voice_only_subtitle">Records from both microphones and silences sound that is not louder on the second one, so a TV in the room is less likely to be typed. Tuned on one phone held in the hand; may cut off your own words on other phones. Off by default.</string>
