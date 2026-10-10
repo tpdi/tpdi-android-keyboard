@@ -30,6 +30,7 @@ import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_MIC_KEY_TOGGLE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_MIC_KEY_BLUE
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_MY_VOICE_ONLY
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_UNDO_KEY
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
@@ -231,6 +232,12 @@ val VoiceInputMenu = UserSettingsMenu(
             title = R.string.voice_input_settings_mic_key_blue,
             subtitle = R.string.voice_input_settings_mic_key_blue_subtitle,
             setting = VOICE_INPUT_MIC_KEY_BLUE
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_my_voice_only,
+            subtitle = R.string.voice_input_settings_my_voice_only_subtitle,
+            setting = VOICE_INPUT_MY_VOICE_ONLY
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(

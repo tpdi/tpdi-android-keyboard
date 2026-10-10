@@ -42,6 +42,7 @@ import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_MIC_KEY_TOGGLE
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_MY_VOICE_ONLY
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
@@ -180,7 +181,8 @@ private class VoiceInputActionWindow(
                 segmentPauseMs = segmentPauseMs,
                 useClickGestures = context.getSetting(VOICE_INPUT_CLICK_GESTURES),
                 useNoiseGate = context.getSetting(VOICE_INPUT_NOISE_GATE),
-                trimTrailingSilence = context.getSetting(VOICE_INPUT_TRIM_TRAILING_SILENCE)
+                trimTrailingSilence = context.getSetting(VOICE_INPUT_TRIM_TRAILING_SILENCE),
+                myVoiceOnly = context.getSetting(VOICE_INPUT_MY_VOICE_ONLY)
             )
         )
     }

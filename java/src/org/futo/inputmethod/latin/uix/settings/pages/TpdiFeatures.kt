@@ -16,6 +16,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_ACTION_BUTTONS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_CLICK_GESTURES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_MIC_KEY_BLUE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_MIC_KEY_TOGGLE
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_MY_VOICE_ONLY
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_UNDO_KEY
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_TRIM_TRAILING_SILENCE
@@ -130,6 +131,11 @@ val TpdiFeaturesMenu = UserSettingsMenu(
             title = R.string.voice_input_settings_noise_gate,
             subtitle = R.string.voice_input_settings_noise_gate_subtitle,
             setting = VOICE_INPUT_NOISE_GATE
+        ),
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_my_voice_only,
+            subtitle = R.string.voice_input_settings_my_voice_only_subtitle,
+            setting = VOICE_INPUT_MY_VOICE_ONLY
         ),
         userSettingToggleDataStore(
             title = R.string.voice_input_settings_trim_trailing_silence,
