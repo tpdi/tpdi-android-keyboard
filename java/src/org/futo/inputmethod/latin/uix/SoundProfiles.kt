@@ -38,6 +38,10 @@ object SoundProfiles {
     fun isMicKey(code: Int): Boolean =
         code == Constants.CODE_SHORTCUT || code == VoiceInputAction.keyCode || code == VoiceInputAction.keyCodeAlt
 
+    /** True if a press on [code] should start the long-press timer: the mic key, while profiles are on. */
+    @JvmStatic
+    fun wantsLongPress(code: Int): Boolean = enabled && showMenu != null && isMicKey(code)
+
     /** Called on a long press of a key; true if it was the microphone key and the press was used. */
     @JvmStatic
     fun onMicLongPress(code: Int): Boolean {
