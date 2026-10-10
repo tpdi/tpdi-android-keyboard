@@ -97,6 +97,7 @@ import org.futo.inputmethod.latin.inputlogic.VerticalSpaceSwipe
 import org.futo.inputmethod.latin.uix.SPACE_SWIPE_VERTICAL
 import org.futo.inputmethod.latin.uix.SOUND_PROFILES
 import org.futo.inputmethod.latin.uix.SoundProfileMenu
+import org.futo.inputmethod.latin.uix.SoundProfileWater
 import org.futo.inputmethod.latin.uix.SoundProfiles
 import org.futo.inputmethod.latin.uix.getSettingBlocking
 import org.futo.inputmethod.latin.uix.getSettingFlow
@@ -519,6 +520,10 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
 
         launchJob {
             KeyLabelRedraw.watch(this@LatinIME) { latinIMELegacy.mKeyboardSwitcher?.mainKeyboardView?.invalidateAllKeys() }
+        }
+
+        launchJob {
+            SoundProfileWater.watch(this@LatinIME) { latinIMELegacy.mKeyboardSwitcher?.mainKeyboardView?.invalidateAllKeys() }
         }
 
         launchJob {

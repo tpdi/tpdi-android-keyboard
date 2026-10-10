@@ -1,6 +1,10 @@
 package org.futo.inputmethod.latin.uix
 
 import android.content.Context
+import org.futo.inputmethod.latin.common.Constants
+import org.futo.inputmethod.latin.uix.actions.VoiceInputAction
+import org.futo.inputmethod.latin.uix.actions.keyCode
+import org.futo.inputmethod.latin.uix.actions.keyCodeAlt
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -29,11 +33,16 @@ object SoundProfiles {
         enabled = value
     }
 
-    /** Called on a long press of the microphone key; true if the press was used. */
+    /** True for the keyboard's microphone key (the voice input action key, or the system shortcut). */
     @JvmStatic
-    fun onMicLongPress(): Boolean {
+    fun isMicKey(code: Int): Boolean =
+        code == Constants.CODE_SHORTCUT || code == VoiceInputAction.keyCode || code == VoiceInputAction.keyCodeAlt
+
+    /** Called on a long press of a key; true if it was the microphone key and the press was used. */
+    @JvmStatic
+    fun onMicLongPress(code: Int): Boolean {
         val show = showMenu
-        if (!enabled || show == null) return false
+        if (!enabled || show == null || !isMicKey(code)) return false
         show()
         return true
     }
@@ -97,6 +106,14 @@ object SoundProfiles {
     /** The current value of every controlled toggle, as a new profile called [name]. */
     fun snapshot(context: Context, name: String): SoundProfile =
         SoundProfile(name, toggles.associate { nameOf(it) to context.getSetting(it) })
+
+    /** How full the water on the microphone key is: empty for no masking, higher for more. */
+    fun waterLevel(profile: SoundProfile?): Float = when {
+        profile == null -> 0f
+        profile.values[nameOf(VOICE_INPUT_NOISE_GATE)] == true -> 0.5f
+        profile.values[nameOf(VOICE_INPUT_MY_VOICE_ONLY)] == true -> 1f / 3f
+        else -> 0f
+    }
 
     fun apply(context: Context, profile: SoundProfile) {
         toggles.forEach { key ->

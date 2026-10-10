@@ -1257,7 +1257,7 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
             sListener.onReleaseKey(code, false /* withSliding */);
             return;
         }
-        if (code == Constants.CODE_SHORTCUT && SoundProfiles.onMicLongPress()) {
+        if (SoundProfiles.onMicLongPress(code)) {
             cancelKeyTracking();
             sListener.onReleaseKey(code, false /* withSliding */);
             return;

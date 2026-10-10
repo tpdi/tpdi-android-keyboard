@@ -38,6 +38,7 @@ import org.futo.inputmethod.keyboard.internal.KeyVisualAttributes;
 import org.futo.inputmethod.latin.uix.DynamicThemeProvider;
 import org.futo.inputmethod.latin.R;
 import org.futo.inputmethod.latin.common.Constants;
+import org.futo.inputmethod.latin.uix.SoundProfileWater;
 import org.futo.inputmethod.latin.uix.theme.KeyDrawingConfiguration;
 import org.futo.inputmethod.latin.uix.theme.KeyOutline;
 import org.futo.inputmethod.latin.uix.theme.KeyLabelPosition;
@@ -402,6 +403,7 @@ public class KeyboardView extends View {
         final Drawable background = kdc.getBackground();
         if (background != null) {
             onDrawKeyBackground(key, canvas, background, drawOffsetAndSize.right, drawOffsetAndSize.bottom);
+            SoundProfileWater.draw(key, canvas, drawOffsetAndSize.right, drawOffsetAndSize.bottom);
         }
 
         if(Color.alpha(kdc.getTextColor()) > 0) {
