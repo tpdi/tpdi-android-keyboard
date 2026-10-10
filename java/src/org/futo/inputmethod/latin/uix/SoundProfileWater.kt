@@ -3,9 +3,12 @@ package org.futo.inputmethod.latin.uix
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.RectF
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlin.math.PI
+import kotlin.math.sin
 import org.futo.inputmethod.keyboard.Key
 
 /**
@@ -24,17 +27,42 @@ object SoundProfileWater {
         strokeWidth = 3f
     }
     private val rect = RectF()
+    private val surfacePath = Path()
+    private val fillPath = Path()
+    private val clipPath = Path()
+    private const val RIPPLES = 2.5
 
     @JvmStatic
     fun draw(key: Key, canvas: Canvas, width: Int, height: Int) {
         val l = level
         if (l <= 0f || !SoundProfiles.isMicKey(key.code)) return
         val inset = minOf(width, height) * 0.06f
+        val left = inset
+        val right = width - inset
+        val bottom = height - inset
         val top = inset + (height - 2 * inset) * (1f - l)
-        rect.set(inset, top, width - inset, height - inset)
         val radius = minOf(width, height) * 0.16f
-        canvas.drawRoundRect(rect, radius, radius, water)
-        canvas.drawLine(inset + radius * 0.5f, top, width - inset - radius * 0.5f, top, surface)
+        // The fuller the key, the bigger the ripples.
+        val amplitude = (height - 2 * inset) * 0.07f * (l / 0.65f)
+        val steps = 24
+        surfacePath.reset()
+        for (i in 0..steps) {
+            val x = left + (right - left) * i / steps
+            val y = top + amplitude * sin(i * 2.0 * PI * RIPPLES / steps).toFloat()
+            if (i == 0) surfacePath.moveTo(x, y) else surfacePath.lineTo(x, y)
+        }
+        fillPath.set(surfacePath)
+        fillPath.lineTo(right, bottom)
+        fillPath.lineTo(left, bottom)
+        fillPath.close()
+        rect.set(left, top - amplitude, right, bottom)
+        clipPath.reset()
+        clipPath.addRoundRect(rect, radius, radius, Path.Direction.CW)
+        canvas.save()
+        canvas.clipPath(clipPath)
+        canvas.drawPath(fillPath, water)
+        canvas.drawPath(surfacePath, surface)
+        canvas.restore()
     }
 
     /** Recomputes the water level and calls [redraw] when it changed. */
