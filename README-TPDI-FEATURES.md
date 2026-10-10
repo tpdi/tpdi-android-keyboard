@@ -303,17 +303,17 @@ Cuts the quiet end off the audio before it is transcribed, so the model doesn't 
 
 Toggle: Settings > Voice input. Issue [#30](https://github.com/tpdi/tpdi-android-keyboard/issues/30), PR [#63](https://github.com/tpdi/tpdi-android-keyboard/pull/63).
 
-### My voice only (prototype)
+### Two-microphone filter (prototype)
 
 Keeps a TV in the room out of the transcript. Records from both microphones and silences sound that is not clearly louder on the second microphone, well above the room's background, and close to your recent peak. It tells where sound comes from and how loud it is, not whose voice it is, and is tuned on one phone.
 
-![My voice only (prototype)](docs/screenshots/state-my-voice-only.png)
+![Two-microphone filter (prototype)](docs/screenshots/state-my-voice-only.png)
 
-Toggle: Settings > Voice input > My voice only. Issue [#84](https://github.com/tpdi/tpdi-android-keyboard/issues/84), PR [#86](https://github.com/tpdi/tpdi-android-keyboard/pull/86).
+Toggle: Settings > Voice input > Two-microphone filter. Issue [#84](https://github.com/tpdi/tpdi-android-keyboard/issues/84), PR [#86](https://github.com/tpdi/tpdi-android-keyboard/pull/86).
 
 ### Sound profiles
 
-Long-press the keyboard's microphone key to pick voice settings for the room: Quiet room (nothing masked, soft mumbling gets through), TV on (the My voice only gate), Outside / noisy, or your own saved profiles. Listen and choose records a few seconds of the room and picks one. The microphone key shows the profile as pale blue water: empty, a third full, or two thirds full with bigger ripples. Rename and delete your profiles on the settings page.
+Long-press the keyboard's microphone key to pick voice settings for the room: Quiet room (nothing masked, soft mumbling gets through), TV on (the Two-microphone filter), Outside / noisy, or your own saved profiles. Listen and choose records a few seconds of the room and picks one. The microphone key shows the profile as pale blue water: empty, a third full, or two thirds full with bigger ripples. Rename and delete your profiles on the settings page.
 
 ![Sound profiles](docs/screenshots/sound-profiles-key.png)
 
