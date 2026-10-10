@@ -83,7 +83,8 @@ data class RecordingSettings(
     val canExpandSpace: Boolean,
     val useVADAutoStop: Boolean,
     val useSegmentedResults: Boolean = false,
-    val segmentPauseMs: Int = 600
+    val segmentPauseMs: Int = 600,
+    val myVoiceOnly: Boolean = false
 )
 
 data class AudioRecognizerSettings(
@@ -307,12 +308,13 @@ class AudioRecognizer(
 
     @Throws(SecurityException::class)
     private fun createAudioRecorder(): AudioRecord {
+        val stereo = settings.recordingConfiguration.myVoiceOnly
         val recorder = AudioRecord(
-            MediaRecorder.AudioSource.VOICE_RECOGNITION,
+            if (stereo) MediaRecorder.AudioSource.MIC else MediaRecorder.AudioSource.VOICE_RECOGNITION,
             16000,
-            AudioFormat.CHANNEL_IN_MONO,
+            if (stereo) AudioFormat.CHANNEL_IN_STEREO else AudioFormat.CHANNEL_IN_MONO,
             AudioFormat.ENCODING_PCM_16BIT,
-            16000 * 2 * 5
+            16000 * 2 * 5 * (if (stereo) 2 else 1)
         )
 
         this.recorder = recorder
@@ -357,11 +359,13 @@ class AudioRecognizer(
         var numConsecutiveNonSpeech = 0
         var numConsecutiveSpeech = 0
 
+        val myVoiceGate = if (settings.recordingConfiguration.myVoiceOnly) MyVoiceOnlyGate() else null
         val samples = ShortArray(1600)
 
         while (isRecording) {
             yield()
-            val nRead = recorder.read(samples, 0, 1600, AudioRecord.READ_BLOCKING)
+            val nRead = myVoiceGate?.read(recorder, samples, 1600, AudioRecord.READ_BLOCKING)
+                ?: recorder.read(samples, 0, 1600, AudioRecord.READ_BLOCKING)
             if (nRead <= 0) break
             yield()
 
@@ -464,9 +468,8 @@ class AudioRecognizer(
             // 100ms to process 100ms)
             while (true) {
                 yield()
-                val nRead2 = recorder.read(
-                    samples, 0, 1600, AudioRecord.READ_NON_BLOCKING
-                )
+                val nRead2 = myVoiceGate?.read(recorder, samples, 1600, AudioRecord.READ_NON_BLOCKING)
+                    ?: recorder.read(samples, 0, 1600, AudioRecord.READ_NON_BLOCKING)
                 if (nRead2 > 0) {
                     if (floatSamples.remaining() < nRead2 && !expandSpaceIfAllowed()) {
                         yield()

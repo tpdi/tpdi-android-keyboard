@@ -597,6 +597,8 @@
     <string name="voice_input_settings_long_form_subtitle">If disabled, voice input will auto-stop after 30 seconds.</string>
     <string name="voice_input_settings_autostop_vad">Auto-stop on silence</string>
     <string name="voice_input_settings_autostop_vad_subtitle">Automatically stop when silence is detected. You may need to manually stop regardless if there\'s too much background noise.</string>
+    <string name="voice_input_settings_my_voice_only">My voice only (prototype)</string>
+    <string name="voice_input_settings_my_voice_only_subtitle">Records from both microphones and turns down sound that is not louder on the second one, so a TV in the room is less likely to be typed. Tuned on one phone held in the hand; may cut off your own words on other phones. Off by default.</string>
     <string name="voice_input_settings_segmented_results">Incremental results</string>
     <string name="voice_input_settings_segmented_results_subtitle">Commit text as you speak instead of only after you stop. Each committed segment is decoded on its own and won\'t later be revised, so accuracy may be slightly lower than a single full decode.</string>
     <string name="voice_input_settings_segment_pause">Pause before committing a segment</string>

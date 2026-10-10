@@ -40,6 +40,7 @@ import org.futo.inputmethod.latin.uix.ResourceHelper
 import org.futo.inputmethod.latin.uix.USE_PERSONAL_DICT
 import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_MY_VOICE_ONLY
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import org.futo.inputmethod.latin.uix.getSetting
@@ -164,7 +165,8 @@ private class VoiceInputActionWindow(
                 canExpandSpace = canExpandSpace,
                 useVADAutoStop = useVAD,
                 useSegmentedResults = useSegmentedResults,
-                segmentPauseMs = segmentPauseMs
+                segmentPauseMs = segmentPauseMs,
+                myVoiceOnly = context.getSetting(VOICE_INPUT_MY_VOICE_ONLY)
             )
         )
     }
