@@ -68,10 +68,10 @@ object SoundProfileWater {
         canvas.restore()
     }
 
-    /** The microphone is drawn nearly as tall as its key while profiles are on, so it shows over the water. */
+    /** The microphone is drawn most of its key while profiles are on, so it shows over the water. */
     @JvmStatic
     fun iconSize(code: Int, normalSize: Int, keySize: Int): Int =
-        if (active && SoundProfiles.isMicKey(code)) maxOf(normalSize, (keySize * 0.9f).toInt()) else normalSize
+        if (active && SoundProfiles.isMicKey(code)) maxOf(normalSize, (keySize * 0.75f).toInt()) else normalSize
 
     /** Recomputes the water level and calls [redraw] when it changed. */
     suspend fun watch(context: Context, redraw: () -> Unit) {
