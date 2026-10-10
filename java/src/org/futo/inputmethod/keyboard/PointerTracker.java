@@ -41,6 +41,7 @@ import org.futo.inputmethod.latin.common.Constants;
 import org.futo.inputmethod.latin.inputlogic.StickyModifiers;
 import org.futo.inputmethod.latin.common.CoordinateUtils;
 import org.futo.inputmethod.latin.inputlogic.VerticalSpaceSwipe;
+import org.futo.inputmethod.latin.uix.SoundProfiles;
 import org.futo.inputmethod.latin.common.InputPointers;
 import org.futo.inputmethod.latin.define.DebugFlags;
 import org.futo.inputmethod.latin.settings.Settings;
@@ -1241,6 +1242,11 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         if (key == null) {
             return;
         }
+        if (SoundProfiles.onMicLongPress(key.getCode())) {
+            cancelKeyTracking();
+            sListener.onReleaseKey(key.getCode(), false /* withSliding */);
+            return;
+        }
         if (key.getHasNoPanelAutoMoreKey()) {
             cancelKeyTracking();
             final int moreKeyCode = key.getMoreKeys().get(0).mCode;
@@ -1365,7 +1371,8 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         sTimerProxy.cancelLongPressShiftKeyTimer();
         if (sInGesture) return;
         if (key == null) return;
-        if (!key.isLongPressEnabled() && !StickyModifiers.isModifierKey(key.getCode())) return;
+        if (!key.isLongPressEnabled() && !StickyModifiers.isModifierKey(key.getCode())
+                && !SoundProfiles.wantsLongPress(key.getCode())) return;
         // Caveat: Please note that isLongPressEnabled() can be true even if the current key
         // doesn't have its more keys. (e.g. spacebar, globe key) If we are in the dragging finger
         // mode, we will disable long press timer of such key.

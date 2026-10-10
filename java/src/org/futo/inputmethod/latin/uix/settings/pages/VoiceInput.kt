@@ -30,6 +30,7 @@ import org.futo.inputmethod.latin.uix.USE_VAD_AUTOSTOP
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_MIC_KEY_TOGGLE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_MIC_KEY_BLUE
+import org.futo.inputmethod.latin.uix.SOUND_PROFILES
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_MY_VOICE_ONLY
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_UNDO_KEY
@@ -41,7 +42,9 @@ import org.futo.inputmethod.latin.uix.settings.SettingSlider
 import org.futo.inputmethod.latin.uix.settings.Tip
 import org.futo.inputmethod.latin.uix.settings.SettingToggleDataStore
 import org.futo.inputmethod.latin.uix.settings.UserSetting
+import org.futo.inputmethod.latin.uix.settings.SoundProfilesEditor
 import org.futo.inputmethod.latin.uix.settings.UserSettingsMenu
+import org.futo.inputmethod.latin.uix.settings.userSettingDecorationOnly
 import org.futo.inputmethod.latin.uix.settings.useDataStore
 import org.futo.inputmethod.latin.uix.settings.useDataStoreValue
 import org.futo.inputmethod.latin.uix.settings.userSettingNavigationItem
@@ -233,6 +236,13 @@ val VoiceInputMenu = UserSettingsMenu(
             subtitle = R.string.voice_input_settings_mic_key_blue_subtitle,
             setting = VOICE_INPUT_MIC_KEY_BLUE
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_sound_profiles,
+            subtitle = R.string.voice_input_settings_sound_profiles_subtitle,
+            setting = SOUND_PROFILES
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+        userSettingDecorationOnly { SoundProfilesEditor() },
 
         userSettingToggleDataStore(
             title = R.string.voice_input_settings_my_voice_only,

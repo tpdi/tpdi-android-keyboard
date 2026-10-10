@@ -32,6 +32,8 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -903,6 +905,7 @@ class UixManager(private val latinIME: LatinIME) {
     val activeDialogRequest: MutableState<ActiveDialogRequest?> = mutableStateOf(null)
     val activeDialogRequestDismissed: MutableState<Boolean> = mutableStateOf(true)
 
+    @OptIn(ExperimentalLayoutApi::class)
     @Composable
     fun BoxScope.ForgetWordDialog() {
         AnimatedVisibility(
@@ -939,7 +942,7 @@ class UixManager(private val latinIME: LatinIME) {
                                     style = Typography.Body.Medium
                                 )
 
-                                Row {
+                                FlowRow {
                                     activeDialogRequest.value?.options?.forEach {
                                         TextButton(
                                             onClick = {

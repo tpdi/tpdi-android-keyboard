@@ -95,6 +95,10 @@ import org.futo.inputmethod.latin.uix.KeyLabelPositionRedraw
 import org.futo.inputmethod.event.Event
 import org.futo.inputmethod.latin.inputlogic.VerticalSpaceSwipe
 import org.futo.inputmethod.latin.uix.SPACE_SWIPE_VERTICAL
+import org.futo.inputmethod.latin.uix.SOUND_PROFILES
+import org.futo.inputmethod.latin.uix.SoundProfileMenu
+import org.futo.inputmethod.latin.uix.SoundProfileWater
+import org.futo.inputmethod.latin.uix.SoundProfiles
 import org.futo.inputmethod.latin.uix.getSettingBlocking
 import org.futo.inputmethod.latin.uix.getSettingFlow
 import org.futo.inputmethod.latin.uix.isDirectBootUnlocked
@@ -442,6 +446,10 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
         VerticalSpaceSwipe.onSettingChanged(getSettingBlocking(SPACE_SWIPE_VERTICAL))
         launchJob { getSettingFlow(SPACE_SWIPE_VERTICAL).collect { VerticalSpaceSwipe.onSettingChanged(it) } }
 
+        SoundProfiles.showMenu = { SoundProfileMenu.open(this) }
+        SoundProfiles.onSettingChanged(getSettingBlocking(SOUND_PROFILES))
+        launchJob { getSettingFlow(SOUND_PROFILES).collect { SoundProfiles.onSettingChanged(it) } }
+
         scheduleUpdateCheckingJob(this)
         launchJob { uixManager.showUpdateNoticeIfNeeded() }
 
@@ -512,6 +520,10 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
 
         launchJob {
             KeyLabelRedraw.watch(this@LatinIME) { latinIMELegacy.mKeyboardSwitcher?.mainKeyboardView?.invalidateAllKeys() }
+        }
+
+        launchJob {
+            SoundProfileWater.watch(this@LatinIME) { latinIMELegacy.mKeyboardSwitcher?.mainKeyboardView?.invalidateAllKeys() }
         }
 
         launchJob {
