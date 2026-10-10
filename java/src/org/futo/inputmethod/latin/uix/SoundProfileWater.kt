@@ -17,9 +17,9 @@ object SoundProfileWater {
     @Volatile
     private var level = 0f
 
-    private val water = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0x66B8D4FF.toInt() }
+    private val water = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = 0xB08DBBFF.toInt() }
     private val surface = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = 0xAAD8E8FF.toInt()
+        color = 0xFFDCEBFF.toInt()
         style = Paint.Style.STROKE
         strokeWidth = 3f
     }
