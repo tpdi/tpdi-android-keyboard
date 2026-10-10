@@ -47,7 +47,7 @@ object SoundProfileWater {
         val top = inset + (height - 2 * inset) * (1f - l)
         val radius = minOf(width, height) * 0.16f
         // The fuller the key, the bigger the ripples.
-        val amplitude = (height - 2 * inset) * 0.13f * (l / 0.65f).pow(1.5f)
+        val amplitude = (height - 2 * inset) * 0.08f * (l / 0.65f).pow(1.15f)
         val steps = 90
         surfacePath.reset()
         for (i in 0..steps) {
