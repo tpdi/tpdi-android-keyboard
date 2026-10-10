@@ -1,6 +1,7 @@
 package org.futo.voiceinput.shared
 
 import android.media.AudioRecord
+import android.util.Log
 import kotlin.math.log10
 import kotlin.math.sqrt
 
@@ -29,7 +30,7 @@ class MyVoiceOnlyGate {
         const val CLOSED_GAIN = 0.05f          // -26 dB
         const val DIFF_OPEN_DB = -3.5f         // channel 0 minus channel 1, smoothed
         const val DIFF_SMOOTH = 0.2f
-        const val PEAK_DECAY = 0.99885f         // ~1 dB per second
+        const val PEAK_DECAY = 0.99977f         // ~0.2 dB per second, so a pause of a minute keeps most of it
         const val PEAK_RATIO = 0.25f            // must be within ~12 dB of the recent peak
     }
 
@@ -40,6 +41,7 @@ class MyVoiceOnlyGate {
     private var gain = CLOSED_GAIN
     private var diffDb = 0f
     private var peak = 0f
+    private var frameCount = 0
 
     /** Same contract as [AudioRecord.read] into [out] (mono): returns mono samples read. */
     fun read(recorder: AudioRecord, out: ShortArray, count: Int, mode: Int): Int {
@@ -88,6 +90,11 @@ class MyVoiceOnlyGate {
         if (floor < MIN_FLOOR) floor = MIN_FLOOR
 
         val fromUser = diffDb < DIFF_OPEN_DB && level > peak * PEAK_RATIO
+        if (++frameCount % 10 == 0) {
+            Log.d("MYVOICE", "lvl=%.1f peak=%.1f floor=%.1f diff=%.1f open=%b".format(
+                20 * log10(level.toDouble() + 1e-9), 20 * log10(peak.toDouble() + 1e-9),
+                20 * log10(floor.toDouble() + 1e-9), diffDb, open))
+        }
         if (!open) {
             if (level > floor * OPEN_RATIO && fromUser) {
                 open = true
