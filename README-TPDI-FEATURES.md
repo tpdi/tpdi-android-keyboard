@@ -106,6 +106,30 @@ Like Samsung's keyboard: Shift puts the Capitalized form of the word the cursor 
 
 Toggle: Settings > Typing > Shift suggests other cases of the word the cursor is on. Issue [#38](https://github.com/tpdi/tpdi-android-keyboard/issues/38), PR [#78](https://github.com/tpdi/tpdi-android-keyboard/pull/78).
 
+### Key label size
+
+A slider scales the letters drawn on the keys from 50% to 150% (100% is unchanged). Asked for in upstream futo-org issue #90.
+
+![Key label size](docs/screenshots/key-label-size.png)
+
+Toggle: Settings > Typing > Key label size. Issue [#81](https://github.com/tpdi/tpdi-android-keyboard/issues/81), PR [#87](https://github.com/tpdi/tpdi-android-keyboard/pull/87).
+
+### Key label position
+
+A slider moves the letters from the centre of each key toward its left edge (0% is centred, the default).
+
+![Key label position](docs/screenshots/key-label-position.png)
+
+Toggle: Settings > Typing > Key label position. Issue [#82](https://github.com/tpdi/tpdi-android-keyboard/issues/82), PR [#88](https://github.com/tpdi/tpdi-android-keyboard/pull/88).
+
+### Space bar moves the cursor up and down
+
+Drag up or down on the space bar to move the cursor between lines, like the Up and Down arrow keys, as well as the usual left and right. Asked for in upstream futo-org issue #260.
+
+![Space bar moves the cursor up and down](docs/screenshots/state-space-swipe-vertical.png)
+
+Toggle: Settings > Typing > Space bar moves the cursor up and down. Issue [#83](https://github.com/tpdi/tpdi-android-keyboard/issues/83), PR [#89](https://github.com/tpdi/tpdi-android-keyboard/pull/89).
+
 ### Load layout from file
 
 A Load from file button in the custom layout editor.
@@ -278,3 +302,23 @@ Cuts the quiet end off the audio before it is transcribed, so the model doesn't 
 ![Trim trailing silence](docs/screenshots/state-trim-silence.png)
 
 Toggle: Settings > Voice input. Issue [#30](https://github.com/tpdi/tpdi-android-keyboard/issues/30), PR [#63](https://github.com/tpdi/tpdi-android-keyboard/pull/63).
+
+### My voice only (prototype)
+
+Keeps a TV in the room out of the transcript. Records from both microphones and silences sound that is not clearly louder on the second microphone, well above the room's background, and close to your recent peak. It tells where sound comes from and how loud it is, not whose voice it is, and is tuned on one phone.
+
+![My voice only (prototype)](docs/screenshots/state-my-voice-only.png)
+
+Toggle: Settings > Voice input > My voice only. Issue [#84](https://github.com/tpdi/tpdi-android-keyboard/issues/84), PR [#86](https://github.com/tpdi/tpdi-android-keyboard/pull/86).
+
+### Sound profiles
+
+Long-press the keyboard's microphone key to pick voice settings for the room: Quiet room (nothing masked, soft mumbling gets through), TV on (the My voice only gate), Outside / noisy, or your own saved profiles. Listen and choose records a few seconds of the room and picks one. The microphone key shows the profile as pale blue water: empty, a third full, or two thirds full with bigger ripples. Rename and delete your profiles on the settings page.
+
+![Sound profiles](docs/screenshots/sound-profiles-key.png)
+
+![Sound profiles](docs/screenshots/sound-profiles-menu.png)
+
+![Sound profiles](docs/screenshots/state-sound-profiles.png)
+
+Toggle: Settings > Voice input > Sound profiles. Issue [#85](https://github.com/tpdi/tpdi-android-keyboard/issues/85), PR [#90](https://github.com/tpdi/tpdi-android-keyboard/pull/90).
