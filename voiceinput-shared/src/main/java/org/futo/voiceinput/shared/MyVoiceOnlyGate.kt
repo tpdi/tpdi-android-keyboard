@@ -27,7 +27,7 @@ class MyVoiceOnlyGate {
         const val FLOOR_FALL = 0.3f
         const val FLOOR_RISE = 1.003f
         const val HOLD_FRAMES = 30             // 300 ms
-        const val CLOSED_GAIN = 0.05f          // -26 dB
+        const val CLOSED_GAIN = 0f             // silence: the speech model rescales quiet audio, so merely quieter TV still gets transcribed
         const val DIFF_OPEN_DB = -3.5f         // channel 0 minus channel 1, smoothed
         const val DIFF_SMOOTH = 0.2f
         const val PEAK_DECAY = 0.99977f         // ~0.2 dB per second, so a pause of a minute keeps most of it
