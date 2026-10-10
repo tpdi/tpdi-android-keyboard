@@ -41,6 +41,7 @@ import org.futo.inputmethod.latin.common.Constants;
 import org.futo.inputmethod.latin.inputlogic.StickyModifiers;
 import org.futo.inputmethod.latin.common.CoordinateUtils;
 import org.futo.inputmethod.latin.inputlogic.VerticalSpaceSwipe;
+import org.futo.inputmethod.latin.uix.SoundProfiles;
 import org.futo.inputmethod.latin.common.InputPointers;
 import org.futo.inputmethod.latin.define.DebugFlags;
 import org.futo.inputmethod.latin.settings.Settings;
@@ -1252,6 +1253,11 @@ public final class PointerTracker implements PointerTrackerQueue.Element,
         }
         final int code = key.getCode();
         if (StickyModifiers.onLongPress(code)) {
+            cancelKeyTracking();
+            sListener.onReleaseKey(code, false /* withSliding */);
+            return;
+        }
+        if (code == Constants.CODE_SHORTCUT && SoundProfiles.onMicLongPress()) {
             cancelKeyTracking();
             sListener.onReleaseKey(code, false /* withSliding */);
             return;
