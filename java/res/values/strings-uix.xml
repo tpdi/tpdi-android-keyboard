@@ -722,6 +722,9 @@ Default is %1$s</string>
     <string name="voice_input_settings_hide_keyboard_button">Hide-keyboard button</string>
     <string name="voice_input_settings_hide_keyboard_button_subtitle">While dictating over the keyboard, show a button on the bar that hides the keyboard, leaving only the bar, and brings it back.</string>
     <string name="voice_input_settings_hide_button_needs_over_keyboard_note">Turn on \"Dictate over the keyboard\" to use this.</string>
+    <string name="voice_input_settings_abort_button">Abort button</string>
+    <string name="voice_input_settings_abort_button_subtitle">Show an X button in the voice window and on the dictation bar that stops listening and drops any transcription still running, leaving the keyboard up. Text already typed stays.</string>
+    <string name="voice_input_abort">Abort voice input</string>
     <string name="voice_input_hide_keyboard">Hide keyboard</string>
     <string name="voice_input_show_keyboard">Show keyboard</string>
     <string name="voice_input_settings_switch_mode_buttons">Mode-switch buttons</string>

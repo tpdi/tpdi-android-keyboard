@@ -10,6 +10,7 @@ import androidx.core.content.getSystemService
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.ANIMATE_BUBBLE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_ABORT_BUTTON
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
 import org.futo.inputmethod.latin.uix.AUDIO_FOCUS
@@ -184,6 +185,12 @@ val VoiceInputMenu = UserSettingsMenu(
             title = R.string.voice_input_settings_over_keyboard,
             subtitle = R.string.voice_input_settings_over_keyboard_subtitle,
             setting = VOICE_INPUT_OVER_KEYBOARD
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_abort_button,
+            subtitle = R.string.voice_input_settings_abort_button_subtitle,
+            setting = VOICE_INPUT_ABORT_BUTTON
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(

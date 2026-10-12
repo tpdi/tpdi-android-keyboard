@@ -54,7 +54,9 @@ fun VoiceListeningBar(
     keyboardCollapsed: Boolean? = null,
     onToggleKeyboard: () -> Unit = {},
     // null: no button. Otherwise switches to the full voice input window.
-    onSwitchToWindow: (() -> Unit)? = null
+    onSwitchToWindow: (() -> Unit)? = null,
+    // null: no button. Otherwise ends voice input and drops any transcription still running.
+    onAbort: (() -> Unit)? = null
 ) {
     val density = LocalDensity.current
     var barLeft by remember { mutableStateOf(0f) }
@@ -73,6 +75,8 @@ fun VoiceListeningBar(
     val hideLeft = micLeft + micWidthPx + gapPx
     val undoLeft = (barWidth - undoWidthPx - gapPx / 2f).coerceAtLeast(hideLeft)
     val switchLeft = (hideLeft + undoLeft) / 2f
+    // Abort sits just left of the microphone.
+    val abortLeft = (micLeft - gapPx - undoWidthPx).coerceAtLeast(0f)
 
     Box(
         modifier = Modifier
@@ -145,6 +149,14 @@ fun VoiceListeningBar(
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
+        }
+        if (onAbort != null) {
+            VoiceAbortButton(
+                onClick = onAbort,
+                modifier = Modifier
+                    .align(Alignment.CenterStart)
+                    .offset { IntOffset(abortLeft.toInt(), 0) }
+            )
         }
         val pillColor = LocalKeyboardScheme.current.keyboardContainer
         val pillRadiusPx = with(density) { 16.dp.toPx() }

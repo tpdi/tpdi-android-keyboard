@@ -44,6 +44,7 @@ import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import androidx.compose.ui.unit.Dp
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_HIDE_KEYBOARD_BUTTON
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_ABORT_BUTTON
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_OVER_KEYBOARD
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SWITCH_MODE_BUTTONS
 import org.futo.inputmethod.latin.uix.getSetting
@@ -210,6 +211,8 @@ private class VoiceInputActionWindow(
     private var inputTransaction by session::transaction
     private val switchModeButtons = context.getSetting(VOICE_INPUT_SWITCH_MODE_BUTTONS)
     private val hideKeyboardButton = context.getSetting(VOICE_INPUT_HIDE_KEYBOARD_BUTTON)
+    // Closing the window cancels the recorder and any decode, as dismissing the keyboard does.
+    private val onAbort: (() -> Unit)? = if (context.getSetting(VOICE_INPUT_ABORT_BUTTON)) ({ manager.closeActionWindow() }) else null
 
     override fun segmentStarted() = session.segmentStarted()
 
@@ -225,6 +228,7 @@ private class VoiceInputActionWindow(
             onUndo = { session.undoLast() },
             onStop = { recognizerView.value?.finish() ?: manager.closeActionWindow() },
             onSwitchToWindow = if (switchModeButtons) ({ session.switchMode(false) }) else null,
+            onAbort = onAbort,
             keyboardCollapsed = if (hideKeyboardButton) session.keyboardCollapsed else null,
             onToggleKeyboard = {
                 session.keyboardCollapsed = !session.keyboardCollapsed
@@ -268,6 +272,13 @@ private class VoiceInputActionWindow(
                     modelException.value != null -> ModelDownloader(modelException.value!!)
                     recognizerView.value != null -> recognizerView.value!!.Content()
                 }
+            }
+
+            if (onAbort != null) {
+                VoiceAbortButton(
+                    onClick = onAbort,
+                    modifier = Modifier.align(Alignment.CenterStart).padding(start = 16.dp)
+                )
             }
 
             if (switchModeButtons && recognizerView.value != null) {
