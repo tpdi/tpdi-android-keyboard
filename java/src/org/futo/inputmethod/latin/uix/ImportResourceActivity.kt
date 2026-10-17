@@ -507,7 +507,7 @@ fun determineFileKind(inputStream: InputStream): FileKindAndInfo {
     val magic = ByteBuffer.wrap(array).getInt().toUInt()
 
     return when {
-        magic == voiceInputMagic -> FileKindAndInfo(FileKind.VoiceInput, null, null)
+        magic == voiceInputMagic -> FileKindAndInfo(FileKind.VoiceInput, VoiceModelInfo.describeHeader(inputStream), null)
         magic == transformerMagic -> FileKindAndInfo(FileKind.Transformer, null, null)
         magic == mozcMagic -> {
             FileKindAndInfo(
@@ -753,7 +753,9 @@ class ImportResourceActivity : ComponentActivity() {
                         fileKind.kind.preferenceKeyFor(locale),
                         outputFileName
                     )
-                    fileKind.name?.let {
+                    val savedName = if (fileKind.kind == FileKind.VoiceInput)
+                        VoiceModelInfo.importRecord(applicationContext, uri!!, fileKind.name) else fileKind.name
+                    savedName?.let {
                         applicationContext.setSetting(
                             fileKind.kind.namePreferenceKeyFor(locale),
                             it

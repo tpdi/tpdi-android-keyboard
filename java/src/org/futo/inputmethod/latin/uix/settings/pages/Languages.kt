@@ -55,6 +55,7 @@ import org.futo.inputmethod.latin.Subtypes
 import org.futo.inputmethod.latin.SubtypesSetting
 import org.futo.inputmethod.latin.uix.FileKind
 import org.futo.inputmethod.latin.uix.ResourceHelper
+import org.futo.inputmethod.latin.uix.VoiceModelInfo
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.icon
 import org.futo.inputmethod.latin.uix.kindTitle
@@ -657,7 +658,17 @@ fun LanguagesScreen(navController: NavHostController = rememberNavController()) 
             val voiceInputModelName = ResourceHelper.tryFindingVoiceInputModelForLocale(
                 context,
                 locale
-            )?.name?.let { stringResource(it) }
+            )?.name?.let { stringResource(it) }?.let { base ->
+                // For an imported model, add what it is: saved at import, or read from the file.
+                val key = runBlocking { ResourceHelper.findKeyForLocaleAndKind(context, locale, FileKind.VoiceInput) }
+                val detail = key?.let {
+                    runBlocking { context.getSetting(FileKind.VoiceInput.namePreferenceKeyFor(it), "") }
+                        .ifBlank { null }
+                        ?: runBlocking { ResourceHelper.findFileForKind(context, locale, FileKind.VoiceInput) }
+                            ?.let { file -> VoiceModelInfo.describeFile(file) }
+                }
+                if (detail != null) "$base: $detail" else base
+            }
             val dictionaryName = runBlocking {
                 ResourceHelper.findKeyForLocaleAndKind(
                     context,
