@@ -467,7 +467,8 @@ data class LayoutEngine(
 
         val computedRowWithWidths = computedRowWithoutWidths.mapIndexed { i, row ->
             val height = if(rows[i].isBottomRow) {
-                bottomRowHeightPx
+                // A flexible bottom row honours its own rowHeight (1.0 unless a layout sets it)
+                if(keyboard.bottomRowHeightMode == BottomRowHeightMode.Flexible) rows[i].rowHeight * rowHeightPx else bottomRowHeightPx
             } else {
                 (rows[i].rowHeight * rowHeightPx)
             }
