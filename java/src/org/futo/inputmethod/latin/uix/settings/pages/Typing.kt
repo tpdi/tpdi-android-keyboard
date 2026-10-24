@@ -98,6 +98,7 @@ import org.futo.inputmethod.latin.settings.toLongPressKeyLayoutItems
 import org.futo.inputmethod.latin.uix.AndroidTextInput
 import org.futo.inputmethod.latin.uix.BasicThemeProvider
 import org.futo.inputmethod.latin.uix.KeyHintsSetting
+import org.futo.inputmethod.latin.uix.LANGUAGE_DIALOG_KEEPS_APP_FOCUS
 import org.futo.inputmethod.latin.uix.LocalKeyboardScheme
 import org.futo.inputmethod.latin.uix.SHOW_EMOJI_SUGGESTIONS
 import org.futo.inputmethod.latin.uix.SettingsKey
@@ -870,6 +871,11 @@ val TypingSettingsMenu = UserSettingsMenu(
                 Icon(painterResource(id = R.drawable.smile), contentDescription = null,
                     tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.75f))
             }
+        ),
+        userSettingToggleDataStore(
+            title = R.string.keyboard_settings_language_dialog_keeps_focus,
+            subtitle = R.string.keyboard_settings_language_dialog_keeps_focus_subtitle,
+            setting = LANGUAGE_DIALOG_KEEPS_APP_FOCUS
         ),
         userSettingToggleSharedPrefs(
             title = R.string.auto_cap,

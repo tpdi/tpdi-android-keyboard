@@ -59,6 +59,7 @@ fun createDialogComposeView(
     maxWidthProportion: Float = 0.9f,
     maxHeightProportion: Float = 0.75f,
     dimAmount: Float = 0.5f,
+    focusable: Boolean = true,
     onDismiss: () -> Unit = { },
     content: @Composable (Dialog) -> Unit,
 ): DialogComposeView {
@@ -79,6 +80,7 @@ fun createDialogComposeView(
 
     val window = dialog.window
     window?.addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM or WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+    if (!focusable) window?.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
     window?.attributes?.token = latinIME.latinIMELegacy.mKeyboardSwitcher.mainKeyboardView.windowToken
     window?.attributes?.type = WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG
 

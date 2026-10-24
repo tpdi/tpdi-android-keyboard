@@ -935,7 +935,7 @@ class UixManager(private val latinIME: LatinIME) {
         languageSwitcherDialog?.dismiss()
 
         // Create new dialog
-        languageSwitcherDialog = createDialogComposeView(latinIME) { dialog ->
+        languageSwitcherDialog = createDialogComposeView(latinIME, focusable = !latinIME.getSetting(LANGUAGE_DIALOG_KEEPS_APP_FOCUS)) { dialog ->
             DataStoreCacheProvider {
                 UixThemeAuto {
                     LanguageSwitcherDialog(
