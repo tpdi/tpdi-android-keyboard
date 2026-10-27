@@ -601,6 +601,8 @@
     <string name="voice_input_settings_segmented_results_subtitle">Commit text as you speak instead of only after you stop. Each committed segment is decoded on its own and won\'t later be revised, so accuracy may be slightly lower than a single full decode.</string>
     <string name="voice_input_settings_segment_pause">Pause before committing a segment</string>
     <string name="voice_input_settings_segment_pause_subtitle">How long a pause ends the current segment and starts the next. Requires incremental results and auto-stop on silence to both be on.</string>
+    <string name="voice_input_settings_log_results">Log every voice result</string>
+    <string name="voice_input_settings_log_results_subtitle">Debug: append each result, as the model returned it and as typed, to voice_results.log in the keyboard\'s private folder. Off by default.</string>
     <string name="voice_input_settings_animate_bubble">Animations</string>
     <string name="voice_input_settings_animate_bubble_subtitle">Display a bubble that reacts to speech</string>
     <string name="voice_input_settings_change_models">Models</string>

@@ -83,7 +83,8 @@ data class RecordingSettings(
     val canExpandSpace: Boolean,
     val useVADAutoStop: Boolean,
     val useSegmentedResults: Boolean = false,
-    val segmentPauseMs: Int = 600
+    val segmentPauseMs: Int = 600,
+    val logResults: Boolean = false
 )
 
 data class AudioRecognizerSettings(
@@ -105,6 +106,7 @@ class AudioRecognizer(
     private var recorder: AudioRecord? = null
 
     private val modelRunner = MultiModelRunner(modelManager)
+    private val resultLog = if (settings.recordingConfiguration.logResults) VoiceResultLog(context) else null
 
     private val canExpandSpace = settings.recordingConfiguration.canExpandSpace
     private val useVAD = settings.recordingConfiguration.useVADAutoStop
@@ -608,6 +610,7 @@ class AudioRecognizer(
             isBlankResult(outputText) -> ""
             else -> outputText
         }
+        resultLog?.add("segment", outputText, text, segmentSamples.size)
 
         if (text.isNotEmpty()) {
             yield()
@@ -652,6 +655,7 @@ class AudioRecognizer(
             isBlankResult(outputText) -> ""
             else -> outputText
         }
+        resultLog?.add("final", outputText, text, floatArray.size)
 
         yield()
         lifecycleScope.launch {
