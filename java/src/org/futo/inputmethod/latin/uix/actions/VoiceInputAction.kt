@@ -43,6 +43,7 @@ import org.futo.inputmethod.latin.uix.VERBOSE_PROGRESS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_NOISE_GATE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENTED_RESULTS
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_STOCK_PHRASES
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_STOCK_TAIL
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_SEGMENT_PAUSE_MS
 import org.futo.inputmethod.latin.uix.getSetting
 import org.futo.inputmethod.latin.uix.setSetting
@@ -168,6 +169,7 @@ private class VoiceInputActionWindow(
                 useSegmentedResults = useSegmentedResults,
                 segmentPauseMs = segmentPauseMs,
                 filterStockPhrases = context.getSetting(VOICE_INPUT_FILTER_STOCK_PHRASES),
+                filterStockTail = context.getSetting(VOICE_INPUT_FILTER_STOCK_TAIL),
                 useNoiseGate = context.getSetting(VOICE_INPUT_NOISE_GATE)
             )
         )

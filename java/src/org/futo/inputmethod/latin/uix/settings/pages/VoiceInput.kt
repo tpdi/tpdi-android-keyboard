@@ -10,6 +10,7 @@ import androidx.core.content.getSystemService
 import org.futo.inputmethod.latin.R
 import org.futo.inputmethod.latin.uix.ANIMATE_BUBBLE
 import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_STOCK_PHRASES
+import org.futo.inputmethod.latin.uix.VOICE_INPUT_FILTER_STOCK_TAIL
 import org.futo.inputmethod.latin.uix.AUDIO_FOCUS
 import org.futo.inputmethod.latin.uix.CAN_EXPAND_SPACE
 import org.futo.inputmethod.latin.uix.DISALLOW_SYMBOLS
@@ -176,6 +177,12 @@ val VoiceInputMenu = UserSettingsMenu(
             title = R.string.voice_input_settings_filter_stock_phrases,
             subtitle = R.string.voice_input_settings_filter_stock_phrases_subtitle,
             setting = VOICE_INPUT_FILTER_STOCK_PHRASES
+        ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
+
+        userSettingToggleDataStore(
+            title = R.string.voice_input_settings_filter_stock_tail,
+            subtitle = R.string.voice_input_settings_filter_stock_tail_subtitle,
+            setting = VOICE_INPUT_FILTER_STOCK_TAIL
         ).copy(visibilityCheck = visibilityCheckNotSystemVoiceInput),
 
         userSettingToggleDataStore(

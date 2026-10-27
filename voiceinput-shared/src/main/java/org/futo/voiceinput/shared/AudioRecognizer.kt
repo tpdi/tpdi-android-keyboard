@@ -85,6 +85,7 @@ data class RecordingSettings(
     val useSegmentedResults: Boolean = false,
     val segmentPauseMs: Int = 600,
     val filterStockPhrases: Boolean = false,
+    val filterStockTail: Boolean = false,
     val useNoiseGate: Boolean = false
 )
 
@@ -115,6 +116,7 @@ class AudioRecognizer(
     private val segmentPauseFrames = (settings.recordingConfiguration.segmentPauseMs / 30).coerceAtLeast(1)
 
     private val filterStockPhrases = settings.recordingConfiguration.filterStockPhrases
+    private val filterStockTail = settings.recordingConfiguration.filterStockTail
 
     private var floatSamples: FloatBuffer = FloatBuffer.allocate(16000 * 30)
     private var recorderJob: Job? = null
@@ -617,6 +619,7 @@ class AudioRecognizer(
         }
 
         text = StockPhraseFilter.filter(filterStockPhrases, text, "segment")
+        text = StockPhraseFilter.stripTrailing(filterStockTail, text, "segment")
 
         if (text.isNotEmpty()) {
             yield()
@@ -663,6 +666,7 @@ class AudioRecognizer(
         }
 
         text = StockPhraseFilter.filter(filterStockPhrases, text, "final")
+        text = StockPhraseFilter.stripTrailing(filterStockTail, text, "final")
 
         yield()
         lifecycleScope.launch {
